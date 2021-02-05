@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/filecoin-project/go-address"
@@ -26,7 +27,7 @@ import (
 var walletAPI api.FullNode
 var closer jsonrpc.ClientCloser
 var ctx context.Context
-var signer, _ = address.NewFromString("f3xdbznk6utswfpqclzzkxcamzshkwp2lwlsdq75oufyb3zfaaxncvy3qweuybo6elma4ypuolz7jptxk2m5ca")
+var signer, _ = address.NewFromString("f17ezxkcibavh34aeyi7yk6elpyuemtau3jle3bga")
 
 func setup() {
 	address.CurrentNetwork = address.Mainnet
@@ -34,12 +35,22 @@ func setup() {
 	var err, endpoint, token = (error)(nil),
 		"http://localhost:5678/rpc/v0",
 		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.Hk_9_gbQoF-Z14yqIKa48h8Zmgbdy4WUMnGLRVjxLg4"
+
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+string(token))
+
 	if walletAPI, closer, err = NewFullNodeRPC(context.TODO(), endpoint, header); err != nil {
 		panic(err)
 	}
-	if signer, err = walletAPI.WalletNew(ctx, types.KTSecp256k1); err != nil {
+
+	infoData, _ := hex.DecodeString("7b2254797065223a22736563703235366b31222c22507269766174654b6579223a22515951384c3175417a37484d2f69417375626e7050657a47516a7862653767622b776148636552445471493d227d")
+	var key = &types.KeyInfo{}
+
+	if err = json.Unmarshal(infoData, key); err != nil {
+		panic(err)
+	}
+
+	if signer, err = walletAPI.WalletImport(ctx, key); err != nil {
 		panic(err)
 	}
 }
