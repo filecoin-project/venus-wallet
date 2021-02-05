@@ -28,6 +28,7 @@ import (
 type Types struct {
 	Type      reflect.Type
 	signBytes func(i interface{}) ([]byte, error)
+	parseObj  func([]byte, api.MsgMeta) (interface{}, error)
 }
 
 const SAVE_OBJECT_JSON_FMT = true
@@ -35,42 +36,54 @@ const SAVE_OBJECT_JSON_FMT = true
 var SupportedMsgTypes = map[api.MsgType]*Types{
 	api.MTDealProposal: {reflect.TypeOf(market.DealProposal{}), func(i interface{}) ([]byte, error) {
 		return cborutil.Dump(i)
-	}},
+	}, nil},
 	api2.MTDrawRandomParam: {reflect.TypeOf(api2.DrawRandomParams{}), func(in interface{}) ([]byte, error) {
 		param := in.(*api2.DrawRandomParams)
 		return param.SignBytes()
-	}},
+	}, nil},
 	api2.MTSignedVoucher: {reflect.TypeOf(paych.SignedVoucher{}), func(in interface{}) ([]byte, error) {
 		return (in.(*paych.SignedVoucher)).SigningBytes()
-	}},
+	}, nil},
 	api2.MTStorageAsk: {reflect.TypeOf(storagemarket.StorageAsk{}), func(in interface{}) ([]byte, error) {
 		return cborutil.Dump(in)
-	}},
+	}, nil},
 	api2.MTAskResponse: {reflect.TypeOf(network.AskResponse{}), func(in interface{}) ([]byte, error) {
 		newAsk := in.(*network.AskResponse).Ask.Ask
 		oldAsk := &migrations.StorageAsk0{newAsk.Price, newAsk.VerifiedPrice, newAsk.MinPieceSize,
 			newAsk.MaxPieceSize, newAsk.Miner, newAsk.Timestamp, newAsk.Expiry, newAsk.SeqNo}
 		return cborutil.Dump(oldAsk)
-	}},
+	}, nil},
 	api2.MTNetWorkResponse: {reflect.TypeOf(network.Response{}), func(in interface{}) ([]byte, error) {
 		return cborutil.Dump(in)
-	}},
-	// api2.MTProviderDealState: {reflect.TypeOf(storagemarket.ProviderDealState{}), func(in interface{}) ([]byte, error) {
-	// 	return cborutil.Dump(in)
-	// }},
+	}, nil},
 	api2.MTClientDeal: {reflect.TypeOf(market.ClientDealProposal{}), func(in interface{}) ([]byte, error) {
 		ni, err := cborutil.AsIpld(in)
 		if err != nil {
 			return nil, err
 		}
 		return ni.Cid().Bytes(), nil
-	}},
+	}, nil},
 	api.MTBlock: {reflect.TypeOf(types.BlockHeader{}), func(in interface{}) ([]byte, error) {
 		return in.(*types.BlockHeader).SigningBytes()
-	}},
+	}, nil},
 	api.MTChainMsg: {reflect.TypeOf(types.Message{}), func(in interface{}) ([]byte, error) {
 		msg := in.(*types.Message)
 		return msg.Cid().Bytes(), nil
+	}, nil},
+	// chain/gen/gen.go:659,
+	// in method 'ComputVRF' sign bytes with MsgType='MTUnkown'
+	// so, must deal 'MTUnkown' MsgType, and this may case safe problem
+	api.MTUnknown: {reflect.TypeOf([]byte{}), func(in interface{}) ([]byte, error) {
+		msg, isok := in.([]byte)
+		if !isok {
+			return nil, fmt.Errorf("MTUnkown must be []byte")
+		}
+		return msg, nil
+	}, func(in []byte, meta api.MsgMeta) (interface{}, error) {
+		if meta.Type == api.MTUnknown {
+			return in, nil
+		}
+		return nil, fmt.Errorf("un-expected MsgType:%d", meta.Type)
 	}},
 }
 
@@ -79,17 +92,25 @@ func getSignBytes(toSign []byte, meta api.MsgMeta) (interface{}, []byte, error) 
 	if t == nil {
 		return nil, nil, fmt.Errorf("unsupported msgtype:%s", meta.Type)
 	}
-	in := reflect.New(t.Type).Interface()
-	unmarshaler, isok := in.(cbor.Unmarshaler)
-	if !isok {
-		return nil, nil, fmt.Errorf("type:%s is is not an 'unmarhsaler'", t.Type.Name())
-	}
-	if err := unmarshaler.UnmarshalCBOR(bytes.NewReader(toSign)); err != nil {
-		return nil, nil, xerrors.Errorf("cborunmarshal to %s failed:%w", t.Type.Name(), err)
+	var in interface{}
+	var err error
+	if t.parseObj != nil {
+		if in, err = t.parseObj(toSign, meta); err != nil {
+			return nil, nil, xerrors.Errorf("parseObj failed:%w", err)
+		}
+	} else { // treat as cbor unmarshal-able object by default
+		in = reflect.New(t.Type).Interface()
+		unmarshaler, isok := in.(cbor.Unmarshaler)
+		if !isok {
+			return nil, nil, fmt.Errorf("type:%s is is not an 'unmarhsaler'", t.Type.Name())
+		}
+		if err := unmarshaler.UnmarshalCBOR(bytes.NewReader(toSign)); err != nil {
+			return nil, nil, xerrors.Errorf("cborunmarshal to %s failed:%w", t.Type.Name(), err)
+		}
 	}
 
 	var data []byte
-	data, err := t.signBytes(in)
+	data, err = t.signBytes(in)
 
 	return in, data, err
 }
@@ -105,7 +126,7 @@ func (dp *DbProc) signMsg(cidBytes, meta []byte) (*crypto.Signature, error) {
 	tx = dp.Db.Begin()
 
 	defer func() {
-		if rbkErr := tx.Rollback().Error; (rbkErr!=nil && rbkErr != sql.ErrTxDone) {
+		if rbkErr := tx.Rollback().Error; rbkErr != nil && rbkErr != sql.ErrTxDone {
 			loger.Warnf("signMsg rollback failed:%s", rbkErr.Error())
 		}
 	}()
