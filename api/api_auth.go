@@ -3,14 +3,16 @@ package api
 import (
 	"context"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/storage"
 )
 
 var _ ICommon = &CommonAuth{}
 var _ IFullAPI = &ServerAuth{}
+var _ storage.IWallet = &WalletAuth{}
 
 type ServerAuth struct {
 	CommonAuth
-	wallet WalletAuth
+	WalletAuth
 }
 
 type CommonAuth struct {
@@ -24,13 +26,15 @@ type CommonAuth struct {
 }
 
 type WalletAuth struct {
-	WalletNew    func(context.Context, core.KeyType) (core.Address, error)                                                 `perm:"admin"`
-	WalletHas    func(ctx context.Context, address core.Address) (bool, error)                                             `perm:"write"`
-	WalletList   func(ctx context.Context) ([]core.Address, error)                                                         `perm:"write"`
-	WalletSign   func(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) `perm:"sign"`
-	WalletExport func(ctx context.Context, addr core.Address) (*core.KeyInfo, error)                                       `perm:"admin"`
-	WalletImport func(context.Context, *core.KeyInfo) (core.Address, error)                                                `perm:"admin"`
-	WalletDelete func(context.Context, core.Address) error                                                                 `perm:"admin"`
+	internal struct {
+		WalletNew    func(context.Context, core.KeyType) (core.Address, error)                                                 `perm:"admin"`
+		WalletHas    func(ctx context.Context, address core.Address) (bool, error)                                             `perm:"write"`
+		WalletList   func(ctx context.Context) ([]core.Address, error)                                                         `perm:"write"`
+		WalletSign   func(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) `perm:"sign"`
+		WalletExport func(ctx context.Context, addr core.Address) (*core.KeyInfo, error)                                       `perm:"admin"`
+		WalletImport func(context.Context, *core.KeyInfo) (core.Address, error)                                                `perm:"admin"`
+		WalletDelete func(context.Context, core.Address) error                                                                 `perm:"admin"`
+	}
 }
 
 func (c *CommonAuth) AuthVerify(ctx context.Context, token string) ([]Permission, error) {
@@ -54,30 +58,30 @@ func (c *CommonAuth) LogSetLevel(ctx context.Context, group, level string) error
 	return c.internal.LogSetLevel(ctx, group, level)
 }
 
-func (c *ServerAuth) WalletNew(ctx context.Context, keyType core.KeyType) (core.Address, error) {
-	return c.wallet.WalletNew(ctx, keyType)
+func (c *WalletAuth) WalletNew(ctx context.Context, keyType core.KeyType) (core.Address, error) {
+	return c.internal.WalletNew(ctx, keyType)
 }
 
-func (c *ServerAuth) WalletHas(ctx context.Context, addr core.Address) (bool, error) {
-	return c.wallet.WalletHas(ctx, addr)
+func (c *WalletAuth) WalletHas(ctx context.Context, addr core.Address) (bool, error) {
+	return c.internal.WalletHas(ctx, addr)
 }
 
-func (c *ServerAuth) WalletList(ctx context.Context) ([]core.Address, error) {
-	return c.wallet.WalletList(ctx)
+func (c *WalletAuth) WalletList(ctx context.Context) ([]core.Address, error) {
+	return c.internal.WalletList(ctx)
 }
 
-func (c *ServerAuth) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
-	return c.wallet.WalletSign(ctx, signer, toSign, meta)
+func (c *WalletAuth) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
+	return c.internal.WalletSign(ctx, signer, toSign, meta)
 }
 
-func (c *ServerAuth) WalletExport(ctx context.Context, a core.Address) (*core.KeyInfo, error) {
-	return c.wallet.WalletExport(ctx, a)
+func (c *WalletAuth) WalletExport(ctx context.Context, a core.Address) (*core.KeyInfo, error) {
+	return c.internal.WalletExport(ctx, a)
 }
 
-func (c *ServerAuth) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
-	return c.wallet.WalletImport(ctx, ki)
+func (c *WalletAuth) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
+	return c.internal.WalletImport(ctx, ki)
 }
 
-func (c *ServerAuth) WalletDelete(ctx context.Context, addr core.Address) error {
-	return c.wallet.WalletDelete(ctx, addr)
+func (c *WalletAuth) WalletDelete(ctx context.Context, addr core.Address) error {
+	return c.internal.WalletDelete(ctx, addr)
 }

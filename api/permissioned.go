@@ -30,8 +30,8 @@ func WithPerm(ctx context.Context, perms []Permission) context.Context {
 
 func PermissionedFullAPI(a IFullAPI) IFullAPI {
 	var out ServerAuth
-	permissionedAny(a, &out.wallet)
-	permissionedAny(a, &out.internal)
+	permissionedAny(a, &out.WalletAuth.internal)
+	permissionedAny(a, &out.CommonAuth.internal)
 	return &out
 }
 
