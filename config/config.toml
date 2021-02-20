@@ -1,0 +1,9 @@
+# Default config:
+[API]
+ListenAddress = "/ip4/0.0.0.0/tcp/1234/http"
+#  RemoteListenAddress = ""
+#  Timeout = "30s"
+#
+
+[DB]
+Conn = "123"

@@ -2,12 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"github.com/ipfs-force-community/venus-wallet/api"
 
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
-
-	"github.com/ipfs-force-community/venus-wallet/api/apistruct"
-	"github.com/ipfs-force-community/venus-wallet/node/repo"
 )
 
 var authCmd = &cli.Command{
@@ -44,18 +42,18 @@ var authCreateAdminToken = &cli.Command{
 
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range apistruct.AllPermissions {
+		for i, p := range api.AllPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", apistruct.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", api.AllPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := napi.AuthNew(ctx, apistruct.AllPermissions[:idx])
+		token, err := napi.AuthNew(ctx, api.AllPermissions[:idx])
 		if err != nil {
 			return err
 		}
@@ -92,42 +90,27 @@ var authApiInfoToken = &cli.Command{
 
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range apistruct.AllPermissions {
+		for i, p := range api.AllPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", apistruct.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", api.AllPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := napi.AuthNew(ctx, apistruct.AllPermissions[:idx])
+		token, err := napi.AuthNew(ctx, api.AllPermissions[:idx])
 		if err != nil {
 			return err
 		}
 
-		ti, ok := cctx.App.Metadata["repoType"]
-		if !ok {
-			log.Errorf("unknown repo type, are you sure you want to use GetAPI?")
-			ti = repo.FullNode
-		}
-		t, ok := ti.(repo.RepoType)
-		if !ok {
-			log.Errorf("repoType type does not match the type of repo.RepoType")
-		}
-
-		ainfo, err := GetAPIInfo(cctx, t)
+		ainfo, err := GetAPIInfo(cctx)
 		if err != nil {
 			return xerrors.Errorf("could not get API info: %w", err)
 		}
-
-		envVar := envForRepo(t)
-
-		// TODO: Log in audit log when it is implemented
-
-		fmt.Printf("%s=%s:%s\n", envVar, string(token), ainfo.Addr)
+		fmt.Printf("%s:%s\n", string(token), ainfo.Addr)
 		return nil
 	},
 }

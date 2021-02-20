@@ -6,8 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/filecoin-project/go-address"
-	api2 "github.com/filecoin-project/lotus/api"
-	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 	"io/ioutil"
@@ -39,19 +38,16 @@ var walletNew = &cli.Command{
 		}
 		defer closer()
 		ctx := ReqContext(cctx)
-
-		t := types.KeyType(cctx.Args().First())
+		t := core.KeyType(cctx.Args().First())
 		if t == "" {
-			t = types.KTSecp256k1
+			t = core.KTSecp256k1
 		}
 
 		nk, err := api.WalletNew(ctx, t)
 		if err != nil {
 			return err
 		}
-
 		fmt.Println(nk.String())
-
 		return nil
 	},
 }
@@ -123,7 +119,7 @@ var walletImport = &cli.Command{
 		&cli.StringFlag{
 			Name:  "format",
 			Usage: "specify input format for key",
-			Value: "hex-lotus",
+			Value: "hex-venus",
 		},
 	},
 	Action: func(cctx *cli.Context) error {
@@ -152,9 +148,9 @@ var walletImport = &cli.Command{
 			inpdata = fdata
 		}
 
-		var ki types.KeyInfo
+		var ki core.KeyInfo
 		switch cctx.String("format") {
-		case "hex-lotus":
+		case "hex-venus":
 			data, err := hex.DecodeString(strings.TrimSpace(string(inpdata)))
 			if err != nil {
 				return err
@@ -163,7 +159,7 @@ var walletImport = &cli.Command{
 			if err := json.Unmarshal(data, &ki); err != nil {
 				return err
 			}
-		case "json-lotus":
+		case "json-venus":
 			if err := json.Unmarshal(inpdata, &ki); err != nil {
 				return err
 			}
@@ -182,9 +178,9 @@ var walletImport = &cli.Command{
 			ki.PrivateKey = gk.PrivateKey
 			switch gk.SigType {
 			case 1:
-				ki.Type = types.KTSecp256k1
+				ki.Type = core.KTSecp256k1
 			case 2:
-				ki.Type = types.KTBLS
+				ki.Type = core.KTBLS
 			default:
 				return fmt.Errorf("unrecognized key type: %d", gk.SigType)
 			}
@@ -230,7 +226,7 @@ var walletSign = &cli.Command{
 			return err
 		}
 
-		sig, err := api.WalletSign(ctx, addr, msg, api2.MsgMeta{})
+		sig, err := api.WalletSign(ctx, addr, msg, core.MsgMeta{})
 
 		if err != nil {
 			return err

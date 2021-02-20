@@ -14,7 +14,7 @@ BINS:=./venus-wallet
 
 git=$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
 
-ldflags=-X=github.com/ipfs-force-community/venus-wallet/build.CurrentCommit='+git$(git)'
+ldflags=-X=github.com/ipfs-force-community/venus-wallet/version.CurrentCommit='+git$(git)'
 
 ifneq ($(strip $(LDFLAGS)),)
 	ldflags+=-extldflags=$(LDFLAGS)
@@ -27,8 +27,9 @@ GOFLAGS+=-ldflags="$(ldflags)"
 CLEAN+=build/.update-modules
 
 wallet: show-env $(BUILD_DEPS)
-	rm -f wallet
-	go build $(GOFLAGS) -o venus-wallet ./cmd/wallet
+	rm -f venus-wallet
+	golangci-lint run
+	go build $(GOFLAGS) -o venus-wallet ./cmd
 	./venus-wallet --version
 
 
@@ -40,19 +41,11 @@ show-env:
 	@echo '-------------------------------------------------'
 
 
-.PHONY: wallet
-BINS+=wallet
-
 # MISC
 
 clean:
 	rm -rf $(CLEAN) $(BINS)
 .PHONY: clean
-
-dist-clean:
-	git clean -xdff
-	git submodule deinit --all -f
-.PHONY: dist-clean
 
 print-%:
 	@echo $*=$($*)

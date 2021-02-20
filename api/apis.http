@@ -1,9 +1,0 @@
-POST http://localhost:5678/rpc/v0
-Content-Type: application/json
-
-{
-  "jsonrpc": "2.0",
-  "method": "Filecoin.WalletHas",
-  "params": ["t15nvwfxkpeeqnvt3vwkrmg5cevvsjmx2zw3tqmyq" ],
-  "id": {{$randomInt}}
-}
