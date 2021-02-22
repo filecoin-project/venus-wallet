@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"context"
+	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
 	"github.com/ipfs-force-community/venus-wallet/storage"
@@ -12,7 +13,7 @@ type wallet struct {
 	ws storage.KeyStore
 }
 
-func NewWallet(ks storage.KeyStore) storage.IWallet {
+func NewWallet(ks storage.KeyStore) api.IWallet {
 	return &wallet{ws: ks}
 }
 func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error) {
@@ -91,4 +92,4 @@ func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 	return w.ws.Delete(addr)
 }
 
-var _ storage.IWallet = &wallet{}
+var _ api.IWallet = &wallet{}

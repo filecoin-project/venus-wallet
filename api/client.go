@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"github.com/filecoin-project/go-jsonrpc"
-	"github.com/ipfs-force-community/venus-wallet/storage"
 	"net/http"
 )
 
@@ -32,7 +31,7 @@ func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header)
 }
 
 // nolint
-func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (storage.IWallet, jsonrpc.ClientCloser, error) {
+func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (IWallet, jsonrpc.ClientCloser, error) {
 	var res WalletAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{

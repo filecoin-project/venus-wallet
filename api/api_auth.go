@@ -3,12 +3,11 @@ package api
 import (
 	"context"
 	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/storage"
 )
 
 var _ ICommon = &CommonAuth{}
 var _ IFullAPI = &ServerAuth{}
-var _ storage.IWallet = &WalletAuth{}
+var _ IWallet = &WalletAuth{}
 
 type ServerAuth struct {
 	CommonAuth

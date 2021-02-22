@@ -50,7 +50,7 @@ func WalletOpt(c *config.Config) Option {
 	return Options(
 		Override(new(*config.DBConfig), c.DB),
 		Override(new(storage.KeyStore), sqlite.NewSQLiteStorage),
-		Override(new(storage.IWallet), wallet.NewWallet),
+		Override(new(api.IWallet), wallet.NewWallet),
 	)
 }
 func CommonOpt(alg *api.APIAlg) Option {
