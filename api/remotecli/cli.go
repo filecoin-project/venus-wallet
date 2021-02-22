@@ -7,6 +7,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -22,11 +23,33 @@ func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (
 	return &res, closer, err
 }
 
-
+var (
+	infoWithToken = regexp.MustCompile(`^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?:.+$`)
+)
 
 type APIInfo struct {
 	Addr  multiaddr.Multiaddr
 	Token []byte
+}
+
+// nolint
+func ParseApiInfo(s string) (*APIInfo, error) {
+	var tok []byte
+	if infoWithToken.Match([]byte(s)) {
+		sp := strings.SplitN(s, ":", 2)
+		tok = []byte(sp[0])
+		s = sp[1]
+	}
+
+	strma := strings.TrimSpace(s)
+	apima, err := multiaddr.NewMultiaddr(strma)
+	if err != nil {
+		return nil, err
+	}
+	return &APIInfo{
+		Addr:  apima,
+		Token: tok,
+	}, nil
 }
 
 func (a APIInfo) DialArgs() (string, error) {
