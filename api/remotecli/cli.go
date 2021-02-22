@@ -24,7 +24,7 @@ func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (
 }
 
 var (
-	infoWithToken = regexp.MustCompile(`^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?:.+$`)
+	infoWithToken = regexp.MustCompile("^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?:.+$") //nolint
 )
 
 type APIInfo struct {
@@ -40,7 +40,6 @@ func ParseApiInfo(s string) (*APIInfo, error) {
 		tok = []byte(sp[0])
 		s = sp[1]
 	}
-
 	strma := strings.TrimSpace(s)
 	apima, err := multiaddr.NewMultiaddr(strma)
 	if err != nil {
