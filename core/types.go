@@ -79,10 +79,9 @@ func (kt *KeyType) UnmarshalJSON(bb []byte) error {
 }
 
 const (
-	KTUnknown         KeyType = "unknown"
-	KTBLS             KeyType = "bls"
-	KTSecp256k1       KeyType = "secp256k1"
-	KTSecp256k1Ledger KeyType = "secp256k1-ledger"
+	KTUnknown   KeyType = "unknown"
+	KTBLS       KeyType = "bls"
+	KTSecp256k1 KeyType = "secp256k1"
 )
 
 func KeyType2Sign(kt KeyType) SigType {
@@ -93,5 +92,16 @@ func KeyType2Sign(kt KeyType) SigType {
 		return SigTypeBLS
 	default:
 		return SigTypeUnknown
+	}
+}
+
+func SignType2Key(kt SigType) KeyType {
+	switch kt {
+	case SigTypeSecp256k1:
+		return KTSecp256k1
+	case SigTypeBLS:
+		return KTBLS
+	default:
+		return KTUnknown
 	}
 }
