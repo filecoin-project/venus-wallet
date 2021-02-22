@@ -4,17 +4,15 @@ import (
 	"context"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
+	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/mitchellh/go-homedir"
-	"github.com/multiformats/go-multiaddr"
-	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/prometheus/common/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 )
 
@@ -32,41 +30,20 @@ func (e *ErrCmdFailed) Error() string {
 	return e.msg
 }
 
-type APIInfo struct {
-	Addr  multiaddr.Multiaddr
-	Token []byte
-}
 
-func (a APIInfo) DialArgs() (string, error) {
-	_, addr, err := manet.DialArgs(a.Addr)
-	if strings.HasPrefix(addr, "0.0.0.0:") {
-		addr = "127.0.0.1:" + addr[8:]
-	}
-	return "ws://" + addr + "/rpc/v0", err
-}
-
-func (a APIInfo) AuthHeader() http.Header {
-	if len(a.Token) != 0 {
-		headers := http.Header{}
-		headers.Add("Authorization", "Bearer "+string(a.Token))
-		return headers
-	}
-	return nil
-}
-
-func GetAPIInfo(ctx *cli.Context) (APIInfo, error) {
+func GetAPIInfo(ctx *cli.Context) (remotecli.APIInfo, error) {
 	p, err := homedir.Expand(ctx.String("repo"))
 	if err != nil {
-		return APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
+		return remotecli.APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
 	}
 	r, err := filemgr.NewFS(p, nil)
 	if err != nil {
-		return APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
+		return remotecli.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
 	}
 
 	ma, err := r.APIEndpoint()
 	if err != nil {
-		return APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
+		return remotecli.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
 	}
 
 	token, err := r.APIToken()
@@ -74,7 +51,7 @@ func GetAPIInfo(ctx *cli.Context) (APIInfo, error) {
 		log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 	}
 
-	return APIInfo{
+	return remotecli.APIInfo{
 		Addr:  ma,
 		Token: token,
 	}, nil

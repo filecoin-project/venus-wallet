@@ -36,7 +36,7 @@ const (
 	MTNetWorkResponse   = MsgType("networkresposne")
 	MTProviderDealState = MsgType("providerdealstate")
 
-	// reference : storagemarket/impl/client.go:330
+	// reference : storagemarket/impl/remotecli.go:330
 	// sign storagemarket.ClientDeal.ProposalCid,
 	// MsgMeta.Extra is nil, 'toSign' is market.ClientDealProposal
 	// storagemarket.ClientDeal.ProposalCid equals cborutil.AsIpld(market.ClientDealProposal).Cid()

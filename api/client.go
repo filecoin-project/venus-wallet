@@ -10,7 +10,7 @@ func NewCommonRPC(ctx context.Context, addr string, requestHeader http.Header) (
 	var res CommonAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
-			&res.internal,
+			&res.Internal,
 		},
 		requestHeader,
 	)
@@ -18,26 +18,14 @@ func NewCommonRPC(ctx context.Context, addr string, requestHeader http.Header) (
 	return &res, closer, err
 }
 
-// NewFullNodeRPC creates a new http jsonrpc client.
+// NewFullNodeRPC creates a new http jsonrpc remotecli.
 func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header) (IFullAPI, jsonrpc.ClientCloser, error) {
 	var res ServerAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
-			&res.CommonAuth.internal,
-			&res.WalletAuth.internal,
+			&res.CommonAuth.Internal,
+			&res.WalletAuth.Internal,
 		}, requestHeader)
 
-	return &res, closer, err
-}
-
-// nolint
-func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (IWallet, jsonrpc.ClientCloser, error) {
-	var res WalletAuth
-	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
-		[]interface{}{
-			&res.internal,
-		},
-		requestHeader,
-	)
 	return &res, closer, err
 }
