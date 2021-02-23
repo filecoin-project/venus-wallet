@@ -27,7 +27,8 @@ func newBlsKeyFromData(data []byte) (PrivateKey, error) {
 		return nil, xerrors.New("bls signature invalid private key")
 	}
 	return &blsPrivate{
-		key: pk,
+		key:    pk,
+		public: new(PublicKey).From(pk).Compress(),
 	}, nil
 }
 
