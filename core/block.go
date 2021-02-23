@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/filecoin-project/go-state-types/abi"
 	fbig "github.com/filecoin-project/go-state-types/big"
+	proof2 "github.com/filecoin-project/specs-actors/v2/actors/runtime/proof"
 	blocks "github.com/ipfs/go-block-format"
 	"github.com/ipfs/go-cid"
 	cbor "github.com/ipfs/go-ipld-cbor"
@@ -19,7 +20,15 @@ var (
 	lengthBufBeaconEntry   = []byte{130}
 	blockHeaderCIDLen      int
 )
-
+func init() {
+	// hash a large string of zeros so we don't estimate based on inlined CIDs.
+	var buf [256]byte
+	c, err := abi.CidBuilder.Sum(buf[:])
+	if err != nil {
+		panic(err)
+	}
+	blockHeaderCIDLen = len(c.Bytes())
+}
 type VRFPi []byte
 type Ticket struct {
 	// A proof output by running a VRF on the VRFProof of the parent ticket
@@ -35,10 +44,7 @@ type BeaconEntry struct {
 	Round uint64
 	Data  []byte
 }
-type PoStProof struct {
-	PoStProof  abi.RegisteredPoStProof
-	ProofBytes []byte
-}
+
 type TipSetKey struct {
 	value string
 }
@@ -59,7 +65,7 @@ type Block struct {
 	BeaconEntries []*BeaconEntry `json:"beaconEntries"`
 
 	// WinPoStProof are the winning post proofs
-	WinPoStProof []PoStProof `json:"winPoStProof"`
+	WinPoStProof []proof2.PoStProof `json:"winPoStProof"`
 
 	// Parents is the set of parents this block was based on. Typically one,
 	// but can be several in the case where there were multiple winning ticket-
@@ -248,7 +254,7 @@ func (t *BeaconEntry) MarshalCBOR(w io.Writer) error {
 	return nil
 }
 
-var lengthBufPoStProof = []byte{130}
+/*var lengthBufPoStProof = []byte{130}
 
 func (t *PoStProof) MarshalCBOR(w io.Writer) error {
 	if t == nil {
@@ -285,7 +291,7 @@ func (t *PoStProof) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 	return nil
-}
+}*/
 
 func decodeKey(encoded []byte) ([]Cid, error) {
 	// To avoid reallocation of the underlying array, estimate the number of CIDs to be extracted

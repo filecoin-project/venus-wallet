@@ -32,8 +32,10 @@ func NewSQLiteStorage(cfg *config.DBConfig) (storage.KeyStore, error) {
 	sqldb.SetMaxOpenConns(64)
 
 	db = db.Debug()
-	if err = db.AutoMigrate(&Wallet{}); err != nil {
-		return nil, xerrors.Errorf("migrate failed:%w", err)
+	if !db.Migrator().HasTable(&Wallet{}) {
+		if err = db.AutoMigrate(&Wallet{}); err != nil {
+			return nil, xerrors.Errorf("migrate failed:%w", err)
+		}
 	}
 	return &sqliteStorage{db: db}, err
 }
