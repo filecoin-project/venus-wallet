@@ -10,7 +10,7 @@ func TestAAA(t *testing.T) {
 	t.Log(cnf.DB)
 }
 func TestDecodeConfig(t *testing.T) {
-	path := "/Users/ruyi/.venus_wallet/config.toml"
+	path := "./config.toml"
 	cnf, err := DecodeConfig(path)
 	if err != nil {
 		t.Error(err)
