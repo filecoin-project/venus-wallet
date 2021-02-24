@@ -6,9 +6,6 @@ $(warning Your Golang version is go 1.$(GOVERSION))
 $(error Update Golang to version $(shell grep '^go' go.mod))
 endif
 
-# git modules that need to be loaded
-MODULES:=
-
 CLEAN:=
 BINS:=./venus-wallet
 
@@ -21,10 +18,6 @@ ifneq ($(strip $(LDFLAGS)),)
 endif
 
 GOFLAGS+=-ldflags="$(ldflags)"
-
-## MAIN BINARIES
-
-CLEAN+=build/.update-modules
 
 wallet: show-env $(BUILD_DEPS)
 	rm -f venus-wallet
