@@ -14,7 +14,6 @@ type SqlScannerValuer interface {
 	driver.Valuer
 }
 
-
 type Key struct {
 	core.KeyInfo
 	PublicKey []byte

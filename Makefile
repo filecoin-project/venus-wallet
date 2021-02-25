@@ -21,7 +21,7 @@ GOFLAGS+=-ldflags="$(ldflags)"
 
 wallet: show-env $(BUILD_DEPS)
 	rm -f venus-wallet
-	gofmt -l .
+	gofmt -s -w ./
 	golangci-lint run
 	go build $(GOFLAGS) -o venus-wallet ./cmd
 	./venus-wallet --version
