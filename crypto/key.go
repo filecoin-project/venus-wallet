@@ -5,13 +5,21 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/core"
 )
 
+// private key constraints in wallet
 type PrivateKey interface {
+	// Private to public
 	Public() []byte
+	// private key signature
 	Sign([]byte) (*core.Signature, error)
+	// private key data
 	Bytes() []byte
+	// key address, depends on network changes
 	Address() (core.Address, error)
+	// key sign type
 	Type() core.SigType
+	// key type
 	KeyType() core.KeyType
+	// map to keyInfo
 	ToKeyInfo() *core.KeyInfo
 }
 
