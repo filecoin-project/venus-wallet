@@ -67,6 +67,6 @@ make
 |
 +-- sotrage // the wallet keystore implementation
 |
-+--version // git version by ldflags
++-- version // git version by ldflags
 
 ```
