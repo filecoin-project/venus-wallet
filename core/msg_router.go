@@ -14,12 +14,14 @@ import (
 	"reflect"
 )
 
+// Abstract data types to be signed
 type Types struct {
 	Type      reflect.Type
 	signBytes func(i interface{}) ([]byte, error)
 	parseObj  func([]byte, MsgMeta) (interface{}, error)
 }
 
+// signature type factory
 var SupportedMsgTypes = map[MsgType]*Types{
 	MTDealProposal: {reflect.TypeOf(market.DealProposal{}), func(i interface{}) ([]byte, error) {
 		return cborutil.Dump(i)
@@ -74,6 +76,7 @@ var SupportedMsgTypes = map[MsgType]*Types{
 	}},
 }
 
+// Matches the type and returns the data that needs to be signed
 func GetSignBytes(toSign []byte, meta MsgMeta) (interface{}, []byte, error) {
 	t := SupportedMsgTypes[meta.Type]
 	if t == nil {

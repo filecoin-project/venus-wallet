@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// keystore sqlite implementation
 type sqliteStorage struct {
 	db *gorm.DB
 }
@@ -39,6 +40,7 @@ func NewSQLiteStorage(cfg *config.DBConfig) (storage.KeyStore, error) {
 	}
 	return &sqliteStorage{db: db}, err
 }
+
 func (s *sqliteStorage) Put(key crypto.PrivateKey) error {
 	var err error
 	address, _ := key.Address()
@@ -68,7 +70,7 @@ func (s *sqliteStorage) Has(addr core.Address) (bool, error) {
 }
 
 func (s *sqliteStorage) List() ([]core.Address, error) {
-	var ws []Wallet // 不能是unaddressable
+	var ws []Wallet
 	err := s.db.Table("wallets"). /*.Select("address", "nonce").*/ Scan(&ws).Error
 	if err != nil {
 		return nil, err

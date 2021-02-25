@@ -6,14 +6,16 @@ import (
 )
 
 var _ ICommon = &CommonAuth{}
-var _ IFullAPI = &ServerAuth{}
+var _ IFullAPI = &ServiceAuth{}
 var _ IWallet = &WalletAuth{}
 
-type ServerAuth struct {
+// full service API permissions constraints
+type ServiceAuth struct {
 	CommonAuth
 	WalletAuth
 }
 
+// common API permissions constraints
 type CommonAuth struct {
 	Internal struct {
 		AuthVerify  func(ctx context.Context, token string) ([]Permission, error) `perm:"read"`
@@ -24,6 +26,7 @@ type CommonAuth struct {
 	}
 }
 
+// wallet API permissions constraints
 type WalletAuth struct {
 	Internal struct {
 		WalletNew    func(context.Context, core.KeyType) (core.Address, error)                                                 `perm:"admin"`

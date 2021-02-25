@@ -13,9 +13,10 @@ type SqlScannerValuer interface {
 	sql.Scanner
 	driver.Valuer
 }
+
+
 type Key struct {
 	core.KeyInfo
-
 	PublicKey []byte
 	Address   core.Address
 }

@@ -17,6 +17,7 @@ type IWallet interface {
 	WalletDelete(context.Context, core.Address) error
 }
 
+// rpc api endpoint
 type APIEndpoint multiaddr.Multiaddr
 
 type FullAPI struct {

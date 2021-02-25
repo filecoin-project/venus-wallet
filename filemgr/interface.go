@@ -6,6 +6,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
+// file system
 type Repo interface {
 	// APIEndpoint returns multiaddress for communication with venus wallet API
 	APIEndpoint() (multiaddr.Multiaddr, error)

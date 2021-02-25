@@ -13,11 +13,13 @@ import (
 type jwtPayload struct {
 	Allow []string
 }
+
 type jwtSecret struct {
 	key   []byte
 	token []byte
 }
 
+// Random generation of secret keys
 func randSecret() (*jwtSecret, error) {
 	sk, err := ioutil.ReadAll(io.LimitReader(rand.Reader, 32))
 	if err != nil {
@@ -40,6 +42,7 @@ func randSecret() (*jwtSecret, error) {
 	return (*api.APIAlg)(jwt.NewHS256(js.key))
 }*/
 
+// Random generation of JWT config
 func RandJWTConfig() (*config.JWTConfig, error) {
 	js, err := randSecret()
 	if err != nil {

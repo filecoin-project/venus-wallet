@@ -9,6 +9,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// wallet implementation
 type wallet struct {
 	ws storage.KeyStore
 }
@@ -16,6 +17,7 @@ type wallet struct {
 func NewWallet(ks storage.KeyStore) api.IWallet {
 	return &wallet{ws: ks}
 }
+
 func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error) {
 	prv, err := crypto.GeneratePrivateKey(core.KeyType2Sign(kt))
 	if err != nil {
@@ -35,9 +37,11 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 func (w *wallet) WalletHas(ctx context.Context, address core.Address) (bool, error) {
 	return w.ws.Has(address)
 }
+
 func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
 	return w.ws.List()
 }
+
 func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
 	var (
 		owner core.Address

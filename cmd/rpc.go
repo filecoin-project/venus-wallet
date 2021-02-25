@@ -21,6 +21,7 @@ import (
 
 var log = logging.Logger("main")
 
+// http cors setting
 func CorsMiddleWare(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -35,6 +36,7 @@ func CorsMiddleWare(next http.Handler) http.Handler {
 	})
 }
 
+// Start the interface service and bind the address
 func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr multiaddr.Multiaddr) error {
 	rpcServer := jsonrpc.NewServer()
 	rpcServer.Register("Filecoin", api.PermissionedFullAPI(a))
@@ -64,11 +66,13 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr multiaddr.Multiaddr) err
 	return srv.Serve(manet.NetListener(lst))
 }
 
+// JWT verify
 type Handler struct {
 	Verify func(ctx context.Context, token string) ([]api.Permission, error)
 	Next   http.HandlerFunc
 }
 
+// JWT verify
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	token := r.Header.Get("Authorization")

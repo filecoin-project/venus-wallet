@@ -10,13 +10,7 @@ import (
 
 const MessageVersion = 0
 
-type SignedMsg struct {
-	Cid       string
-	Nonce     uint64
-	SignedMsg Message
-	Epoch     uint64
-}
-
+// filecoin message
 type Message struct {
 	Version uint64
 
@@ -62,6 +56,7 @@ func (m *Message) ToStorageBlock() (block.Block, error) {
 	}
 	return block.NewBlockWithCid(data, c)
 }
+
 func DecodeMessage(b []byte) (*Message, error) {
 	var msg Message
 	if err := msg.UnmarshalCBOR(bytes.NewReader(b)); err != nil {

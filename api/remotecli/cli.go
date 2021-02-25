@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// nolint
+// RPCClient returns an RPC client connected to a node
 func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (api.IWallet, jsonrpc.ClientCloser, error) {
 	var res api.WalletAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
@@ -32,7 +32,6 @@ type APIInfo struct {
 	Token []byte
 }
 
-// nolint
 func ParseApiInfo(s string) (*APIInfo, error) {
 	var tok []byte
 	if infoWithToken.Match([]byte(s)) {
