@@ -20,6 +20,7 @@ var (
 	lengthBufBeaconEntry   = []byte{130}
 	blockHeaderCIDLen      int
 )
+
 func init() {
 	// hash a large string of zeros so we don't estimate based on inlined CIDs.
 	var buf [256]byte
@@ -29,6 +30,7 @@ func init() {
 	}
 	blockHeaderCIDLen = len(c.Bytes())
 }
+
 type VRFPi []byte
 type Ticket struct {
 	// A proof output by running a VRF on the VRFProof of the parent ticket

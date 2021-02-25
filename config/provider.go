@@ -37,7 +37,7 @@ func ConfigComment(t interface{}) ([]byte, error) {
 }
 func CoverConfig(path string, config *Config) error {
 	c, err := os.Create(path)
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 	barr, err := ConfigComment(config)

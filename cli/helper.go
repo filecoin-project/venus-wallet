@@ -30,7 +30,6 @@ func (e *ErrCmdFailed) Error() string {
 	return e.msg
 }
 
-
 func GetAPIInfo(ctx *cli.Context) (remotecli.APIInfo, error) {
 	p, err := homedir.Expand(ctx.String("repo"))
 	if err != nil {

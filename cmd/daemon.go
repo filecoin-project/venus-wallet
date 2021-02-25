@@ -19,9 +19,9 @@ import (
 type cmd = string
 
 const (
-	cmdNetwork  cmd = "network"
-	cmdAPI      cmd = "api"
-	cmdRepo     cmd = "repo"
+	cmdNetwork cmd = "network"
+	cmdAPI     cmd = "api"
+	cmdRepo    cmd = "repo"
 	//cmdKeyStore cmd = "keystore"
 )
 

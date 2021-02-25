@@ -28,7 +28,7 @@ func TestSafeWriteConfig(t *testing.T) {
 	}
 	p2 := "./safeConfig.toml"
 	c, err := os.Create(p2)
-	if err!=nil{
+	if err != nil {
 		t.Fatal(err)
 	}
 	//t.Log(cnf.API, cnf.DB)
