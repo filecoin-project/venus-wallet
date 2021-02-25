@@ -1,3 +1,9 @@
+### Venus-wallet
+[![Go Report Card](https://goreportcard.com/badge/github.com/ipfs-force-community/venus-wallet)](https://goreportcard.com/report/github.com/ipfs-force-community/venus-wallet)
+![Go](https://github.com/ipfs-force-community/venus-wallet/workflows/Go/badge.svg)
+
+
+
 ### What is venus-wallet
 - a private key management tool
 - an independent and brief business structure
