@@ -7,6 +7,7 @@
 - provide services such as private key management 
 and data signing for local and remote calls via RPC or CLI.
 
+---
 ### Get Started
 #### 1. Build
 ```
@@ -23,10 +24,10 @@ make
 ./venus-wallet auth create-token --perm admin
 ```
 > Once we have a connection string, we can connect to the remote wallet through it.
-
+---
 ### [How to access remote wallet](./example)
-
-### config
+---
+### Config
 ```
 [API]
   ListenAddress = "/ip4/0.0.0.0/tcp/5678/http"
@@ -44,6 +45,7 @@ make
 
 
 ```
+---
 ### Package concept
 ```
 +-- api // RPC service interface permission setting
