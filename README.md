@@ -23,6 +23,9 @@ make
 ./venus-wallet auth create-token --perm admin
 ```
 > Once we have a connection string, we can connect to the remote wallet through it.
+
+### [How to access remote wallet](./example)
+
 ### config
 ```
 [API]
