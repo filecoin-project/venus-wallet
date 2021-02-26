@@ -29,3 +29,7 @@ func TestGetSignBytes(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+func TestAAA(t *testing.T) {
+	t.Log(^uint32(0))
+	t.Log(1 << 0)
+}
