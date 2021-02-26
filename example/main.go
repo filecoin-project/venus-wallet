@@ -106,6 +106,7 @@ func main() {
 		log.Fatalf("remote wallet check address exist error:%s", err)
 	}
 	log.Printf("addr:%s exist:%v", addr.String(), exist)
+	remoteWallet.Cancel()
 	err = syscall.Kill(pid, 9)
 	if err != nil {
 		log.Fatal(err)
