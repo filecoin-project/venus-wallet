@@ -49,6 +49,9 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		data  []byte
 	)
 	if meta.Type == core.MTChainMsg {
+		if len(meta.Extra) == 0 {
+			return nil, xerrors.New("msg type must contain extra data")
+		}
 		msg, err := core.DecodeMessage(meta.Extra)
 		if err != nil {
 			return nil, err
