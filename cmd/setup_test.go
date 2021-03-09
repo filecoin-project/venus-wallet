@@ -78,5 +78,5 @@ func TestSetup(t *testing.T) {
 
 	// TODO: properly parse api endpoint (or make it a URL)
 	// Use serveRPC method to perform local CLI debugging
-	ServeRPC(fullAPI, stop, endpoint)
+	// ServeRPC(fullAPI, stop, endpoint)
 }

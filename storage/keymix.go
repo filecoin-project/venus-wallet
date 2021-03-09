@@ -44,6 +44,7 @@ type KeyMixLayer struct {
 
 func NewKeyMiddleware(cnf *config.CryptoFactor) KeyMiddleware {
 	return &KeyMixLayer{
+		//todo key cache 
 		cache:    make(map[core.Address]crypto.PrivateKey),
 		locked:   true,
 		password: nil,
