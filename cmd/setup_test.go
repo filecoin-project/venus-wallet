@@ -14,6 +14,7 @@ import (
 	"go.opencensus.io/tag"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"testing"
 )
 
@@ -36,8 +37,15 @@ func TestSetup(t *testing.T) {
 	op := &filemgr.OverrideParams{
 		API: apiListen,
 	}
-	//
-	r, err := filemgr.NewFS("/Users/ruyi/.venus_wallet", op)
+	// true to debug local
+	if false {
+		user, err := user.Current()
+		if err != nil {
+			t.Fatal(err)
+		}
+		absoluteTmp = user.HomeDir
+	}
+	r, err := filemgr.NewFS(absoluteTmp, op)
 	if err != nil {
 		t.Fatalf("opening fs repo: %s", err)
 	}
