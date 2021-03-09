@@ -21,3 +21,12 @@ func TestContainMsgType(t *testing.T) {
 	assert.Equal(t, ContainMsgType(multiME, MTNetWorkResponse), false)
 	assert.Equal(t, ContainMsgType(multiME, MTClientDeal), false)
 }
+
+func TestForEachMethodsMap(t *testing.T) {
+	for k, v := range MethodsMap {
+		t.Log(k.String())
+		for k1, v1 := range v {
+			t.Log("\r", k1.String(), v1)
+		}
+	}
+}

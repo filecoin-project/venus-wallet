@@ -6,6 +6,7 @@ type Config struct {
 	DB      *DBConfig      `json:"DB" binding:"required"`
 	Metrics *MetricsConfig `json:"METRICS"`
 	JWT     *JWTConfig     `json:"JWT"`
+	Factor  *CryptoFactor  `json:"FACTOR"`
 }
 
 // for keystore
@@ -17,17 +18,26 @@ type DBConfig struct {
 
 // rpc server address listen
 type APIConfig struct {
-	ListenAddress string `json:"ListenAddress"`
+	ListenAddress string `json:"listenAddress"`
 }
 
 // metrics
 type MetricsConfig struct {
-	Nickname   string `json:"NickName"`
-	HeadNotify bool   `json:"HeadNotify"`
+	Nickname   string `json:"nickName"`
+	HeadNotify bool   `json:"headNotify"`
 }
 
 // jwt hex token and secret
 type JWTConfig struct {
-	Token  string `json:"Token"`
-	Secret string `json:"Secret"`
+	Token  string `json:"token"`
+	Secret string `json:"secret"`
+}
+
+type CryptoFactor struct {
+	// ScryptN is the N parameter of Scrypt encryption algorithm, using 256MB
+	// memory and taking approximately 1s CPU time on a modern processor.
+	ScryptN int `json:"scryptN"`
+	// ScryptP is the P parameter of Scrypt encryption algorithm, using 256MB
+	// memory and taking approximately 1s CPU time on a modern processor.
+	ScryptP int `json:"scryptP"`
 }

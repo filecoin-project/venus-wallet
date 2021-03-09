@@ -31,12 +31,13 @@ func TestSetup(t *testing.T) {
 		t.Logf("venus repo: %s", dir)
 	}
 
-	apiListen := "/ip4/0.0.0.0/tcp/9999"
+	apiListen := "/ip4/0.0.0.0/tcp/5678"
 
 	op := &filemgr.OverrideParams{
 		API: apiListen,
 	}
-	r, err := filemgr.NewFS(absoluteTmp, op)
+	//
+	r, err := filemgr.NewFS("/Users/ruyi/.venus_wallet", op)
 	if err != nil {
 		t.Fatalf("opening fs repo: %s", err)
 	}
@@ -76,5 +77,6 @@ func TestSetup(t *testing.T) {
 	t.Log("Pre-preparation completed")
 
 	// TODO: properly parse api endpoint (or make it a URL)
-	//ServeRPC(fullAPI, stop, endpoint)
+	// Use serveRPC method to perform local CLI debugging
+	ServeRPC(fullAPI, stop, endpoint)
 }

@@ -2,10 +2,10 @@ package sqlite
 
 import (
 	"database/sql"
+	"encoding/json"
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/crypto"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"golang.org/x/xerrors"
 	"gorm.io/driver/sqlite"
@@ -31,8 +31,7 @@ func NewSQLiteStorage(cfg *config.DBConfig) (storage.KeyStore, error) {
 	sqldb.SetConnMaxIdleTime(300)
 	sqldb.SetMaxIdleConns(8)
 	sqldb.SetMaxOpenConns(64)
-
-	db = db.Debug()
+	//db = db.Debug()
 	if !db.Migrator().HasTable(&Wallet{}) {
 		if err = db.AutoMigrate(&Wallet{}); err != nil {
 			return nil, xerrors.Errorf("migrate failed:%w", err)
@@ -41,15 +40,17 @@ func NewSQLiteStorage(cfg *config.DBConfig) (storage.KeyStore, error) {
 	return &sqliteStorage{db: db}, err
 }
 
-func (s *sqliteStorage) Put(key crypto.PrivateKey) error {
-	var err error
-	address, _ := key.Address()
+func (s *sqliteStorage) Put(key *storage.EncryptedKey) error {
+	keyBytes, err := json.Marshal(key.Crypto)
+	if err != nil {
+		return err
+	}
 	ki := SqlKeyInfo{
-		Type:       key.KeyType(),
-		PrivateKey: key.Bytes(),
+		Type:       key.KeyType,
+		PrivateKey: keyBytes,
 	}
 	wallet := Wallet{
-		Address: address.String(),
+		Address: key.Address,
 		KeyInfo: &ki,
 	}
 	if err = s.db.First(&wallet, "address=?", wallet.Address).Error; err != nil && err != gorm.ErrRecordNotFound {
@@ -82,12 +83,21 @@ func (s *sqliteStorage) List() ([]core.Address, error) {
 	return addresses, err
 }
 
-func (s *sqliteStorage) Get(addr core.Address) (crypto.PrivateKey, error) {
+func (s *sqliteStorage) Get(addr core.Address) (*storage.EncryptedKey, error) {
 	res := &Wallet{}
 	if err := s.db.Where("address=?", addr.String()).First(res).Error; err != nil {
 		return nil, err
 	}
-	return crypto.NewKeyFromData2(res.KeyInfo.Type, res.KeyInfo.PrivateKey)
+	cj := new(storage.CryptoJSON)
+	err := json.Unmarshal(res.KeyInfo.PrivateKey, cj)
+	if err != nil {
+		return nil, err
+	}
+	return &storage.EncryptedKey{
+		Address: addr.String(),
+		KeyType: res.KeyInfo.Type,
+		Crypto:  cj,
+	}, nil
 }
 
 func (s *sqliteStorage) Delete(addr core.Address) error {

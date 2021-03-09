@@ -12,13 +12,26 @@ import (
 // wallet implementation
 type wallet struct {
 	ws storage.KeyStore
+	mw storage.KeyMiddleware
 }
 
-func NewWallet(ks storage.KeyStore) api.IWallet {
-	return &wallet{ws: ks}
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware) api.ILocalWallet {
+	return &wallet{ws: ks, mw: mw}
+}
+func (w *wallet) SetPassword(ctx context.Context, password string) error {
+	return w.mw.SetPassword(ctx, password)
+}
+func (w *wallet) Unlock(ctx context.Context, password string) error {
+	return w.mw.Unlock(ctx, password)
+}
+func (w *wallet) Lock(ctx context.Context, password string) error {
+	return w.mw.Lock(ctx, password)
 }
 
 func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error) {
+	if err := w.mw.Next(); err != nil {
+		return core.NilAddress, err
+	}
 	prv, err := crypto.GeneratePrivateKey(core.KeyType2Sign(kt))
 	if err != nil {
 		return core.NilAddress, err
@@ -27,7 +40,11 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 	if err != nil {
 		return core.NilAddress, err
 	}
-	err = w.ws.Put(prv)
+	ckey, err := w.mw.Encrypt(prv)
+	if err != nil {
+		return core.NilAddress, err
+	}
+	err = w.ws.Put(ckey)
 	if err != nil {
 		return core.NilAddress, err
 	}
@@ -43,6 +60,9 @@ func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
 }
 
 func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
+	if err := w.mw.Next(); err != nil {
+		return nil, err
+	}
 	var (
 		owner core.Address
 		err   error
@@ -66,21 +86,35 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		owner = signer
 		data = toSign
 	}
-	pk, err := w.ws.Get(owner)
+	key, err := w.ws.Get(owner)
 	if err != nil {
 		return nil, err
 	}
-	return pk.Sign(data)
+	pkey, err := w.mw.Decrypt(key)
+	if err != nil {
+		return nil, err
+	}
+	return pkey.Sign(data)
 }
 
 func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error) {
+	if err := w.mw.Next(); err != nil {
+		return nil, err
+	}
 	key, err := w.ws.Get(addr)
 	if err != nil {
 		return nil, err
 	}
-	return key.ToKeyInfo(), nil
+	pkey, err := w.mw.Decrypt(key)
+	if err != nil {
+		return nil, err
+	}
+	return pkey.ToKeyInfo(), nil
 }
 func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
+	if err := w.mw.Next(); err != nil {
+		return core.NilAddress, err
+	}
 	pk, err := crypto.NewKeyFromKeyInfo(ki)
 	if err != nil {
 		return core.NilAddress, err
@@ -89,13 +123,27 @@ func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Addre
 	if err != nil {
 		return core.NilAddress, err
 	}
-	err = w.ws.Put(pk)
+	exist, err := w.ws.Has(addr)
+	if err != nil {
+		return core.NilAddress, err
+	}
+	if exist {
+		return addr, nil
+	}
+	key, err := w.mw.Encrypt(pk)
+	if err != nil {
+		return core.NilAddress, err
+	}
+	err = w.ws.Put(key)
 	if err != nil {
 		return core.NilAddress, err
 	}
 	return addr, nil
 }
 func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
+	if err := w.mw.Next(); err != nil {
+		return err
+	}
 	return w.ws.Delete(addr)
 }
 
