@@ -56,7 +56,7 @@ func (c *WalletLockAuth) Unlock(ctx context.Context, password string) error {
 	return c.Internal.Unlock(ctx, password)
 }
 func (c *WalletLockAuth) Lock(ctx context.Context, password string) error {
-	return c.Internal.Unlock(ctx, password)
+	return c.Internal.Lock(ctx, password)
 }
 
 func (c *CommonAuth) AuthVerify(ctx context.Context, token string) ([]Permission, error) {

@@ -21,9 +21,7 @@ GOFLAGS+=-ldflags="$(ldflags)"
 
 wallet: show-env $(BUILD_DEPS)
 	rm -f venus-wallet
-	gofmt -s -w ./
-	golangci-lint run
-	go build $(GOFLAGS) -o venus-wallet ./cmd
+	go build $(GOFLAGS) -o venus-wallet ./cmd/wallet/main.go
 	./venus-wallet --version
 
 
@@ -34,6 +32,9 @@ show-env:
 	@echo '| git commit=$(git)'
 	@echo '-------------------------------------------------'
 
+lint:
+	gofmt -s -w ./
+	golangci-lint run
 
 # MISC
 
