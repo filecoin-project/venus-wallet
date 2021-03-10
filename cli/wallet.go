@@ -2,10 +2,13 @@ package cli
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/filecoin-project/go-address"
+	"github.com/howeyc/gopass"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -24,6 +27,84 @@ var walletCmd = &cli.Command{
 		walletImport,
 		walletSign,
 		walletDel,
+		walletSetPassword,
+		walletUnlock,
+		walletlock,
+	},
+}
+var walletSetPassword = &cli.Command{
+	Name:  "set-password",
+	Usage: "Store a credential for a keystore file",
+	Action: func(cctx *cli.Context) error {
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+		pw2, err := gopass.GetPasswdPrompt("Enter Password again:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+		if !bytes.Equal(pw, pw2) {
+			return errors.New("the input passwords are inconsistent")
+		}
+		api, closer, err := GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := ReqContext(cctx)
+		err = api.SetPassword(ctx, string(pw2))
+		if err != nil {
+			return err
+		}
+		fmt.Println("Password set successfully")
+		return nil
+	},
+}
+
+var walletUnlock = &cli.Command{
+	Name:  "unlock",
+	Usage: "unlock the wallet and release private key",
+	Action: func(cctx *cli.Context) error {
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+		api, closer, err := GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := ReqContext(cctx)
+		err = api.Unlock(ctx, string(pw))
+		if err != nil {
+			return err
+		}
+		fmt.Println("wallet unlock successfully")
+		return nil
+	},
+}
+
+var walletlock = &cli.Command{
+	Name:  "lock",
+	Usage: "Restrict the use of secret keys after locking wallet",
+	Action: func(cctx *cli.Context) error {
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+		api, closer, err := GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := ReqContext(cctx)
+		err = api.Lock(ctx, string(pw))
+		if err != nil {
+			return err
+		}
+		fmt.Println("wallet lock successfully")
+		return nil
 	},
 }
 

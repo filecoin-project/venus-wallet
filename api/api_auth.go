@@ -8,11 +8,13 @@ import (
 var _ ICommon = &CommonAuth{}
 var _ IFullAPI = &ServiceAuth{}
 var _ IWallet = &WalletAuth{}
+var _ IWalletLock = &WalletLockAuth{}
 
 // full service API permissions constraints
 type ServiceAuth struct {
 	CommonAuth
 	WalletAuth
+	WalletLockAuth
 }
 
 // common API permissions constraints
@@ -23,6 +25,14 @@ type CommonAuth struct {
 		Version     func(context.Context) (Version, error)                        `perm:"read"`
 		LogList     func(context.Context) ([]string, error)                       `perm:"write"`
 		LogSetLevel func(context.Context, string, string) error                   `perm:"write"`
+	}
+}
+
+type WalletLockAuth struct {
+	Internal struct {
+		SetPassword func(ctx context.Context, password string) error `perm:"admin" local:"required"`
+		Unlock      func(ctx context.Context, password string) error `perm:"admin" local:"required"`
+		Lock        func(ctx context.Context, password string) error `perm:"admin" local:"required"`
 	}
 }
 
@@ -37,6 +47,16 @@ type WalletAuth struct {
 		WalletImport func(context.Context, *core.KeyInfo) (core.Address, error)                                                `perm:"admin"`
 		WalletDelete func(context.Context, core.Address) error                                                                 `perm:"admin"`
 	}
+}
+
+func (c *WalletLockAuth) SetPassword(ctx context.Context, password string) error {
+	return c.Internal.SetPassword(ctx, password)
+}
+func (c *WalletLockAuth) Unlock(ctx context.Context, password string) error {
+	return c.Internal.Unlock(ctx, password)
+}
+func (c *WalletLockAuth) Lock(ctx context.Context, password string) error {
+	return c.Internal.Unlock(ctx, password)
 }
 
 func (c *CommonAuth) AuthVerify(ctx context.Context, token string) ([]Permission, error) {

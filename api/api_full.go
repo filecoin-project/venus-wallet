@@ -16,16 +16,25 @@ type IWallet interface {
 	WalletImport(context.Context, *core.KeyInfo) (core.Address, error)
 	WalletDelete(context.Context, core.Address) error
 }
+type IWalletLock interface {
+	SetPassword(ctx context.Context, password string) error
+	Unlock(ctx context.Context, password string) error
+	Lock(ctx context.Context, password string) error
+}
+type ILocalWallet interface {
+	IWallet
+	IWalletLock
+}
 
 // rpc api endpoint
 type APIEndpoint multiaddr.Multiaddr
 
 type FullAPI struct {
-	IWallet
+	ILocalWallet
 	ICommon
 }
 
 type IFullAPI interface {
-	IWallet
+	ILocalWallet
 	ICommon
 }

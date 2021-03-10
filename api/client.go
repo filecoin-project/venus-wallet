@@ -25,6 +25,7 @@ func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header)
 		[]interface{}{
 			&res.CommonAuth.Internal,
 			&res.WalletAuth.Internal,
+			&res.WalletLockAuth.Internal,
 		}, requestHeader)
 
 	return &res, closer, err

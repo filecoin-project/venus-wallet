@@ -75,6 +75,10 @@ type Handler struct {
 // JWT verify
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	if r.RemoteAddr[:len("127.0.0.1")] == "127.0.0.1" {
+		ctx = api.WithIPPerm(ctx)
+	}
 	token := r.Header.Get("Authorization")
 	if token == "" {
 		token = r.FormValue("token")

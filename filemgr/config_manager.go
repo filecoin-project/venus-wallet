@@ -55,6 +55,12 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 		}
 		reset = true
 	}
+	if cnf.Factor == nil || cnf.Factor.ScryptP == 0 && cnf.Factor.ScryptN == 0 {
+		cnf.Factor = &config.CryptoFactor{
+			ScryptN: 1 << 18,
+			ScryptP: 1,
+		}
+	}
 	if op != nil {
 		// override
 		if op.API != core.StringEmpty {
