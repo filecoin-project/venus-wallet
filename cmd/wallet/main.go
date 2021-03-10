@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-
 	locli "github.com/ipfs-force-community/venus-wallet/cli"
+	main2 "github.com/ipfs-force-community/venus-wallet/cmd"
 	loclog "github.com/ipfs-force-community/venus-wallet/log"
 	"github.com/ipfs-force-community/venus-wallet/middleware"
 	"github.com/ipfs-force-community/venus-wallet/version"
+	"github.com/prometheus/common/log"
 	"github.com/urfave/cli/v2"
 	"go.opencensus.io/trace"
 	"os"
@@ -15,7 +16,7 @@ import (
 func main() {
 	loclog.SetupLogLevels()
 	local := []*cli.Command{
-		RunCmd,
+		main2.RunCmd,
 	}
 	jaeger := middleware.SetupJaegerTracing("venus-wallet")
 	defer func() {
