@@ -17,21 +17,6 @@ import (
 	"strings"
 )
 
-var walletCmd = &cli.Command{
-	Name:  "wallet",
-	Usage: "Manage wallet",
-	Subcommands: []*cli.Command{
-		walletNew,
-		walletList,
-		walletExport,
-		walletImport,
-		walletSign,
-		walletDel,
-		walletSetPassword,
-		walletUnlock,
-		walletlock,
-	},
-}
 var walletSetPassword = &cli.Command{
 	Name:  "set-password",
 	Usage: "Store a credential for a keystore file",

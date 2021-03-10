@@ -22,6 +22,8 @@ var (
 	ErrPasswordEmpty   = errors.New("password not set")
 	ErrInvalidPassword = errors.New("password mismatch")
 	ErrPasswordExist   = errors.New("the password already exists")
+	ErrAlreadyUnlocked = errors.New("wallet already unlocked")
+	ErrAlreadyLocked   = errors.New("wallet already locked")
 )
 
 type DecryptFunc func(keyJson []byte, keyType core.KeyType) (crypto.PrivateKey, error)
@@ -78,7 +80,11 @@ func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 		return ErrPasswordEmpty
 	}
 	if o.locked == lock {
-		return nil
+		if o.locked {
+			return ErrAlreadyLocked
+		} else {
+			return ErrAlreadyUnlocked
+		}
 	}
 	hashPasswd := keccak256([]byte(password))
 	if !bytes.Equal(o.password, hashPasswd) {

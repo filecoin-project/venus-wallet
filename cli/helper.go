@@ -112,8 +112,16 @@ func ReqContext(cctx *cli.Context) context.Context {
 
 var Commands = []*cli.Command{
 	authCmd,
-	walletCmd,
 	logCmd,
+	walletNew,
+	walletList,
+	walletExport,
+	walletImport,
+	walletSign,
+	walletDel,
+	walletSetPassword,
+	walletUnlock,
+	walletlock,
 }
 
 //nolint
