@@ -23,14 +23,15 @@ type GroupAuth struct {
 // NOTE: routeType 2
 type KeyBind struct {
 	BindId  uint   `gorm:"primaryKey;type:int;column:id;not null"`
+	Name    string `gorm:"type:varchar(32);column:name;not null"`
 	Address string `gorm:"index;type:varchar(255);column:address;not null"`
 	// source from MsgTypeTemplate or temporary create
 	MetaTypes core.MsgEnum `gorm:"type:int;column:meta_types;not null"`
 	// source from MethodTemplate
-	MethodTemplateId uint `gorm:"type:int;column:mtid;not null"`
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	DeletedAt        sql.NullTime `gorm:"index"`
+	MethodNames string `gorm:"type:text;column:methods;not null"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   sql.NullTime `gorm:"index"`
 }
 
 // Group multi KeyBind
@@ -48,7 +49,8 @@ type Group struct {
 // msg actor and methodNum agg to method name
 // NOTE: routeType 4
 type MethodTemplate struct {
-	MTId uint `gorm:"primaryKey;type:int;column:id;not null"`
+	MTId uint   `gorm:"primaryKey;type:int;column:id;not null"`
+	Name string `gorm:"type:varchar(32);column:name;not null"`
 	// method name join with ','
 	Methods   string `gorm:"type:text;column:methods;not null"`
 	CreatedAt time.Time

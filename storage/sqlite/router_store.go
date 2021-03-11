@@ -1,9 +1,11 @@
 package sqlite
 
 import (
+	"fmt"
 	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type routerStore struct {
@@ -12,6 +14,8 @@ type routerStore struct {
 }
 
 var _ storage.RouterStore = &routerStore{}
+
+const maxLimit = 100
 
 func NewRouterStore(conn *Conn) storage.RouterStore {
 	return &routerStore{
@@ -29,9 +33,9 @@ func (s *routerStore) PutMsgTypeTemplate(mtt *storage.MsgTypeTemplate) error {
 	}
 	return nil
 }
-func (s *routerStore) GetMsgTypeTemplateByName(name string) ([]*storage.MsgTypeTemplate, error) {
+func (s *routerStore) GetMsgTypeTemplatesByName(name string) ([]*storage.MsgTypeTemplate, error) {
 	var arr []*MsgTypeTemplate
-	err := s.db.Table(TBMsgTypeTemplate).Where("name=?", name).Find(&arr).Error
+	err := s.db.Table(TBMsgTypeTemplate).Where("name=?", name).Limit(maxLimit).Find(&arr).Error
 	if err != nil {
 		log.Error(err)
 		return nil, errcode.ErrDBOperationFailed
@@ -69,42 +73,168 @@ func (s *routerStore) DeleteMsgTypeTemplate(mttId uint) error {
 }
 
 func (s *routerStore) PutMethodTemplate(mt *storage.MethodTemplate) error {
+	m := s.mapper.toInnerMethodTemplate(mt)
+	err := s.db.Table(TBMethodTemplate).Create(m).Error
+	if err != nil {
+		log.Error(err)
+		return errcode.ErrDBOperationFailed
+	}
 	return nil
 }
 func (s *routerStore) GetMethodTemplate(mtId uint) (*storage.MethodTemplate, error) {
-	return nil, nil
+	m := new(MethodTemplate)
+	err := s.db.Table(TBMethodTemplate).First(m, mtId).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterMethodTemplate(m)
+	return res, nil
 }
+func (s *routerStore) GetMethodTemplatesByName(name string) ([]*storage.MethodTemplate, error) {
+	var arr []*MethodTemplate
+	err := s.db.Table(TBMethodTemplate).Where("name=?", name).Limit(maxLimit).Find(&arr).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterMethodTemplates(arr)
+	return res, nil
+}
+
 func (s *routerStore) ListMethodTemplates(fromIndex, toIndex int) ([]*storage.MethodTemplate, error) {
-	return nil, nil
+	var arr []*MethodTemplate
+	err := s.db.Table(TBMethodTemplate).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterMethodTemplates(arr)
+	return res, nil
 }
 func (s *routerStore) DeleteMethodTemplate(mtId uint) error {
+	err := s.db.Table(TBMethodTemplate).Delete(&MethodTemplate{}, "id=?", mtId).Error
+	if err != nil {
+		log.Error(err)
+		return errcode.ErrDBOperationFailed
+	}
 	return nil
 }
 
 func (s *routerStore) PutKeyBind(kb *storage.KeyBind) error {
+	m := s.mapper.toInnerKeyBind(kb)
+	err := s.db.Table(TBKeyBind).Create(m).Error
+	if err != nil {
+		log.Error(err)
+		return errcode.ErrDBOperationFailed
+	}
 	return nil
 }
-func (s *routerStore) GetKeyBind(address string) ([]*storage.KeyBind, error) {
-	return nil, nil
-}
-func (s *routerStore) GetKeyBindById(kbId uint) (*storage.KeyBind, error) {
-	return nil, nil
-}
-func (s *routerStore) ListKeyBinds(fromIndex, toIndex int) ([]*storage.KeyBind, error) {
-	return nil, nil
+func (s *routerStore) GetKeyBinds(address string) ([]*storage.KeyBind, error) {
+	var arr []*KeyBind
+	err := s.db.Table(TBKeyBind).Where("address=?", address).Limit(maxLimit).Find(&arr).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterKeyBinds(arr)
+	return res, nil
 }
 
-func (s *routerStore) PutGroup(g *storage.Group) error {
+func (s *routerStore) GetKeyBindsByName(name string) ([]*storage.KeyBind, error) {
+	var arr []*KeyBind
+	err := s.db.Table(TBKeyBind).Where("name=?", name).Limit(maxLimit).Find(&arr).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterKeyBinds(arr)
+	return res, nil
+}
+func (s *routerStore) GetKeyBindById(kbId uint) (*storage.KeyBind, error) {
+	m := new(KeyBind)
+	err := s.db.Table(TBKeyBind).First(m, kbId).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterKeyBind(m)
+	return res, nil
+}
+func (s *routerStore) ListKeyBinds(fromIndex, toIndex int) ([]*storage.KeyBind, error) {
+	var arr []*KeyBind
+	err := s.db.Table(TBKeyBind).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterKeyBinds(arr)
+	return res, nil
+}
+
+func (s *routerStore) DeleteKeyBind(kbId uint) error {
+	err := s.db.Table(TBKeyBind).Delete(&KeyBind{}, "id=?", kbId).Error
+	if err != nil {
+		log.Error(err)
+		return errcode.ErrDBOperationFailed
+	}
+	return nil
+}
+func (s *routerStore) DeleteKeyBindsByAddress(address string) (int64, error) {
+	res := s.db.Table(TBKeyBind).Delete(&KeyBind{}, "address=?", address)
+	if res.Error != nil {
+		log.Error(res.Error)
+		return 0, errcode.ErrDBOperationFailed
+	}
+	return res.RowsAffected, nil
+}
+
+func (s *routerStore) PutGroup(name string, keyBindIds []uint) error {
+	m := &Group{
+		Name:    name,
+		BindIds: strings.Trim(strings.Join(strings.Fields(fmt.Sprint(keyBindIds)), ","), "[]"),
+	}
+	err := s.db.Table(TBGroup).Create(m).Error
+	if err != nil {
+		log.Error(err)
+		return errcode.ErrDBOperationFailed
+	}
 	return nil
 }
 func (s *routerStore) GetGroup(gId uint) (*storage.Group, error) {
-	return nil, nil
+	m := new(Group)
+	err := s.db.Table(TBGroup).First(m, gId).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	var arr []*KeyBind
+	kbIds := strings.Split(m.BindIds, ",")
+	err = s.db.Table(TBKeyBind).Find(&arr, "id IN ?", kbIds).Limit(maxLimit).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterGroup(m, arr)
+	return res, nil
 }
 
 func (s *routerStore) ListGroups(fromIndex, toIndex int) ([]*storage.Group, error) {
-	return nil, nil
+	var arr []*Group
+	err := s.db.Table(TBGroup).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
+	if err != nil {
+		log.Error(err)
+		return nil, errcode.ErrDBOperationFailed
+	}
+	res := s.mapper.toOuterGroups(arr)
+	return res, nil
 }
 func (s *routerStore) DeleteGroup(gId uint) error {
+	err := s.db.Table(TBGroup).Delete(&Group{}, "id=?", gId).Error
+	if err != nil {
+		log.Error(err)
+		return errcode.ErrDBOperationFailed
+	}
 	return nil
 }
 

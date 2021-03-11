@@ -10,7 +10,7 @@ const (
 	MethodConstructor = builtin.MethodConstructor
 )
 
-type MsgEnum uint64
+type MsgEnum = uint32
 
 const (
 	MEUnknown           MsgEnum = 1 << 0
@@ -69,4 +69,3 @@ type MethodMeta struct {
 	Params reflect.Type
 	Ret    reflect.Type
 }
-

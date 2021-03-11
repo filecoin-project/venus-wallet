@@ -8,21 +8,25 @@ import (
 type RouterStore interface {
 	PutMsgTypeTemplate(mtt *MsgTypeTemplate) error
 	GetMsgTypeTemplate(mttId uint) (*MsgTypeTemplate, error)
-	GetMsgTypeTemplateByName(name string) ([]*MsgTypeTemplate, error)
+	GetMsgTypeTemplatesByName(name string) ([]*MsgTypeTemplate, error)
 	ListMsgTypeTemplates(fromIndex, toIndex int) ([]*MsgTypeTemplate, error)
 	DeleteMsgTypeTemplate(mttId uint) error
 
 	PutMethodTemplate(mt *MethodTemplate) error
 	GetMethodTemplate(mtId uint) (*MethodTemplate, error)
+	GetMethodTemplatesByName(name string) ([]*MethodTemplate, error)
 	ListMethodTemplates(fromIndex, toIndex int) ([]*MethodTemplate, error)
 	DeleteMethodTemplate(mtId uint) error
 
 	PutKeyBind(kb *KeyBind) error
-	GetKeyBind(address string) ([]*KeyBind, error)
+	GetKeyBinds(address string) ([]*KeyBind, error)
+	GetKeyBindsByName(name string) ([]*KeyBind, error)
 	GetKeyBindById(kbId uint) (*KeyBind, error)
 	ListKeyBinds(fromIndex, toIndex int) ([]*KeyBind, error)
+	DeleteKeyBind(kbId uint) error
+	DeleteKeyBindsByAddress(address string) (int64, error)
 
-	PutGroup(g *Group) error
+	PutGroup(name string, keyBindIds []uint) error
 	GetGroup(gId uint) (*Group, error)
 	ListGroups(fromIndex, toIndex int) ([]*Group, error)
 	DeleteGroup(gId uint) error
@@ -50,7 +54,8 @@ type GroupAuth struct {
 // allow designated rule to pass
 type KeyBind struct {
 	BindId  uint
-	Address core.Address
+	Name    string
+	Address string
 	// source from MsgTypeTemplate or temporary create
 	MetaTypes core.MsgEnum
 	// source from MethodTemplate
@@ -61,7 +66,8 @@ type KeyBind struct {
 type Group struct {
 	GroupId uint
 	Name    string
-	BindIds []string
+	// NOTE: not fill data when query groups
+	KeyBinds []*KeyBind
 }
 
 // MethodTemplate to quickly create a private key usage strategy
@@ -69,6 +75,7 @@ type Group struct {
 // NOTE: routeType 4
 type MethodTemplate struct {
 	MTId uint
+	Name string
 	// method name join with ','
 	Methods []msgrouter.MethodName
 }
