@@ -27,6 +27,10 @@ type Wallet struct {
 	Meta    *SqlScannerValuer `gorm:"type:blob;column:meta;default:null"`
 }
 
+func (w *Wallet) TableName() string {
+	return TBWallet
+}
+
 type SqlKeyInfo core.KeyInfo
 
 func (mki *SqlKeyInfo) IsValid() bool {
