@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/gbrlsnchs/jwt/v3"
-	"github.com/ipfs-force-community/venus-wallet/api"
+	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"github.com/mitchellh/go-homedir"
 	"github.com/multiformats/go-multiaddr"
@@ -51,12 +51,12 @@ func NewFS(path string, op *OverrideParams) (Repo, error) {
 	}
 	return fs, nil
 }
-func (fsr *FsRepo) APISecret() (*api.APIAlg, error) {
+func (fsr *FsRepo) APISecret() (*common.APIAlg, error) {
 	sec, err := hex.DecodeString(fsr.cnf.JWT.Secret)
 	if err != nil {
 		return nil, err
 	}
-	return (*api.APIAlg)(jwt.NewHS256(sec)), nil
+	return (*common.APIAlg)(jwt.NewHS256(sec)), nil
 }
 func (fsr *FsRepo) init() error {
 	exist, err := fsr.exists()

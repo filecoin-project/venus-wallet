@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
@@ -16,6 +15,12 @@ import (
 	"io"
 	"sync"
 )
+
+type IWalletLock interface {
+	SetPassword(ctx context.Context, password string) error
+	Unlock(ctx context.Context, password string) error
+	Lock(ctx context.Context, password string) error
+}
 
 var (
 	ErrLocked          = errors.New("wallet locked")
@@ -32,7 +37,7 @@ type KeyMiddleware interface {
 	Encrypt(key crypto.PrivateKey) (*EncryptedKey, error)
 	Decrypt(key *EncryptedKey) (crypto.PrivateKey, error)
 	Next() error
-	api.IWalletLock
+	IWalletLock
 }
 
 type KeyMixLayer struct {

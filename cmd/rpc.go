@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
+	"github.com/ipfs-force-community/venus-wallet/api/permission"
 	"github.com/ipfs-force-community/venus-wallet/build"
 	"golang.org/x/xerrors"
 	"net/http"
@@ -68,7 +69,7 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr multiaddr.Multiaddr) err
 
 // JWT verify
 type Handler struct {
-	Verify func(ctx context.Context, token string) ([]api.Permission, error)
+	Verify func(ctx context.Context, token string) ([]permission.Permission, error)
 	Next   http.HandlerFunc
 }
 
@@ -77,7 +78,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if r.RemoteAddr[:len("127.0.0.1")] == "127.0.0.1" {
-		ctx = api.WithIPPerm(ctx)
+		ctx = permission.WithIPPerm(ctx)
 	}
 	token := r.Header.Get("Authorization")
 	if token == "" {
@@ -101,7 +102,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		ctx = api.WithPerm(ctx, allow)
+		ctx = permission.WithPerm(ctx, allow)
 	}
 
 	h.Next(w, r.WithContext(ctx))

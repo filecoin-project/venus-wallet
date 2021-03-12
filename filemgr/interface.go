@@ -1,7 +1,7 @@
 package filemgr
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/api"
+	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"github.com/multiformats/go-multiaddr"
 )
@@ -14,7 +14,7 @@ type Repo interface {
 	// APIToken returns JWT API Token for use in operations that require auth
 	APIToken() ([]byte, error)
 
-	APISecret() (*api.APIAlg, error)
+	APISecret() (*common.APIAlg, error)
 
 	Config() *config.Config
 }

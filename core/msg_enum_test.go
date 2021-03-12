@@ -21,5 +21,3 @@ func TestContainMsgType(t *testing.T) {
 	assert.Equal(t, ContainMsgType(multiME, MTNetWorkResponse), false)
 	assert.Equal(t, ContainMsgType(multiME, MTClientDeal), false)
 }
-
-

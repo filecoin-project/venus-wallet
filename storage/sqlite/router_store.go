@@ -13,11 +13,11 @@ type routerStore struct {
 	mapper iRouterMapper
 }
 
-var _ storage.RouterStore = &routerStore{}
+var _ storage.StrategyStore = &routerStore{}
 
 const maxLimit = 100
 
-func NewRouterStore(conn *Conn) storage.RouterStore {
+func NewRouterStore(conn *Conn) storage.StrategyStore {
 	return &routerStore{
 		db:     conn.DB,
 		mapper: newRouterMapper(),
@@ -174,6 +174,18 @@ func (s *routerStore) GetKeyBindByName(name string) (*storage.KeyBind, error) {
 		return nil, err
 	}
 	res := s.mapper.toOuterKeyBind(m)
+	return res, nil
+}
+
+func (s *routerStore) GetKeyBindByNames(names []string) ([]*storage.KeyBind, error) {
+	var arr []*KeyBind
+	err := s.db.Table(TBKeyBind).Find(&arr, "name IN ?", names).Error
+	if err != nil {
+		log.Error(err)
+		err = s.errorAdapter(err)
+		return nil, err
+	}
+	res := s.mapper.toOuterKeyBinds(arr)
 	return res, nil
 }
 func (s *routerStore) GetKeyBindById(kbId uint) (*storage.KeyBind, error) {

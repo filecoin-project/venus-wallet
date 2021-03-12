@@ -1,4 +1,4 @@
-package api
+package permission
 
 import (
 	"context"
@@ -40,14 +40,6 @@ func WithIPPerm(ctx context.Context) context.Context {
 	return context.WithValue(ctx, permCtxLocal, true)
 }
 
-func PermissionedFullAPI(a IFullAPI) IFullAPI {
-	var out ServiceAuth
-	permissionedAny(a, &out.WalletAuth.Internal)
-	permissionedAny(a, &out.CommonAuth.Internal)
-	permissionedAny(a, &out.WalletLockAuth.Internal)
-	return &out
-}
-
 func HasPerm(ctx context.Context, perm Permission) bool {
 	callerPerms, ok := ctx.Value(permCtxKey).([]Permission)
 	if !ok {
@@ -72,7 +64,7 @@ func HasIPPerm(ctx context.Context, required bool) bool {
 	}
 	return localPerm
 }
-func permissionedAny(in interface{}, out interface{}) {
+func PermissionedAny(in interface{}, out interface{}) {
 	rint := reflect.ValueOf(out).Elem()
 	ra := reflect.ValueOf(in)
 

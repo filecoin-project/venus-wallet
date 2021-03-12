@@ -5,7 +5,7 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/msgrouter"
 )
 
-type RouterStore interface {
+type StrategyStore interface {
 	PutMsgTypeTemplate(mtt *MsgTypeTemplate) error
 	GetMsgTypeTemplate(mttId uint) (*MsgTypeTemplate, error)
 	GetMsgTypeTemplateByName(name string) (*MsgTypeTemplate, error)
@@ -21,6 +21,7 @@ type RouterStore interface {
 	PutKeyBind(kb *KeyBind) error
 	GetKeyBinds(address string) ([]*KeyBind, error)
 	GetKeyBindByName(name string) (*KeyBind, error)
+	GetKeyBindByNames(names []string) ([]*KeyBind, error)
 	GetKeyBindById(kbId uint) (*KeyBind, error)
 	ListKeyBinds(fromIndex, toIndex int) ([]*KeyBind, error)
 	DeleteKeyBind(kbId uint) error

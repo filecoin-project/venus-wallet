@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
+	"github.com/ipfs-force-community/venus-wallet/common"
+	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"net/http"
@@ -12,7 +14,7 @@ import (
 )
 
 // RPCClient returns an RPC client connected to a node
-func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (api.IWallet, jsonrpc.ClientCloser, error) {
+func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (wallet.IWallet, jsonrpc.ClientCloser, error) {
 	var res api.WalletAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
@@ -20,6 +22,31 @@ func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (
 		},
 		requestHeader,
 	)
+	return &res, closer, err
+}
+
+func NewCommonRPC(ctx context.Context, addr string, requestHeader http.Header) (common.ICommon, jsonrpc.ClientCloser, error) {
+	var res api.CommonAuth
+	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
+		[]interface{}{
+			&res.Internal,
+		},
+		requestHeader,
+	)
+
+	return &res, closer, err
+}
+
+// NewFullNodeRPC creates a new http jsonrpc remotecli.
+func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header) (api.IFullAPI, jsonrpc.ClientCloser, error) {
+	var res api.ServiceAuth
+	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
+		[]interface{}{
+			&res.CommonAuth.Internal,
+			&res.WalletAuth.Internal,
+			&res.WalletLockAuth.Internal,
+		}, requestHeader)
+
 	return &res, closer, err
 }
 

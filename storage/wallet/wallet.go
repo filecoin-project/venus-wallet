@@ -2,12 +2,29 @@ package wallet
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"golang.org/x/xerrors"
 )
+
+type ILocalWallet interface {
+	IWallet
+	storage.IWalletLock
+}
+
+// remote wallet api
+type IWallet interface {
+	WalletNew(context.Context, core.KeyType) (core.Address, error)
+	WalletHas(ctx context.Context, address core.Address) (bool, error)
+	WalletList(ctx context.Context) ([]core.Address, error)
+	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
+	WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error)
+	WalletImport(context.Context, *core.KeyInfo) (core.Address, error)
+	WalletDelete(context.Context, core.Address) error
+}
+
+var _ IWallet = &wallet{}
 
 // wallet implementation
 type wallet struct {
@@ -15,7 +32,7 @@ type wallet struct {
 	mw storage.KeyMiddleware
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware) api.ILocalWallet {
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware) ILocalWallet {
 	return &wallet{ws: ks, mw: mw}
 }
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
@@ -146,5 +163,3 @@ func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 	}
 	return w.ws.Delete(addr)
 }
-
-var _ api.IWallet = &wallet{}

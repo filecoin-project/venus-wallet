@@ -2,8 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/api"
-
+	"github.com/ipfs-force-community/venus-wallet/api/permission"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 )
@@ -42,18 +41,18 @@ var authCreateAdminToken = &cli.Command{
 
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range api.AllPermissions {
+		for i, p := range permission.AllPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", api.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", permission.AllPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := napi.AuthNew(ctx, api.AllPermissions[:idx])
+		token, err := napi.AuthNew(ctx, permission.AllPermissions[:idx])
 		if err != nil {
 			return err
 		}
@@ -90,18 +89,18 @@ var authApiInfoToken = &cli.Command{
 
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range api.AllPermissions {
+		for i, p := range permission.AllPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", api.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", permission.AllPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := napi.AuthNew(ctx, api.AllPermissions[:idx])
+		token, err := napi.AuthNew(ctx, permission.AllPermissions[:idx])
 		if err != nil {
 			return err
 		}

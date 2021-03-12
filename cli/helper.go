@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
+	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/mitchellh/go-homedir"
 	"github.com/prometheus/common/log"
@@ -70,20 +71,20 @@ func GetRawAPI(ctx *cli.Context) (string, http.Header, error) {
 	return addr, ainfo.AuthHeader(), nil
 }
 
-func GetAPI(ctx *cli.Context) (api.ICommon, jsonrpc.ClientCloser, error) {
+func GetAPI(ctx *cli.Context) (common.ICommon, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return api.NewCommonRPC(ctx.Context, addr, headers)
+	return remotecli.NewCommonRPC(ctx.Context, addr, headers)
 }
 func GetFullNodeAPI(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	return api.NewFullNodeRPC(ctx.Context, addr, headers)
+	return remotecli.NewFullNodeRPC(ctx.Context, addr, headers)
 }
 
 func DaemonContext(cctx *cli.Context) context.Context {
@@ -113,6 +114,7 @@ func ReqContext(cctx *cli.Context) context.Context {
 var Commands = []*cli.Command{
 	authCmd,
 	logCmd,
+	strategyCmd,
 	walletNew,
 	walletList,
 	walletExport,
@@ -128,4 +130,25 @@ var Commands = []*cli.Command{
 func withCategory(cat string, cmd *cli.Command) *cli.Command {
 	cmd.Category = cat
 	return cmd
+}
+func ShowHelp(cctx *cli.Context, err error) error {
+	return &PrintHelpErr{Err: err, Ctx: cctx}
+}
+
+type PrintHelpErr struct {
+	Err error
+	Ctx *cli.Context
+}
+
+func (e *PrintHelpErr) Error() string {
+	return e.Err.Error()
+}
+
+func (e *PrintHelpErr) Unwrap() error {
+	return e.Err
+}
+
+func (e *PrintHelpErr) Is(o error) bool {
+	_, ok := o.(*PrintHelpErr)
+	return ok
 }

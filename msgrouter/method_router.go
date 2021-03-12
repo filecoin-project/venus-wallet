@@ -1,13 +1,16 @@
 package msgrouter
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/go-state-types/rt"
 	exported0 "github.com/filecoin-project/specs-actors/actors/builtin/exported"
 	exported2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/exported"
 	"github.com/filecoin-project/specs-actors/v3/actors/builtin"
 	exported3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/exported"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"reflect"
 	"runtime"
 	"sort"
@@ -74,7 +77,7 @@ func init() {
 		MethodsMap[actor.Code()] = methods
 	}
 	MethodNameList = make([]MethodName, 0, len(MethodNamesMap))
-	for k, _ := range MethodNamesMap {
+	for k := range MethodNamesMap {
 		MethodNameList = append(MethodNameList, k)
 	}
 	sort.Slice(MethodNameList, func(i, j int) bool {
@@ -88,4 +91,22 @@ func GetMethodName(actCode core.Cid, method core.MethodNum) (string, error) {
 		return core.StringEmpty, fmt.Errorf("unknown method %d for actor %s", method, actCode)
 	}
 	return m.Name, nil
+}
+
+func AggregateMethodNames(methods []MethodName) ([]MethodName, error) {
+	if len(methods) == 0 {
+		return nil, errcode.ErrNilReference
+	}
+	linq.From(methods).Distinct().ToSlice(methods)
+	var illegal []MethodName
+	linq.From(methods).Except(linq.From(MethodNameList)).ToSlice(&illegal)
+	buf := new(bytes.Buffer)
+	if len(illegal) > 0 {
+		for _, v := range illegal {
+			buf.WriteString(v)
+			buf.WriteString(" ")
+		}
+		return nil, fmt.Errorf("method name illegal: %s", buf.String())
+	}
+	return methods, nil
 }

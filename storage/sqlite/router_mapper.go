@@ -156,4 +156,3 @@ func (m *routerMapper) toOuterGroups(inner []*Group) []*storage.Group {
 	}
 	return res
 }
-
