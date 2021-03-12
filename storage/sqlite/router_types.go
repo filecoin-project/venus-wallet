@@ -23,7 +23,7 @@ type GroupAuth struct {
 // NOTE: routeType 2
 type KeyBind struct {
 	BindId  uint   `gorm:"primaryKey;type:int;column:id;not null"`
-	Name    string `gorm:"type:varchar(32);column:name;not null"`
+	Name    string `gorm:"unique;type:varchar(32);column:name;not null"`
 	Address string `gorm:"index;type:varchar(255);column:address;not null"`
 	// source from MsgTypeTemplate or temporary create
 	MetaTypes core.MsgEnum `gorm:"type:int;column:meta_types;not null"`
@@ -38,7 +38,7 @@ type KeyBind struct {
 // NOTE: routeType 3
 type Group struct {
 	GroupId   uint   `gorm:"primaryKey;type:int;column:id;not null"`
-	Name      string `gorm:"type:varchar(32);column:name;not null"`
+	Name      string `gorm:"unique;type:varchar(32);column:name;not null"`
 	BindIds   string `gorm:"type:text;column:bind_ids;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -50,7 +50,7 @@ type Group struct {
 // NOTE: routeType 4
 type MethodTemplate struct {
 	MTId uint   `gorm:"primaryKey;type:int;column:id;not null"`
-	Name string `gorm:"type:varchar(32);column:name;not null"`
+	Name string `gorm:"unique;type:varchar(32);column:name;not null"`
 	// method name join with ','
 	Methods   string `gorm:"type:text;column:methods;not null"`
 	CreatedAt time.Time
@@ -62,7 +62,7 @@ type MethodTemplate struct {
 // NOTE: routeType 5
 type MsgTypeTemplate struct {
 	MTTId     uint         `gorm:"primaryKey;type:int;column:id;not null"`
-	Name      string       `gorm:"type:varchar(36);column:name;not null"`
+	Name      string       `gorm:"unique;type:varchar(36);column:name;not null"`
 	MetaTypes core.MsgEnum `gorm:"type:int;column:meta_types;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

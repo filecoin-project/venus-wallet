@@ -8,34 +8,33 @@ import (
 type RouterStore interface {
 	PutMsgTypeTemplate(mtt *MsgTypeTemplate) error
 	GetMsgTypeTemplate(mttId uint) (*MsgTypeTemplate, error)
-	GetMsgTypeTemplatesByName(name string) ([]*MsgTypeTemplate, error)
+	GetMsgTypeTemplateByName(name string) (*MsgTypeTemplate, error)
 	ListMsgTypeTemplates(fromIndex, toIndex int) ([]*MsgTypeTemplate, error)
 	DeleteMsgTypeTemplate(mttId uint) error
 
 	PutMethodTemplate(mt *MethodTemplate) error
 	GetMethodTemplate(mtId uint) (*MethodTemplate, error)
-	GetMethodTemplatesByName(name string) ([]*MethodTemplate, error)
+	GetMethodTemplateByName(name string) (*MethodTemplate, error)
 	ListMethodTemplates(fromIndex, toIndex int) ([]*MethodTemplate, error)
 	DeleteMethodTemplate(mtId uint) error
 
 	PutKeyBind(kb *KeyBind) error
 	GetKeyBinds(address string) ([]*KeyBind, error)
-	GetKeyBindsByName(name string) ([]*KeyBind, error)
+	GetKeyBindByName(name string) (*KeyBind, error)
 	GetKeyBindById(kbId uint) (*KeyBind, error)
 	ListKeyBinds(fromIndex, toIndex int) ([]*KeyBind, error)
 	DeleteKeyBind(kbId uint) error
 	DeleteKeyBindsByAddress(address string) (int64, error)
 
 	PutGroup(name string, keyBindIds []uint) error
+	GetGroupByName(name string) (*Group, error)
 	GetGroup(gId uint) (*Group, error)
 	ListGroups(fromIndex, toIndex int) ([]*Group, error)
 	DeleteGroup(gId uint) error
 
-	PutGroupAuth(ga *GroupAuth) error
+	PutGroupAuth(token string, groupId uint) error
 	GetGroupAuth(token string) (*GroupAuth, error)
 	DeleteGroupAuth(token string) error
-
-	GetKeyStrategy(token, address string) (*GroupAuth, error)
 }
 
 type KeyStrategy struct {
@@ -46,8 +45,10 @@ type KeyStrategy struct {
 
 // GroupAuth relation with Group and generate a token for external invocation
 type GroupAuth struct {
-	Token   string
-	BindIds []string
+	Token    string
+	GroupId  uint
+	Name     string
+	KeyBinds []*KeyBind
 }
 
 // KeyBind  bind wallet usage strategy

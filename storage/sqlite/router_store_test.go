@@ -1,11 +1,13 @@
 package sqlite
 
 import (
+	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/msgrouter"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"gotest.tools/assert"
 	"math/rand"
+	"strconv"
 	"testing"
 )
 
@@ -20,16 +22,15 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PutMsgTypeTemplate err:%s", err)
 	}
-	mttByName, err := mockRouterStore.GetMsgTypeTemplatesByName(mockName)
+	mttByName, err := mockRouterStore.GetMsgTypeTemplateByName(mockName)
 	if err != nil {
 		t.Fatalf("GetMsgTypeTemplateByName err:%s", err)
 	}
-	assert.Equal(t, len(mttByName), 1)
-	mttById, err := mockRouterStore.GetMsgTypeTemplate(mttByName[0].MTTId)
+	mttById, err := mockRouterStore.GetMsgTypeTemplate(mttByName.MTTId)
 	if err != nil {
 		t.Fatalf("GetMsgTypeTemplate err:%s", err)
 	}
-	assert.DeepEqual(t, mttById, mttByName[0])
+	assert.DeepEqual(t, mttById, mttByName)
 
 	mttArr, err := mockRouterStore.ListMsgTypeTemplates(0, 10)
 	if err != nil {
@@ -38,14 +39,10 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	assert.Equal(t, len(mttArr), 1)
 	assert.DeepEqual(t, mttById, mttArr[0])
 
-	err = mockRouterStore.DeleteMsgTypeTemplate(mttById.MTTId)
-	if err != nil {
-		t.Fatalf("DeleteMsgTypeTemplate err:%s", err)
-	}
-
 	// MethodTemplate test
 	mtCount := 10
 	source := msgrouter.MethodNameList
+	mtArrByName := make([]*storage.MethodTemplate, 0)
 	//random name
 	for i := 0; i < mtCount; i++ {
 		var methodNames []string
@@ -54,18 +51,20 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 			methodNames = append(methodNames, source[idx])
 		}
 		methodNames = Unique(methodNames)
+		mockNameI := mockName + strconv.Itoa(i)
 		mt := &storage.MethodTemplate{
-			Name:    mockName,
+			Name:    mockNameI,
 			Methods: methodNames,
 		}
 		err = mockRouterStore.PutMethodTemplate(mt)
 		if err != nil {
 			t.Fatalf("The serial number：%d PutMethodTemplate error:%s", i, err)
 		}
-	}
-	mtArrByName, err := mockRouterStore.GetMethodTemplatesByName(mockName)
-	if err != nil {
-		t.Fatalf("GetMsgTypeTemplateByName err:%s", err)
+		mtTmp, err := mockRouterStore.GetMethodTemplateByName(mockNameI)
+		if err != nil {
+			t.Fatalf("GetMsgTypeTemplateByName err:%s", err)
+		}
+		mtArrByName = append(mtArrByName, mtTmp)
 	}
 	assert.Equal(t, len(mtArrByName), mtCount)
 	mtById, err := mockRouterStore.GetMethodTemplate(mtArrByName[0].MTId)
@@ -78,14 +77,9 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		t.Fatalf("ListMethodTemplates err:%s", err)
 	}
 	assert.DeepEqual(t, mtArr, mtArrByName)
-	for k, v := range mtArr {
-		err = mockRouterStore.DeleteMethodTemplate(v.MTId)
-		if err != nil {
-			t.Fatalf("The serial number：%d DeleteMethodTemplate err:%s", k, err)
-		}
-	}
 
 	// keyBind test
+	kbArrByName := make([]*storage.KeyBind, 0)
 	mockAddress := "f3vnzhpj6xftqubkp2klnce37jpyndwurj4eyoqs7sx3weegth5joxmphtos4ni6tuxmidc2nj55ygag33qesq"
 	for i := 0; i < mtCount; i++ {
 		var methodNames []string
@@ -94,9 +88,10 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 			methodNames = append(methodNames, source[idx])
 		}
 		methodNames = Unique(methodNames)
+		mockNameI := mockName + strconv.Itoa(i)
 		metaTypes := core.MsgEnum(rand.Intn(30))
 		kb := &storage.KeyBind{
-			Name:      mockName,
+			Name:      mockNameI,
 			MetaTypes: metaTypes,
 			Address:   mockAddress,
 			Methods:   methodNames,
@@ -105,6 +100,11 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		if err != nil {
 			t.Fatalf("The serial number：%d PutKeyBind error:%s", i, err)
 		}
+		kbTmp, err := mockRouterStore.GetKeyBindByName(mockNameI)
+		if err != nil {
+			t.Fatalf("GetKeyBindsByName err:%s", err)
+		}
+		kbArrByName = append(kbArrByName, kbTmp)
 	}
 	kbArrByAddress, err := mockRouterStore.GetKeyBinds(mockAddress)
 	if err != nil {
@@ -121,11 +121,50 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		t.Fatalf("ListKeyBinds err:%s", err)
 	}
 	assert.DeepEqual(t, kbArr, kbArrByAddress)
-	kbArrByName, err := mockRouterStore.GetKeyBindsByName(mockName)
-	if err != nil {
-		t.Fatalf("GetKeyBindsByName err:%s", err)
-	}
 	assert.DeepEqual(t, kbArrByName, kbArrByAddress)
+
+	// Group Test
+	mockGroupName := "mockGroup"
+	err = mockRouterStore.PutGroup(mockGroupName, []uint{kbById.BindId})
+	if err != nil {
+		t.Fatalf("PutGroup err:%s", err)
+	}
+	groupByName, err := mockRouterStore.GetGroupByName(mockGroupName)
+	if err != nil {
+		t.Fatalf("GetGroupByName err:%s", err)
+	}
+	groupById, err := mockRouterStore.GetGroup(groupByName.GroupId)
+	if err != nil {
+		t.Fatalf("GetGroup err:%s", err)
+	}
+	assert.DeepEqual(t, groupByName, groupById)
+
+	// groupAuth
+	token := uuid.New().String()
+	err = mockRouterStore.PutGroupAuth(token, groupById.GroupId)
+	if err != nil {
+		t.Fatalf("PutGroupAuth err:%s", err)
+	}
+	gAuth, err := mockRouterStore.GetGroupAuth(token)
+	if err != nil {
+		t.Fatalf("GetGroupAuth err:%s", err)
+	}
+	assert.DeepEqual(t, gAuth.KeyBinds, groupById.KeyBinds)
+
+	// release all
+	// MsgTypeTemplate DEL
+	err = mockRouterStore.DeleteMsgTypeTemplate(mttById.MTTId)
+	if err != nil {
+		t.Fatalf("DeleteMsgTypeTemplate err:%s", err)
+	}
+
+	for k, v := range mtArr {
+		err = mockRouterStore.DeleteMethodTemplate(v.MTId)
+		if err != nil {
+			t.Fatalf("The serial number：%d DeleteMethodTemplate err:%s", k, err)
+		}
+	}
+
 	for k, v := range kbArrByName {
 		if k*2 >= mtCount {
 			break
@@ -141,8 +180,14 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	}
 	assert.Equal(t, delCount, int64(mtCount/2))
 
-	// Group Test
-
+	err = mockRouterStore.DeleteGroup(groupById.GroupId)
+	if err != nil {
+		t.Fatalf("DeleteKeyBindsByAddress err:%s", err)
+	}
+	err = mockRouterStore.DeleteGroupAuth(token)
+	if err != nil {
+		t.Fatalf("DeleteGroupAuth err:%s", err)
+	}
 }
 
 func Unique(strSlice []string) []string {

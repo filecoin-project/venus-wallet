@@ -3,5 +3,7 @@ package errcode
 import "errors"
 
 var (
-	ErrDBOperationFailed = errors.New("10010")
+	ErrDBOperationFailed = errors.New("database operation exception")
+	ErrDataAlreadyExists = errors.New("the data already exists")
+	ErrDataNotExists     = errors.New("data does not exists")
 )

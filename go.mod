@@ -20,6 +20,7 @@ require (
 	github.com/fxamacker/cbor v1.5.1
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
 	github.com/google/gopacket v1.1.18 // indirect
+	github.com/google/uuid v1.1.2
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/ipfs/go-bitswap v0.3.2 // indirect
 	github.com/ipfs/go-block-format v0.0.3
