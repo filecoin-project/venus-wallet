@@ -55,8 +55,9 @@ var (
 )
 
 type APIInfo struct {
-	Addr  multiaddr.Multiaddr
-	Token []byte
+	Addr          multiaddr.Multiaddr
+	Token         []byte
+	StrategyToken []byte
 }
 
 func ParseApiInfo(s string) (*APIInfo, error) {
@@ -89,6 +90,7 @@ func (a APIInfo) AuthHeader() http.Header {
 	if len(a.Token) != 0 {
 		headers := http.Header{}
 		headers.Add("Authorization", "Bearer "+string(a.Token))
+		headers.Add("StrategyToken", string(a.StrategyToken))
 		return headers
 	}
 	return nil

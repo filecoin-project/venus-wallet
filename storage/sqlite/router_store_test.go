@@ -201,7 +201,3 @@ func Unique(strSlice []string) []string {
 	}
 	return list
 }
-
-func generateGroupPreSource(count int) {
-
-}

@@ -11,13 +11,13 @@ var _ wallet.IWallet = &WalletAuth{}
 // wallet API permissions constraints
 type WalletAuth struct {
 	Internal struct {
-		WalletNew    func(context.Context, core.KeyType) (core.Address, error)                                                 `perm:"admin"`
+		WalletNew    func(ctx context.Context, kt core.KeyType) (core.Address, error)                                          `perm:"admin"`
 		WalletHas    func(ctx context.Context, address core.Address) (bool, error)                                             `perm:"write"`
 		WalletList   func(ctx context.Context) ([]core.Address, error)                                                         `perm:"write"`
 		WalletSign   func(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) `perm:"sign"`
 		WalletExport func(ctx context.Context, addr core.Address) (*core.KeyInfo, error)                                       `perm:"admin"`
-		WalletImport func(context.Context, *core.KeyInfo) (core.Address, error)                                                `perm:"admin"`
-		WalletDelete func(context.Context, core.Address) error                                                                 `perm:"admin"`
+		WalletImport func(ctx context.Context, ki *core.KeyInfo) (core.Address, error)                                         `perm:"admin"`
+		WalletDelete func(ctx context.Context, addr core.Address) error                                                        `perm:"admin"`
 	}
 }
 

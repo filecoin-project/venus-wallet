@@ -21,3 +21,11 @@ func TestContainMsgType(t *testing.T) {
 	assert.Equal(t, ContainMsgType(multiME, MTNetWorkResponse), false)
 	assert.Equal(t, ContainMsgType(multiME, MTClientDeal), false)
 }
+
+func TestFindCode(t *testing.T) {
+	ids := FindCode(38)
+	assert.DeepEqual(t, []int{1, 2, 5}, ids)
+
+	ids2 := FindCode(8392)
+	assert.DeepEqual(t, []int{3, 6, 7, 13}, ids2)
+}

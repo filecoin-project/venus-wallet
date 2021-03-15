@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/build"
+	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/ipfs-force-community/venus-wallet/middleware"
 	"github.com/ipfs-force-community/venus-wallet/version"
@@ -52,7 +53,7 @@ var RunCmd = &cli.Command{
 		if err != nil {
 			return xerrors.Errorf("opening fs repo: %w", err)
 		}
-
+		core.ContextEnable = r.Config().Strategy.Enable
 		secret, err := r.APISecret()
 		if err != nil {
 			return xerrors.Errorf("read secret failed: %w", err)

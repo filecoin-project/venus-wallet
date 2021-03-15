@@ -7,6 +7,7 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/permission"
 	"github.com/ipfs-force-community/venus-wallet/build"
+	"github.com/ipfs-force-community/venus-wallet/core"
 	"golang.org/x/xerrors"
 	"net/http"
 	_ "net/http/pprof"
@@ -104,6 +105,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ctx = permission.WithPerm(ctx, allow)
 	}
-
+	strategyToken := r.Header.Get("strategy")
+	if strategyToken == "" {
+		log.Warn("missing strategyToken")
+		w.WriteHeader(401)
+		return
+	}
+	ctx = context.WithValue(ctx, core.CtxKeyStrategy, strategyToken)
 	h.Next(w, r.WithContext(ctx))
 }

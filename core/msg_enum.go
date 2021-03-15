@@ -56,11 +56,23 @@ var MaxMsgEnumCode = len(MsgEnumPool) - 1
 
 func CheckMsgEnum(me MsgEnum) error {
 	max := 1 << MaxMsgEnumCode
-	if me < 0 || me > uint32(max) {
+	if me > uint32(max) {
 		return ErrCodeOverflow
 	}
 	return nil
 }
+func FindCode(enum MsgEnum) []int {
+	var codes []int
+	for power := 0; enum > 0; power++ {
+		var digit = enum % 2
+		if digit == 1 {
+			codes = append(codes, power)
+		}
+		enum /= 2
+	}
+	return codes
+}
+
 func AggregateMsgEnumCode(codes []int) (MsgEnum, error) {
 	if len(codes) == 0 {
 		return 0, errcode.ErrNilReference

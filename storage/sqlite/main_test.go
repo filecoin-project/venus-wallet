@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-var mockRouterStore storage.RouterStore
+var mockRouterStore storage.StrategyStore
 
 func TestMain(m *testing.M) {
 	file := "./mockSqlite.sqlit"
@@ -18,6 +18,7 @@ func TestMain(m *testing.M) {
 	})
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(2)
 	}
 	mockRouterStore = NewRouterStore(conn)
 	m.Run()

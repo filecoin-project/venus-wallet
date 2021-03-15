@@ -5,6 +5,7 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
 	"github.com/ipfs-force-community/venus-wallet/storage"
+	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
 	"golang.org/x/xerrors"
 )
 
@@ -28,12 +29,13 @@ var _ IWallet = &wallet{}
 
 // wallet implementation
 type wallet struct {
-	ws storage.KeyStore
-	mw storage.KeyMiddleware
+	ws     storage.KeyStore
+	mw     storage.KeyMiddleware
+	verify strategy.IStrategyVerify
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware) ILocalWallet {
-	return &wallet{ws: ks, mw: mw}
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.IStrategyVerify) ILocalWallet {
+	return &wallet{ws: ks, mw: mw, verify: verify}
 }
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
 	return w.mw.SetPassword(ctx, password)
@@ -85,6 +87,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		err   error
 		data  []byte
 	)
+
 	if meta.Type == core.MTChainMsg {
 		if len(meta.Extra) == 0 {
 			return nil, xerrors.New("msg type must contain extra data")
@@ -94,7 +97,13 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 			return nil, err
 		}
 		owner = msg.From
+		if signer.String() != owner.String() {
+			return nil, xerrors.New("singer does not match from in MSG")
+		}
 		data = msg.Cid().Bytes()
+		if err = w.verify.Verify(ctx, signer, meta.Type, msg); err != nil {
+			return nil, err
+		}
 	} else {
 		_, toSign, err := core.GetSignBytes(toSign, meta)
 		if err != nil {
@@ -102,6 +111,9 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		}
 		owner = signer
 		data = toSign
+		if err = w.verify.Verify(ctx, signer, meta.Type, nil); err != nil {
+			return nil, err
+		}
 	}
 	key, err := w.ws.Get(owner)
 	if err != nil {

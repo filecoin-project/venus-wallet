@@ -1,6 +1,8 @@
 package msgrouter
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestForEachMethodsMap(t *testing.T) {
 	for k, v := range MethodsMap {
@@ -15,4 +17,9 @@ func TestForEachMethodNames(t *testing.T) {
 	for k, v := range MethodNameList {
 		t.Log(k, v)
 	}
+}
+
+func TestStringCMP(t *testing.T) {
+	t.Log(94 & 8)
+
 }

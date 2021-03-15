@@ -1,7 +1,8 @@
-package cli
+package helper
 
 import (
 	"context"
+	"errors"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
@@ -14,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
@@ -111,19 +113,18 @@ func ReqContext(cctx *cli.Context) context.Context {
 	return ctx
 }
 
-var Commands = []*cli.Command{
-	authCmd,
-	logCmd,
-	strategyCmd,
-	walletNew,
-	walletList,
-	walletExport,
-	walletImport,
-	walletSign,
-	walletDel,
-	walletSetPassword,
-	walletUnlock,
-	walletlock,
+func ReqFromTo(cctx *cli.Context, idx int) (from, to int, err error) {
+	fromStr := cctx.Args().Get(idx)
+	toStr := cctx.Args().Get(idx + 1)
+	f, err := strconv.ParseInt(fromStr, 10, 32)
+	if err != nil {
+		return 0, 0, errors.New("from must be an int")
+	}
+	t, err := strconv.ParseInt(toStr, 10, 32)
+	if err != nil {
+		return 0, 0, errors.New("to must be an int")
+	}
+	return int(f), int(t), nil
 }
 
 //nolint

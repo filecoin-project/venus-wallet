@@ -2,19 +2,67 @@ package strategy
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/ipfs-force-community/venus-wallet/msgrouter"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 )
 
+var (
+	errGenToken = errors.New("token generation failed")
+)
+
+type IStrategy interface {
+	NewMsgTypeTemplate(name string, codes []int) error
+	NewMethodTemplate(name string, methods []string) error
+	NewKeyBindCustom(name, address string, codes []int, methods []msgrouter.MethodName) error
+	NewKeyBindFromTemplate(name, address, mttName, mtName string) error
+	NewGroup(name string, keyBindNames []string) error
+
+	GetMsgTypeTemplate(name string) (*storage.MsgTypeTemplate, error)
+	GetMethodTemplateByName(name string) (*storage.MethodTemplate, error)
+	GetKeyBindByName(name string) (*storage.KeyBind, error)
+	GetKeyBinds(address string) ([]*storage.KeyBind, error)
+	GetGroupByName(name string) (*storage.Group, error)
+	ListGroups(fromIndex, toIndex int) ([]*storage.Group, error)
+	ListKeyBinds(fromIndex, toIndex int) ([]*storage.KeyBind, error)
+	ListMethodTemplates(fromIndex, toIndex int) ([]*storage.MethodTemplate, error)
+	ListMsgTypeTemplates(fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error)
+
+	RemoveMsgTypeTemplate(name string) error
+	RemoveGroup(name string) error
+	RemoveMethodTemplate(name string) error
+	RemoveKeyBind(name string) error
+	RemoveKeyBindByAddress(address string) (int64, error)
+}
+type ILocalStrategy interface {
+	IStrategyVerify
+	IStrategy
+}
+type VerifyFunc func(token, address string, enum core.MsgEnum, method msgrouter.MethodName) error
+
+// NOTE: for wallet
+type IStrategyVerify interface {
+	Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error
+	ScopeWallet(ctx context.Context) ([]core.Address, error)
+}
 type strategy struct {
 	store storage.StrategyStore
 }
 
-func (s *strategy) NewMsgTypeTemplate(name string, enum core.MsgEnum) error {
+func NewStrategy(store storage.StrategyStore) ILocalStrategy {
+	return &strategy{store: store}
+}
+func (s *strategy) NewMsgTypeTemplate(name string, codes []int) error {
+	enum, err := core.AggregateMsgEnumCode(codes)
+	if err != nil {
+		return err
+	}
 	return s.store.PutMsgTypeTemplate(&storage.MsgTypeTemplate{
 		Name:      name,
 		MetaTypes: enum,
@@ -29,7 +77,7 @@ func (s *strategy) ListMsgTypeTemplates(fromIndex, toIndex int) ([]*storage.MsgT
 	return s.store.ListMsgTypeTemplates(fromIndex, toIndex)
 }
 
-func (s *strategy) DeleteMsgTypeTemplate(name string) error {
+func (s *strategy) RemoveMsgTypeTemplate(name string) error {
 	m, err := s.store.GetMsgTypeTemplateByName(name)
 	if err != nil {
 		return err
@@ -169,7 +217,37 @@ func (s *strategy) RemoveGroup(name string) error {
 	}
 	return s.store.DeleteGroup(g.GroupId)
 }
+func (s *strategy) NewWalletToken(groupName string) (token string, err error) {
+	g, err := s.store.GetGroupByName(groupName)
+	if err != nil {
+		return core.StringEmpty, err
+	}
+	tk, err := uuid.NewUUID()
+	if err != nil {
+		return core.StringEmpty, errGenToken
+	}
+	token = tk.String()
+	err = s.store.PutGroupAuth(token, g.GroupId)
+	if err != nil {
+		return core.StringEmpty, err
+	}
+	return token, nil
+}
 
-func (s *strategy) Verify(token, address string, enum core.MsgEnum, method msgrouter.MethodName) error {
+// NOTE: for wallet
+func (s *strategy) Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error {
 	return nil
 }
+
+// NOTE: for wallet
+// list wallets binding with group token
+func (s *strategy) ScopeWallet(ctx context.Context) ([]core.Address, error) {
+
+	return nil, nil
+}
+
+// NOTE: for wallet
+/*func (s *strategy) verify(token, address string, enum core.MsgEnum, method msgrouter.MethodName) error {
+	return nil
+}
+*/

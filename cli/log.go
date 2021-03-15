@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 )
@@ -19,13 +20,13 @@ var logList = &cli.Command{
 	Name:  "list",
 	Usage: "List log systems",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetAPI(cctx)
+		api, closer, err := helper.GetAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
 
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		systems, err := api.LogList(ctx)
 		if err != nil {
@@ -70,12 +71,12 @@ var logSetLevel = &cli.Command{
 		},
 	},
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetAPI(cctx)
+		api, closer, err := helper.GetAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		if !cctx.Args().Present() {
 			return fmt.Errorf("level is required")

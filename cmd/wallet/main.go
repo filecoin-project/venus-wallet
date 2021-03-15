@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	locli "github.com/ipfs-force-community/venus-wallet/cli"
+	localCli "github.com/ipfs-force-community/venus-wallet/cli"
+	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	main2 "github.com/ipfs-force-community/venus-wallet/cmd"
 	loclog "github.com/ipfs-force-community/venus-wallet/log"
 	"github.com/ipfs-force-community/venus-wallet/middleware"
@@ -53,7 +54,7 @@ func main() {
 			},
 		},
 
-		Commands: append(local, locli.Commands...),
+		Commands: append(local, localCli.Commands...),
 	}
 	app.Setup()
 	app.Metadata["traceContext"] = ctx
@@ -63,7 +64,7 @@ func main() {
 			Code:    trace.StatusCodeFailedPrecondition,
 			Message: err.Error(),
 		})
-		_, ok := err.(*locli.ErrCmdFailed)
+		_, ok := err.(*helper.ErrCmdFailed)
 		if ok {
 			log.Debugf("%+v", err)
 		} else {
