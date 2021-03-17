@@ -13,7 +13,7 @@ func TestNewFS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	targetAPI := "/ip4/0.0.0.0/tcp/1334/httpparse"
+	targetAPI := "/ip4/0.0.0.0/tcp/1334/http"
 	fs, err := NewFS(fsPath, &OverrideParams{
 		API: targetAPI,
 	})
