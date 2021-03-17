@@ -10,7 +10,7 @@ import (
 func (fsr *FsRepo) defConfig() *config.Config {
 	return &config.Config{
 		API: &config.APIConfig{
-			ListenAddress: "/ip4/0.0.0.0/tcp/5678/http",
+			ListenAddress: "/ip4/0.0.0.0/tcp/5678/httpparse",
 		},
 		DB: &config.DBConfig{
 			Conn:      filepath.Join(fsr.path, skKeyStore),
@@ -59,6 +59,12 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 		cnf.Factor = &config.CryptoFactor{
 			ScryptN: 1 << 18,
 			ScryptP: 1,
+		}
+	}
+	if cnf.Strategy == nil {
+		cnf.Strategy = &config.StrategyConfig{
+			Level:   0,
+			NodeURL: "",
 		}
 	}
 	if op != nil {

@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"fmt"
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"gorm.io/gorm"
@@ -298,6 +299,7 @@ func (s *routerStore) ListGroups(fromIndex, toIndex int) ([]*storage.Group, erro
 	res := s.mapper.toOuterGroups(arr)
 	return res, nil
 }
+
 func (s *routerStore) DeleteGroup(gId uint) error {
 	err := s.db.Table(TBGroup).Delete(&Group{}, "id=?", gId).Error
 	if err != nil {
@@ -339,6 +341,43 @@ func (s *routerStore) GetGroupAuth(token string) (*storage.GroupAuth, error) {
 		Name:     g.Name,
 		KeyBinds: g.KeyBinds,
 	}, nil
+}
+func (s *routerStore) GetGroupKeyBind(token string, address string) (*storage.KeyBind, error) {
+	m := new(GroupAuth)
+	err := s.db.Table(TBGroupAuth).First(m, "token=?", token).Error
+	if err != nil {
+		log.Error(err)
+		err = s.errorAdapter(err)
+		return nil, err
+	}
+	g := new(Group)
+	if err = s.db.Table(TBGroup).First(g, "id = ?", m.GroupId).Error; err != nil {
+		log.Error(err)
+		err = s.errorAdapter(err)
+		return nil, err
+	}
+	kb := new(KeyBind)
+	kbIds := strings.Split(g.BindIds, ",")
+	if err = s.db.Table(TBKeyBind).First(kb, "address = ? AND id IN ?", address, kbIds).Error; err != nil {
+		log.Error(err)
+		err = s.errorAdapter(err)
+		return nil, err
+	}
+	return s.mapper.toOuterKeyBind(kb), nil
+}
+func (s *routerStore) GetGroupAuthByGroupId(groupId uint) ([]string, error) {
+	var arr []*GroupAuth
+	err := s.db.Table(TBGroupAuth).Find(&arr, "id=?", groupId).Error
+	if err != nil {
+		log.Error(err)
+		err = s.errorAdapter(err)
+		return nil, err
+	}
+	var tokens []string
+	linq.From(arr).SelectT(func(i *GroupAuth) string {
+		return i.Token
+	}).ToSlice(&tokens)
+	return tokens, nil
 }
 func (s *routerStore) DeleteGroupAuth(token string) error {
 	err := s.db.Table(TBGroupAuth).Delete(&KeyBind{}, "token=?", token).Error

@@ -1,8 +1,8 @@
 package storage
 
 import (
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/msgrouter"
 )
 
 type StrategyStore interface {
@@ -34,14 +34,16 @@ type StrategyStore interface {
 	DeleteGroup(gId uint) error
 
 	PutGroupAuth(token string, groupId uint) error
+	GetGroupAuthByGroupId(groupId uint) ([]string, error)
 	GetGroupAuth(token string) (*GroupAuth, error)
+	GetGroupKeyBind(token string, address string) (*KeyBind, error)
 	DeleteGroupAuth(token string) error
 }
 
 type KeyStrategy struct {
 	Address   core.Address
 	MetaTypes core.MsgEnum
-	Methods   []msgrouter.MethodName
+	Methods   []core.MethodName
 }
 
 // GroupAuth relation with Group and generate a token for external invocation
@@ -61,7 +63,14 @@ type KeyBind struct {
 	// source from MsgTypeTemplate or temporary create
 	MetaTypes core.MsgEnum
 	// source from MethodTemplate
-	Methods []msgrouter.MethodName
+	Methods []core.MethodName
+}
+
+func (kb *KeyBind) ContainMsgType(mt core.MsgType) bool {
+	return core.ContainMsgType(kb.MetaTypes, mt)
+}
+func (kb *KeyBind) ContainMethod(m string) bool {
+	return linq.From(kb.Methods).Contains(m)
 }
 
 // Group multi KeyBind
@@ -79,7 +88,7 @@ type MethodTemplate struct {
 	MTId uint
 	Name string
 	// method name join with ','
-	Methods []msgrouter.MethodName
+	Methods []core.MethodName
 }
 
 // MsgTypeTemplate to quickly create a private key usage strategy

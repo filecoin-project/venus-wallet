@@ -1,4 +1,4 @@
-package msgrouter
+package core
 
 import (
 	"testing"

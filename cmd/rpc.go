@@ -23,7 +23,7 @@ import (
 
 var log = logging.Logger("main")
 
-// http cors setting
+// httpparse cors setting
 func CorsMiddleWare(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -77,9 +77,10 @@ type Handler struct {
 // JWT verify
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
+	local := false
 	if r.RemoteAddr[:len("127.0.0.1")] == "127.0.0.1" {
 		ctx = permission.WithIPPerm(ctx)
+		local = true
 	}
 	token := r.Header.Get("Authorization")
 	if token == "" {
@@ -105,12 +106,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ctx = permission.WithPerm(ctx, allow)
 	}
-	strategyToken := r.Header.Get("strategy")
-	if strategyToken == "" {
-		log.Warn("missing strategyToken")
-		w.WriteHeader(401)
-		return
+	if core.WalletStrategyLevel > 0 {
+		strategyToken := r.Header.Get("strategy")
+		if strategyToken == "" && !local {
+			log.Warn("missing strategyToken")
+			w.WriteHeader(401)
+			return
+		}
+		ctx = context.WithValue(ctx, core.CtxKeyStrategy, strategyToken)
 	}
-	ctx = context.WithValue(ctx, core.CtxKeyStrategy, strategyToken)
+
 	h.Next(w, r.WithContext(ctx))
 }

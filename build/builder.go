@@ -5,8 +5,10 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/config"
+	"github.com/ipfs-force-community/venus-wallet/node"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"github.com/ipfs-force-community/venus-wallet/storage/sqlite"
+	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
 	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
@@ -51,6 +53,10 @@ func WalletOpt(c *config.Config) Option {
 	return Options(
 		Override(new(*config.DBConfig), c.DB),
 		Override(new(*sqlite.Conn), sqlite.NewSQLiteConn),
+		Override(new(storage.StrategyStore), sqlite.NewRouterStore),
+		Override(new(*config.StrategyConfig), c.Strategy),
+		Override(new(*node.NodeClient), node.NewNodeClient),
+		Override(new(strategy.ILocalStrategy), strategy.NewStrategy),
 		Override(new(*config.CryptoFactor), c.Factor),
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),

@@ -7,3 +7,7 @@ ListenAddress = "/ip4/0.0.0.0/tcp/1234/http"
 
 [DB]
 Conn = "123"
+
+
+[STRATEGY]
+NodeUrl= ""

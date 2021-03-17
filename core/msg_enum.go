@@ -25,7 +25,6 @@ const (
 	MEChainMsg
 	MEBlock
 	MEDealProposal
-	MEDeals
 	MEDrawRandomParam
 	MESignedVoucher
 	MEStorageAsk
@@ -43,7 +42,6 @@ var MsgEnumPool = []struct {
 	{Code: MsgEnumCode(MEChainMsg), Name: "chainMsg"},
 	{Code: MsgEnumCode(MEBlock), Name: "block"},
 	{Code: MsgEnumCode(MEDealProposal), Name: "dealProposal"},
-	{Code: MsgEnumCode(MEDeals), Name: "deals"},
 	{Code: MsgEnumCode(MEDrawRandomParam), Name: "drawRandomParam"},
 	{Code: MsgEnumCode(MESignedVoucher), Name: "signedVoucher"},
 	{Code: MsgEnumCode(MEStorageAsk), Name: "storageAsk"},
@@ -77,14 +75,14 @@ func AggregateMsgEnumCode(codes []int) (MsgEnum, error) {
 	if len(codes) == 0 {
 		return 0, errcode.ErrNilReference
 	}
-	linq.From(codes).Distinct().ToSlice(codes)
+	linq.From(codes).Distinct().ToSlice(&codes)
 	em := MsgEnum(0)
 	for _, v := range codes {
-		code, err := MsgEnumFromInt(v)
+		me, err := MsgEnumFromInt(v)
 		if err != nil {
 			return 0, err
 		}
-		em += 1 << code
+		em += me
 	}
 	return em, nil
 }
@@ -115,8 +113,6 @@ func convertToMsgEnum(mt MsgType) MsgEnum {
 		return MEBlock
 	case MTDealProposal:
 		return MEDealProposal
-	case MTDeals:
-		return MEDeals
 	case MTDrawRandomParam:
 		return MEDrawRandomParam
 	case MTSignedVoucher:

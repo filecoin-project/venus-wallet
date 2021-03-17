@@ -11,7 +11,8 @@ type Config struct {
 }
 
 type StrategyConfig struct {
-	Enable bool `json:"enable"`
+	Level   uint8  `json:"level"`
+	NodeURL string `json:"nodeUrl"`
 }
 
 // for keystore

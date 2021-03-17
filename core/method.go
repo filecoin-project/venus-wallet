@@ -1,4 +1,4 @@
-package msgrouter
+package core
 
 import (
 	"bytes"
@@ -9,7 +9,6 @@ import (
 	exported2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/exported"
 	"github.com/filecoin-project/specs-actors/v3/actors/builtin"
 	exported3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/exported"
-	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"reflect"
 	"runtime"
@@ -17,7 +16,7 @@ import (
 	"strings"
 )
 
-var MethodsMap = map[core.Cid]map[core.MethodNum]core.MethodMeta{}
+var MethodsMap = map[Cid]map[MethodNum]MethodMeta{}
 
 var MethodNamesMap = make(map[string]struct{})
 var MethodNameList []MethodName
@@ -34,10 +33,10 @@ func init() {
 
 	for _, actor := range actors {
 		exports := actor.Exports()
-		methods := make(map[core.MethodNum]core.MethodMeta, len(exports))
+		methods := make(map[MethodNum]MethodMeta, len(exports))
 
 		// Explicitly add send, it's special.
-		methods[builtin.MethodSend] = core.MethodMeta{
+		methods[builtin.MethodSend] = MethodMeta{
 			Name:   "Send",
 			Params: reflect.TypeOf(new(EmptyValue)),
 			Ret:    reflect.TypeOf(new(EmptyValue)),
@@ -59,15 +58,15 @@ func init() {
 			// tests).
 			fnName := runtime.FuncForPC(ev.Pointer()).Name()
 			fnName = strings.TrimSuffix(fnName[strings.LastIndexByte(fnName, '.')+1:], "-fm")
-			switch core.MethodNum(number) {
-			case core.MethodSend:
+			switch MethodNum(number) {
+			case MethodSend:
 				panic("method 0 is reserved for Send")
-			case core.MethodConstructor:
+			case MethodConstructor:
 				if fnName != "Constructor" {
 					panic("method 1 is reserved for Constructor")
 				}
 			}
-			methods[core.MethodNum(number)] = core.MethodMeta{
+			methods[MethodNum(number)] = MethodMeta{
 				Name:   fnName,
 				Params: et.In(1),
 				Ret:    et.Out(0),
@@ -85,10 +84,10 @@ func init() {
 	})
 }
 
-func GetMethodName(actCode core.Cid, method core.MethodNum) (string, error) {
+func GetMethodName(actCode Cid, method MethodNum) (string, error) {
 	m, found := MethodsMap[actCode][method]
 	if !found {
-		return core.StringEmpty, fmt.Errorf("unknown method %d for actor %s", method, actCode)
+		return StringEmpty, fmt.Errorf("unknown method %d for actor %s", method, actCode)
 	}
 	return m.Name, nil
 }
@@ -97,14 +96,16 @@ func AggregateMethodNames(methods []MethodName) ([]MethodName, error) {
 	if len(methods) == 0 {
 		return nil, errcode.ErrNilReference
 	}
-	linq.From(methods).Distinct().ToSlice(methods)
+	linq.From(methods).Distinct().ToSlice(&methods)
 	var illegal []MethodName
 	linq.From(methods).Except(linq.From(MethodNameList)).ToSlice(&illegal)
 	buf := new(bytes.Buffer)
 	if len(illegal) > 0 {
-		for _, v := range illegal {
+		for k, v := range illegal {
+			if k > 0 {
+				buf.WriteString(",")
+			}
 			buf.WriteString(v)
-			buf.WriteString(" ")
 		}
 		return nil, fmt.Errorf("method name illegal: %s", buf.String())
 	}

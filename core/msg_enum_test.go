@@ -6,9 +6,8 @@ import (
 )
 
 func TestContainMsgType(t *testing.T) {
-	multiME := MEChainMsg + MEDeals + MEStorageAsk + MEProviderDealState
+	multiME := MEChainMsg + MEStorageAsk + MEProviderDealState
 	assert.Equal(t, ContainMsgType(multiME, MTChainMsg), true)
-	assert.Equal(t, ContainMsgType(multiME, MTDeals), true)
 	assert.Equal(t, ContainMsgType(multiME, MTStorageAsk), true)
 	assert.Equal(t, ContainMsgType(multiME, MTProviderDealState), true)
 
@@ -28,4 +27,12 @@ func TestFindCode(t *testing.T) {
 
 	ids2 := FindCode(8392)
 	assert.DeepEqual(t, []int{3, 6, 7, 13}, ids2)
+}
+
+func TestAggregateMsgEnumCode(t *testing.T) {
+	me, err := AggregateMsgEnumCode([]int{1, 2, 3, 4, 5, 6, 7})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, me, uint32(254))
 }

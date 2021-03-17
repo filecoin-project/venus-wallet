@@ -2,7 +2,15 @@ package core
 
 import "context"
 
-var ContextEnable bool
+type StrategyLevel = uint8
+
+const (
+	SLDisable StrategyLevel = iota
+	SLMetaType
+	SLMethod
+)
+
+var WalletStrategyLevel StrategyLevel
 
 type ContextKey string
 

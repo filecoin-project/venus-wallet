@@ -3,7 +3,6 @@ package sqlite
 import (
 	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/msgrouter"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"gotest.tools/assert"
 	"math/rand"
@@ -41,7 +40,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 
 	// MethodTemplate test
 	mtCount := 10
-	source := msgrouter.MethodNameList
+	source := core.MethodNameList
 	mtArrByName := make([]*storage.MethodTemplate, 0)
 	//random name
 	for i := 0; i < mtCount; i++ {

@@ -9,6 +9,32 @@ import (
 	"strings"
 )
 
+var strategyNewWalletToken = &cli.Command{
+	Name:      "newWalletToken",
+	Aliases:   []string{"newWT"},
+	Usage:     "create a wallet token with group",
+	ArgsUsage: "[groupName]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 1 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		groupName := cctx.Args().First()
+
+		token, err := api.NewWalletToken(ctx, groupName)
+		if err != nil {
+			return err
+		}
+		fmt.Println(token)
+		return nil
+	},
+}
+
 var strategyNewMsgTypeTemplate = &cli.Command{
 	Name:      "newMsgTypeTemplate",
 	Aliases:   []string{"newMTT"},
@@ -18,6 +44,12 @@ var strategyNewMsgTypeTemplate = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
 		codes := make([]int, 0)
 		for _, arg := range cctx.Args().Slice()[1:] {
@@ -27,12 +59,7 @@ var strategyNewMsgTypeTemplate = &cli.Command{
 			}
 			codes = append(codes, code)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
-		err = api.NewMsgTypeTemplate(name, codes)
+		err = api.NewMsgTypeTemplate(ctx, name, codes)
 		if err != nil {
 			return err
 		}
@@ -50,15 +77,16 @@ var strategyNewMethodTemplate = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
-		methods := make([]string, 0)
-		methods = append(methods, cctx.Args().Slice()[1:]...)
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.NewMethodTemplate(name, methods)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		methods := make([]string, 0)
+		methods = append(methods, cctx.Args().Slice()[1:]...)
+		err = api.NewMethodTemplate(ctx, name, methods)
 		if err != nil {
 			return err
 		}
@@ -76,6 +104,12 @@ var strategyNewKeyBindCustom = &cli.Command{
 		if cctx.Args().Len() < 4 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
 		address := cctx.Args().Get(1)
 		codesStr := cctx.Args().Get(2)
@@ -89,12 +123,7 @@ var strategyNewKeyBindCustom = &cli.Command{
 			}
 			codes = append(codes, code)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
-		err = api.NewKeyBindCustom(name, address, codes, methods)
+		err = api.NewKeyBindCustom(ctx, name, address, codes, methods)
 		if err != nil {
 			return err
 		}
@@ -112,17 +141,18 @@ var strategyNewKeyBindFromTemplate = &cli.Command{
 		if cctx.Args().Len() < 4 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
-		address := cctx.Args().Get(1)
-		mttName := cctx.Args().Get(2)
-		mtName := cctx.Args().Get(3)
-
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.NewKeyBindFromTemplate(name, address, mttName, mtName)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		address := cctx.Args().Get(1)
+		mttName := cctx.Args().Get(2)
+		mtName := cctx.Args().Get(3)
+
+		err = api.NewKeyBindFromTemplate(ctx, name, address, mttName, mtName)
 		if err != nil {
 			return err
 		}
@@ -132,7 +162,7 @@ var strategyNewKeyBindFromTemplate = &cli.Command{
 }
 
 var strategyNewGroup = &cli.Command{
-	Name:      "NewGroup",
+	Name:      "newGroup",
 	Aliases:   []string{"newG"},
 	Usage:     "create a group with keyBinds",
 	ArgsUsage: "[name, keyBindName1 keyBindName2 ...]",
@@ -140,15 +170,16 @@ var strategyNewGroup = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
-		names := make([]string, 0)
-		names = append(names, cctx.Args().Slice()[1:]...)
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.NewGroup(name, names)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		names := make([]string, 0)
+		names = append(names, cctx.Args().Slice()[1:]...)
+		err = api.NewGroup(ctx, name, names)
 		if err != nil {
 			return err
 		}
@@ -158,7 +189,7 @@ var strategyNewGroup = &cli.Command{
 }
 
 var strategyRemoveMsgTypeTemplate = &cli.Command{
-	Name:      "RemoveMsgTypeTemplate",
+	Name:      "removeMsgTypeTemplate",
 	Aliases:   []string{"rmMTT"},
 	Usage:     "remove msgTypeTemplate ( not affect the group strategy that has been created)",
 	ArgsUsage: "[name]",
@@ -166,13 +197,14 @@ var strategyRemoveMsgTypeTemplate = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.RemoveMsgTypeTemplate(name)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		err = api.RemoveMsgTypeTemplate(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -182,7 +214,7 @@ var strategyRemoveMsgTypeTemplate = &cli.Command{
 }
 
 var strategyRemoveMethodTemplate = &cli.Command{
-	Name:      "RemoveMethodTemplate",
+	Name:      "removeMethodTemplate",
 	Aliases:   []string{"rmMT"},
 	Usage:     "remove MethodTemplate ( not affect the group strategy that has been created)",
 	ArgsUsage: "[name]",
@@ -190,13 +222,14 @@ var strategyRemoveMethodTemplate = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.RemoveMethodTemplate(name)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		err = api.RemoveMethodTemplate(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -206,7 +239,7 @@ var strategyRemoveMethodTemplate = &cli.Command{
 }
 
 var strategyRemoveKeyBind = &cli.Command{
-	Name:      "RemoveKeyBind",
+	Name:      "removeKeyBind",
 	Aliases:   []string{"rmKB"},
 	Usage:     "remove keyBind ( not affect the group strategy that has been created)",
 	ArgsUsage: "[name]",
@@ -214,13 +247,14 @@ var strategyRemoveKeyBind = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.RemoveKeyBind(name)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		err = api.RemoveKeyBind(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -230,7 +264,7 @@ var strategyRemoveKeyBind = &cli.Command{
 }
 
 var strategyRemoveKeyBindByAddress = &cli.Command{
-	Name:      "RemoveKeyBindByAddress",
+	Name:      "removeKeyBindByAddress",
 	Aliases:   []string{"rmKBBA"},
 	Usage:     "remove keyBinds by address ( not affect the group strategy that has been created)",
 	ArgsUsage: "[name]",
@@ -238,13 +272,15 @@ var strategyRemoveKeyBindByAddress = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		num, err := api.RemoveKeyBindByAddress(name)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+
+		num, err := api.RemoveKeyBindByAddress(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -254,7 +290,7 @@ var strategyRemoveKeyBindByAddress = &cli.Command{
 }
 
 var strategyRemoveGroup = &cli.Command{
-	Name:      "RemoveGroup",
+	Name:      "removeGroup",
 	Aliases:   []string{"rmG"},
 	Usage:     "remove group by address ( not affect the group strategy that has been created)",
 	ArgsUsage: "[name]",
@@ -262,13 +298,41 @@ var strategyRemoveGroup = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		err = api.RemoveGroup(name)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+
+		err = api.RemoveGroup(ctx, name)
+		if err != nil {
+			return err
+		}
+		fmt.Println("success")
+		return nil
+	},
+}
+
+var strategyRemoveToken = &cli.Command{
+	Name:      "removeToken",
+	Aliases:   []string{"rmT"},
+	Usage:     "remove token",
+	ArgsUsage: "[token]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 1 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		token := cctx.Args().First()
+
+		err = api.RemoveToken(ctx, token)
 		if err != nil {
 			return err
 		}

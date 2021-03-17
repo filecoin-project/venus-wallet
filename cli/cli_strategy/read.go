@@ -6,7 +6,6 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/msgrouter"
 	"github.com/urfave/cli/v2"
 	"strconv"
 	"strings"
@@ -32,7 +31,7 @@ var strategyMethodList = &cli.Command{
 	Usage: "show all methods (index are used for counting only)",
 	Action: func(cctx *cli.Context) error {
 		fmt.Println("index\tmethod")
-		for k, v := range msgrouter.MethodNameList {
+		for k, v := range core.MethodNameList {
 			fmt.Printf("%d\t%s\n", k+1, v)
 		}
 		return nil
@@ -48,13 +47,14 @@ var strategyGetMsgTypeTemplate = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		tmp, err := api.GetMsgTypeTemplate(name)
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		tmp, err := api.GetMsgTypeTemplate(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -76,13 +76,15 @@ var strategyGetMethodTemplateByName = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		tmp, err := api.GetMethodTemplateByName(name)
+		ctx := helper.ReqContext(cctx)
+
+		name := cctx.Args().First()
+		tmp, err := api.GetMethodTemplateByName(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -100,29 +102,31 @@ var strategyGetKeyBindByName = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		tmp, err := api.GetKeyBindByName(name)
+		ctx := helper.ReqContext(cctx)
+
+		name := cctx.Args().First()
+		tmp, err := api.GetKeyBindByName(ctx, name)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("address: %s", tmp.Address)
 		var codes []string
 		linq.From(core.FindCode(tmp.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codes)
-		fmt.Printf("msgTypes: %s", strings.Join(codes, ","))
-		fmt.Printf("methods: %s", strings.Join(tmp.Methods, ","))
+		fmt.Printf("address\t: %s\n", tmp.Address)
+		fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
+		fmt.Printf("methods\t: %s\n", strings.Join(tmp.Methods, ","))
 		return nil
 	},
 }
 
 var strategyGetKeyBinds = &cli.Command{
-	Name:      "KeyBinds",
+	Name:      "keyBinds",
 	Aliases:   []string{"kbs"},
 	Usage:     "show keyBinds by address",
 	ArgsUsage: "[address]",
@@ -130,13 +134,15 @@ var strategyGetKeyBinds = &cli.Command{
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		address := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		arr, err := api.GetKeyBinds(address)
+		ctx := helper.ReqContext(cctx)
+
+		address := cctx.Args().First()
+		arr, err := api.GetKeyBinds(ctx, address)
 		if err != nil {
 			return err
 		}
@@ -145,9 +151,9 @@ var strategyGetKeyBinds = &cli.Command{
 			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
-			fmt.Printf("num\t:%d\n", k+1)
-			fmt.Printf("kbName\t:%s\n", v.Name)
-			fmt.Printf("msgTypes\t: %s\n", strings.Join(codes, ","))
+			fmt.Printf("num\t: %d\n", k+1)
+			fmt.Printf("name\t: %s\n", v.Name)
+			fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
 		return nil
@@ -156,20 +162,22 @@ var strategyGetKeyBinds = &cli.Command{
 
 var strategyGetGroupByName = &cli.Command{
 	Name:      "group",
-	Aliases:   []string{"kbs"},
+	Aliases:   []string{"g"},
 	Usage:     "show group by name",
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		group, err := api.GetGroupByName(name)
+		ctx := helper.ReqContext(cctx)
+
+		name := cctx.Args().First()
+		group, err := api.GetGroupByName(ctx, name)
 		if err != nil {
 			return err
 		}
@@ -178,9 +186,9 @@ var strategyGetGroupByName = &cli.Command{
 			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
-			fmt.Printf("num\t:%d\n", k+1)
-			fmt.Printf("kbName\t:%s\n", v.Name)
-			fmt.Printf("msgTypes\t: %s\n", strings.Join(codes, ","))
+			fmt.Printf("num\t: %d\n", k+1)
+			fmt.Printf("keybind\t: %s\n", v.Name)
+			fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
 		return nil
@@ -196,21 +204,50 @@ var strategyListGroup = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+
 		from, to, err := helper.ReqFromTo(cctx, 0)
 		if err != nil {
 			return err
+		}
+		groups, err := api.ListGroups(ctx, int(from), int(to))
+		if err != nil {
+			return err
+		}
+		for k, v := range groups {
+			fmt.Printf("%d\t: %s\n", k+1, v.Name)
+		}
+		return nil
+	},
+}
+
+var strategyGroupTokens = &cli.Command{
+	Name:      "groupTokens",
+	Aliases:   []string{"gts"},
+	Usage:     "show a range of tokens belong to group",
+	ArgsUsage: "[groupName]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 1 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		groups, err := api.ListGroups(int(from), int(to))
+		ctx := helper.ReqContext(cctx)
+		groupName := cctx.Args().First()
+		tks, err := api.GetWalletTokensByGroup(ctx, groupName)
 		if err != nil {
 			return err
 		}
-		for k, v := range groups {
-			fmt.Printf("%d name\t:%s\n", k+1, v.Name)
+		for _, v := range tks {
+			fmt.Println(v)
 		}
 		return nil
 	},
@@ -225,16 +262,18 @@ var strategyListKeyBinds = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		arr, err := api.ListKeyBinds(int(from), int(to))
+		ctx := helper.ReqContext(cctx)
+
+		from, to, err := helper.ReqFromTo(cctx, 0)
+		if err != nil {
+			return err
+		}
+		arr, err := api.ListKeyBinds(ctx, int(from), int(to))
 		if err != nil {
 			return err
 		}
@@ -243,9 +282,9 @@ var strategyListKeyBinds = &cli.Command{
 			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
-			fmt.Printf("num\t:%d\n", k+1)
-			fmt.Printf("kbName\t:%s\n", v.Name)
-			fmt.Printf("msgTypes\t: %s\n", strings.Join(codes, ","))
+			fmt.Printf("num\t: %d\n", k+1)
+			fmt.Printf("name\t: %s\n", v.Name)
+			fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
 		return nil
@@ -253,7 +292,7 @@ var strategyListKeyBinds = &cli.Command{
 }
 
 var strategyListMethodTemplates = &cli.Command{
-	Name:      "ListMethodTemplates",
+	Name:      "listMethodTemplates",
 	Aliases:   []string{"lmt"},
 	Usage:     "show a range of method templates",
 	ArgsUsage: "[from to]",
@@ -261,29 +300,31 @@ var strategyListMethodTemplates = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		arr, err := api.ListMethodTemplates(int(from), int(to))
+		ctx := helper.ReqContext(cctx)
+
+		from, to, err := helper.ReqFromTo(cctx, 0)
+		if err != nil {
+			return err
+		}
+		arr, err := api.ListMethodTemplates(ctx, int(from), int(to))
 		if err != nil {
 			return err
 		}
 		for k, v := range arr {
-			fmt.Printf("num\t:%d\n", k+1)
-			fmt.Printf("name\t:%s\n", v.Name)
+			fmt.Printf("num\t: %d\n", k+1)
+			fmt.Printf("name\t: %s\n", v.Name)
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
 		return nil
 	},
 }
 var strategyListMsgTypeTemplates = &cli.Command{
-	Name:      "ListMsgTypeTemplates",
+	Name:      "listMsgTypeTemplates",
 	Aliases:   []string{"lmtt"},
 	Usage:     "show a range of method templates",
 	ArgsUsage: "[from to]",
@@ -291,16 +332,18 @@ var strategyListMsgTypeTemplates = &cli.Command{
 		if cctx.Args().Len() < 2 {
 			return helper.ShowHelp(cctx, ErrParameterMismatch)
 		}
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		arr, err := api.ListMsgTypeTemplates(int(from), int(to))
+		ctx := helper.ReqContext(cctx)
+
+		from, to, err := helper.ReqFromTo(cctx, 0)
+		if err != nil {
+			return err
+		}
+		arr, err := api.ListMsgTypeTemplates(ctx, from, to)
 		if err != nil {
 			return err
 		}
@@ -309,9 +352,9 @@ var strategyListMsgTypeTemplates = &cli.Command{
 			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
-			fmt.Printf("num\t:%d\n", k+1)
-			fmt.Printf("name\t:%s\n", v.Name)
-			fmt.Printf("msgTypes\t: %s\n\n", strings.Join(codes, ","))
+			fmt.Printf("num\t: %d\n", k+1)
+			fmt.Printf("name\t: %s\n", v.Name)
+			fmt.Printf("types\t: %s\n\n", strings.Join(codes, ","))
 		}
 		return nil
 	},

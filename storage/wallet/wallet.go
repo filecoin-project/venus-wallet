@@ -34,7 +34,7 @@ type wallet struct {
 	verify strategy.IStrategyVerify
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.IStrategyVerify) ILocalWallet {
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.ILocalStrategy) ILocalWallet {
 	return &wallet{ws: ks, mw: mw, verify: verify}
 }
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
@@ -71,6 +71,7 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 
 }
 func (w *wallet) WalletHas(ctx context.Context, address core.Address) (bool, error) {
+
 	return w.ws.Has(address)
 }
 

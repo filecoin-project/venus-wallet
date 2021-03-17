@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
+	"github.com/ipfs-force-community/venus-wallet/api/remotecli/httpparse"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
 	"golang.org/x/xerrors"
@@ -22,7 +23,7 @@ type RemoteWallet struct {
 }
 
 func SetupRemoteWallet(info string) (*RemoteWallet, error) {
-	ai, err := remotecli.ParseApiInfo(info)
+	ai, err := httpparse.ParseApiInfo(info)
 	if err != nil {
 		return nil, err
 	}

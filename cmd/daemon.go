@@ -53,7 +53,7 @@ var RunCmd = &cli.Command{
 		if err != nil {
 			return xerrors.Errorf("opening fs repo: %w", err)
 		}
-		core.ContextEnable = r.Config().Strategy.Enable
+		core.WalletStrategyLevel = r.Config().Strategy.Level
 		secret, err := r.APISecret()
 		if err != nil {
 			return xerrors.Errorf("read secret failed: %w", err)

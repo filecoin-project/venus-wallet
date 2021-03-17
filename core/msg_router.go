@@ -26,6 +26,13 @@ var SupportedMsgTypes = map[MsgType]*Types{
 	MTDealProposal: {reflect.TypeOf(market.DealProposal{}), func(i interface{}) ([]byte, error) {
 		return cborutil.Dump(i)
 	}, nil},
+	MTClientDeal: {reflect.TypeOf(market.ClientDealProposal{}), func(in interface{}) ([]byte, error) {
+		ni, err := cborutil.AsIpld(in)
+		if err != nil {
+			return nil, err
+		}
+		return ni.Cid().Bytes(), nil
+	}, nil},
 	MTDrawRandomParam: {reflect.TypeOf(DrawRandomParams{}), func(in interface{}) ([]byte, error) {
 		param := in.(*DrawRandomParams)
 		return param.SignBytes()
@@ -45,13 +52,7 @@ var SupportedMsgTypes = map[MsgType]*Types{
 	MTNetWorkResponse: {reflect.TypeOf(network.Response{}), func(in interface{}) ([]byte, error) {
 		return cborutil.Dump(in)
 	}, nil},
-	MTClientDeal: {reflect.TypeOf(market.ClientDealProposal{}), func(in interface{}) ([]byte, error) {
-		ni, err := cborutil.AsIpld(in)
-		if err != nil {
-			return nil, err
-		}
-		return ni.Cid().Bytes(), nil
-	}, nil},
+
 	MTBlock: {reflect.TypeOf(Block{}), func(in interface{}) ([]byte, error) {
 		return in.(*Block).SignatureData(), nil
 	}, nil},
@@ -59,6 +60,10 @@ var SupportedMsgTypes = map[MsgType]*Types{
 		msg := in.(*Message)
 		return msg.Cid().Bytes(), nil
 	}, nil},
+	MTProviderDealState: {reflect.TypeOf(storagemarket.ProviderDealState{}), func(in interface{}) ([]byte, error) {
+		return cborutil.Dump(in)
+	}, nil,
+	},
 	// chain/gen/gen.go:659,
 	// in method 'ComputVRF' sign bytes with MsgType='MTUnkown'
 	// so, must deal 'MTUnkown' MsgType, and this may case safe problem

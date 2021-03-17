@@ -5,8 +5,9 @@ import (
 )
 
 var StrategyCmd = &cli.Command{
-	Name:  "strategy",
-	Usage: "Manage logging",
+	Name:    "strategy",
+	Usage:   "Manage logging",
+	Aliases: []string{"st"},
 	Subcommands: []*cli.Command{
 		//read
 		strategyTypeList,
@@ -17,6 +18,7 @@ var StrategyCmd = &cli.Command{
 		strategyGetKeyBinds,
 		strategyGetGroupByName,
 		strategyListGroup,
+		strategyGroupTokens,
 		strategyListKeyBinds,
 		strategyListMethodTemplates,
 		strategyListMsgTypeTemplates,
@@ -26,10 +28,12 @@ var StrategyCmd = &cli.Command{
 		strategyNewKeyBindCustom,
 		strategyNewKeyBindFromTemplate,
 		strategyNewGroup,
+		strategyNewWalletToken,
 		strategyRemoveMsgTypeTemplate,
 		strategyRemoveMethodTemplate,
 		strategyRemoveKeyBind,
 		strategyRemoveKeyBindByAddress,
 		strategyRemoveGroup,
+		strategyRemoveToken,
 	},
 }

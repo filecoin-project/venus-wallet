@@ -6,6 +6,7 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
+	"github.com/ipfs-force-community/venus-wallet/api/remotecli/httpparse"
 	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/mitchellh/go-homedir"
@@ -33,19 +34,19 @@ func (e *ErrCmdFailed) Error() string {
 	return e.msg
 }
 
-func GetAPIInfo(ctx *cli.Context) (remotecli.APIInfo, error) {
+func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 	p, err := homedir.Expand(ctx.String("repo"))
 	if err != nil {
-		return remotecli.APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
+		return httpparse.APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
 	}
 	r, err := filemgr.NewFS(p, nil)
 	if err != nil {
-		return remotecli.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
+		return httpparse.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
 	}
 
 	ma, err := r.APIEndpoint()
 	if err != nil {
-		return remotecli.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
+		return httpparse.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
 	}
 
 	token, err := r.APIToken()
@@ -53,7 +54,7 @@ func GetAPIInfo(ctx *cli.Context) (remotecli.APIInfo, error) {
 		log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 	}
 
-	return remotecli.APIInfo{
+	return httpparse.APIInfo{
 		Addr:  ma,
 		Token: token,
 	}, nil
