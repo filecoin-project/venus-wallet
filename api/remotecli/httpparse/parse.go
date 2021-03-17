@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	infoWithToken = regexp.MustCompile("^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?:.+$")         //nolint
-	strategyToken = regexp.MustCompile("/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i") //nolint
+	infoWithToken = regexp.MustCompile("^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?:.+$")                    //nolint
+	strategyToken = regexp.MustCompile("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}") //nolint
 )
 
 type APIInfo struct {
@@ -21,14 +21,20 @@ type APIInfo struct {
 
 func ParseApiInfo(s string) (*APIInfo, error) {
 
-	var tok []byte
+	var (
+		tok        []byte
+		strategyTk []byte
+	)
+
 	if infoWithToken.Match([]byte(s)) {
 		sp := strings.SplitN(s, ":", 2)
 		tok = []byte(sp[0])
 		s = sp[1]
 	}
-	if strategyToken.Match([]byte(s)){
-
+	if strategyToken.Match([]byte(s)) {
+		sp := strings.SplitN(s, ":", 2)
+		strategyTk = []byte(sp[1])
+		s = sp[0]
 	}
 	strma := strings.TrimSpace(s)
 	apima, err := multiaddr.NewMultiaddr(strma)
@@ -36,8 +42,9 @@ func ParseApiInfo(s string) (*APIInfo, error) {
 		return nil, err
 	}
 	return &APIInfo{
-		Addr:  apima,
-		Token: tok,
+		Addr:          apima,
+		Token:         tok,
+		StrategyToken: strategyTk,
 	}, nil
 }
 
