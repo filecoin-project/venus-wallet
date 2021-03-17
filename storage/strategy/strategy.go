@@ -16,7 +16,7 @@ import (
 
 var (
 	ErrGenToken            = errors.New("token generation failed")
-	ErrIllegalMetaType     = errors.New("this metaType is not allowed to pass")
+	ErrIllegalMetaType     = errors.New("this metaType or method is not allowed to pass")
 	ErrGenerateTokenFailed = errors.New("generate token failed")
 )
 
@@ -277,7 +277,7 @@ func (s *strategy) Verify(ctx context.Context, address core.Address, msgType cor
 		return err
 	}
 	if !kb.ContainMsgType(msgType) {
-		return ErrIllegalMetaType
+		return fmt.Errorf("%s: msgType %s", ErrIllegalMetaType, msgType)
 	}
 	if core.WalletStrategyLevel == core.SLMethod && msgType == core.MTChainMsg {
 		actor, err := s.nodeCli.StateGetActor(ctx, msg.To, node.TipSetKey{})
@@ -289,7 +289,7 @@ func (s *strategy) Verify(ctx context.Context, address core.Address, msgType cor
 			return err
 		}
 		if !kb.ContainMethod(fn) {
-			return ErrIllegalMetaType
+			return fmt.Errorf("%s: method %s", ErrIllegalMetaType, fn)
 		}
 	}
 	return nil
