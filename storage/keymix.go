@@ -20,6 +20,7 @@ type IWalletLock interface {
 	SetPassword(ctx context.Context, password string) error
 	Unlock(ctx context.Context, password string) error
 	Lock(ctx context.Context, password string) error
+	LockState(ctx context.Context) bool
 }
 
 var (
@@ -77,6 +78,9 @@ func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
 }
 func (o *KeyMixLayer) Lock(ctx context.Context, password string) error {
 	return o.changeLock(password, true)
+}
+func (o *KeyMixLayer) LockState(ctx context.Context) bool {
+	return o.locked
 }
 func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 	o.m.Lock()

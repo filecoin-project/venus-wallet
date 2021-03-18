@@ -30,7 +30,7 @@ func init() {
 	actors = append(actors, exported0.BuiltinActors()...)
 	actors = append(actors, exported2.BuiltinActors()...)
 	actors = append(actors, exported3.BuiltinActors()...)
-
+	MethodNamesMap["Send"] = struct{}{}
 	for _, actor := range actors {
 		exports := actor.Exports()
 		methods := make(map[MethodNum]MethodMeta, len(exports))

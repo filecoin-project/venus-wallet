@@ -43,7 +43,7 @@ func main() {
 	var fullAPI api.IFullAPI
 	stop, err := build.New(ctx,
 		build.Override(build.SetNet, func() {
-			address.CurrentNetwork = address.Mainnet
+			address.CurrentNetwork = address.Testnet
 		}),
 		build.FullAPIOpt(&fullAPI),
 		build.WalletOpt(r.Config()),

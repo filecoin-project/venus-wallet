@@ -3,7 +3,9 @@ package cli_strategy
 import (
 	"errors"
 	"fmt"
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/cli/helper"
+	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/urfave/cli/v2"
 	"strconv"
 	"strings"
@@ -337,6 +339,150 @@ var strategyRemoveToken = &cli.Command{
 			return err
 		}
 		fmt.Println("success")
+		return nil
+	},
+}
+
+var strategyPullMsgTypeFromKeyBind = &cli.Command{
+	Name:      "pullMsgTypeFromKeyBind",
+	Aliases:   []string{"pullMT4KB"},
+	Usage:     "remove elements of msgTypes in keyBind",
+	ArgsUsage: "[keyBindName, code1 code2 ...]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 2 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		codes := make([]int, 0)
+		for _, arg := range cctx.Args().Slice()[1:] {
+			code, err := strconv.Atoi(arg)
+			if err != nil {
+				return errors.New("code must be the number")
+			}
+			codes = append(codes, code)
+		}
+		kb, err := api.PullMsgTypeFromKeyBind(ctx, name, codes)
+		if err != nil {
+			return err
+		}
+		var codesOut []string
+		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+			return strconv.FormatInt(int64(i), 10)
+		}).ToSlice(&codesOut)
+		fmt.Printf("address\t: %s\n", kb.Address)
+		fmt.Printf("types\t: %s\n", strings.Join(codesOut, ","))
+		fmt.Printf("methods\t: %s\n", strings.Join(kb.Methods, ","))
+		return nil
+	},
+}
+
+var strategyPullMethodIntoKeyBind = &cli.Command{
+	Name:      "pullMethodFromKeyBind",
+	Aliases:   []string{"pullM4KB"},
+	Usage:     "remove elements of methods in keyBind",
+	ArgsUsage: "[keyBindName, method1 method2 ...]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 2 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		methods := make([]string, 0)
+		methods = append(methods, cctx.Args().Slice()[1:]...)
+		kb, err := api.PullMethodFromKeyBind(ctx, name, methods)
+		if err != nil {
+			return err
+		}
+		var codesOut []string
+		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+			return strconv.FormatInt(int64(i), 10)
+		}).ToSlice(&codesOut)
+		fmt.Printf("address\t: %s\n", kb.Address)
+		fmt.Printf("types\t: %s\n", strings.Join(codesOut, ","))
+		fmt.Printf("methods\t: %s\n", strings.Join(kb.Methods, ","))
+		return nil
+	},
+}
+
+var strategyPushMsgTypeIntoKeyBind = &cli.Command{
+	Name:      "pushMsgTypeIntoKeyBind",
+	Aliases:   []string{"pushMT2KB"},
+	Usage:     "append msgTypes into keyBind",
+	ArgsUsage: "[keyBindName, code1 code2 ...]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 2 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		codes := make([]int, 0)
+		for _, arg := range cctx.Args().Slice()[1:] {
+			code, err := strconv.Atoi(arg)
+			if err != nil {
+				return errors.New("code must be the number")
+			}
+			codes = append(codes, code)
+		}
+		kb, err := api.PushMsgTypeIntoKeyBind(ctx, name, codes)
+		if err != nil {
+			return err
+		}
+		var codesOut []string
+		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+			return strconv.FormatInt(int64(i), 10)
+		}).ToSlice(&codesOut)
+		fmt.Printf("address\t: %s\n", kb.Address)
+		fmt.Printf("types\t: %s\n", strings.Join(codesOut, ","))
+		fmt.Printf("methods\t: %s\n", strings.Join(kb.Methods, ","))
+		return nil
+	},
+}
+
+var strategyPushMethodIntoKeyBind = &cli.Command{
+	Name:      "pushMethodIntoKeyBind",
+	Aliases:   []string{"pushM2KB"},
+	Usage:     "append methods into keyBind",
+	ArgsUsage: "[keyBindName, method1 method2 ...]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 2 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		name := cctx.Args().First()
+		methods := make([]string, 0)
+		methods = append(methods, cctx.Args().Slice()[1:]...)
+		kb, err := api.PushMethodIntoKeyBind(ctx, name, methods)
+		if err != nil {
+			return err
+		}
+		var codesOut []string
+		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+			return strconv.FormatInt(int64(i), 10)
+		}).ToSlice(&codesOut)
+		fmt.Printf("address\t: %s\n", kb.Address)
+		fmt.Printf("types\t: %s\n", strings.Join(codesOut, ","))
+		fmt.Printf("methods\t: %s\n", strings.Join(kb.Methods, ","))
 		return nil
 	},
 }

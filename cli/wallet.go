@@ -19,8 +19,9 @@ import (
 )
 
 var walletSetPassword = &cli.Command{
-	Name:  "set-password",
-	Usage: "Store a credential for a keystore file",
+	Name:    "set-password",
+	Aliases: []string{"setpwd"},
+	Usage:   "Store a credential for a keystore file",
 	Action: func(cctx *cli.Context) error {
 		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
 		if err != nil {
@@ -94,6 +95,28 @@ var walletlock = &cli.Command{
 	},
 }
 
+var walletLockState = &cli.Command{
+	Name:    "lockState",
+	Aliases: []string{"lockstate"},
+	Usage:   "unlock the wallet and release private key",
+	Action: func(cctx *cli.Context) error {
+
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		locked := api.LockState(ctx)
+		state := "unlocked"
+		if locked {
+			state = "locked"
+		}
+		fmt.Printf("wallet state: %s\n", state)
+		return nil
+	},
+}
+
 var walletNew = &cli.Command{
 	Name:      "new",
 	Usage:     "Generate a new key of the given type",
@@ -120,8 +143,9 @@ var walletNew = &cli.Command{
 }
 
 var walletList = &cli.Command{
-	Name:  "list",
-	Usage: "List wallet address",
+	Name:    "list",
+	Aliases: []string{"ls"},
+	Usage:   "List wallet address",
 	Action: func(cctx *cli.Context) error {
 		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {

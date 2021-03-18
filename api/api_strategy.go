@@ -30,6 +30,11 @@ type StrategyAuth struct {
 		ListMethodTemplates  func(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error)  `perm:"admin" local:"required"`
 		ListMsgTypeTemplates func(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) `perm:"admin" local:"required"`
 
+		PushMsgTypeIntoKeyBind func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
+		PushMethodIntoKeyBind  func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
+		PullMsgTypeFromKeyBind func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
+		PullMethodFromKeyBind  func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
+
 		RemoveToken            func(ctx context.Context, token string) error                                                  `perm:"admin" local:"required"`
 		RemoveKeyBind          func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
 		RemoveKeyBindByAddress func(ctx context.Context, address string) (int64, error)                                       `perm:"admin" local:"required"`
@@ -92,6 +97,19 @@ func (o *StrategyAuth) ListMethodTemplates(ctx context.Context, fromIndex, toInd
 }
 func (o *StrategyAuth) ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) {
 	return o.Internal.ListMsgTypeTemplates(ctx, fromIndex, toIndex)
+}
+
+func (o *StrategyAuth) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	return o.Internal.PushMsgTypeIntoKeyBind(ctx, name, codes)
+}
+func (o *StrategyAuth) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	return o.Internal.PushMethodIntoKeyBind(ctx, name, methods)
+}
+func (o *StrategyAuth) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	return o.Internal.PullMsgTypeFromKeyBind(ctx, name, codes)
+}
+func (o *StrategyAuth) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	return o.Internal.PullMethodFromKeyBind(ctx, name, methods)
 }
 
 func (o *StrategyAuth) RemoveKeyBind(ctx context.Context, name string) error {

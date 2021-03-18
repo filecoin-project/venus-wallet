@@ -46,7 +46,9 @@ func (w *wallet) Unlock(ctx context.Context, password string) error {
 func (w *wallet) Lock(ctx context.Context, password string) error {
 	return w.mw.Lock(ctx, password)
 }
-
+func (w *wallet) LockState(ctx context.Context) bool {
+	return w.mw.LockState(ctx)
+}
 func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error) {
 	if err := w.mw.Next(); err != nil {
 		return core.NilAddress, err

@@ -18,4 +18,5 @@ var Commands = []*cli.Command{
 	walletSetPassword,
 	walletUnlock,
 	walletlock,
+	walletLockState,
 }

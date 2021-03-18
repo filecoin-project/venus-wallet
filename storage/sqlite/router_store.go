@@ -7,6 +7,7 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 type routerStore struct {
@@ -188,6 +189,23 @@ func (s *routerStore) GetKeyBindByNames(names []string) ([]*storage.KeyBind, err
 	}
 	res := s.mapper.toOuterKeyBinds(arr)
 	return res, nil
+}
+func (s *routerStore) UpdateKeyBindMetaTypes(kb *storage.KeyBind) error {
+	kbInner := s.mapper.toInnerKeyBind(kb)
+	err := s.db.Table(TBKeyBind).
+		Where("id=?", kbInner.BindId).
+		Updates(
+		KeyBind{
+			MetaTypes:   kbInner.MetaTypes,
+			MethodNames: kbInner.MethodNames,
+			UpdatedAt:   time.Now().Local()}).
+		Error
+	if err != nil {
+		log.Error(err)
+		err = s.errorAdapter(err)
+		return err
+	}
+	return nil
 }
 func (s *routerStore) GetKeyBindById(kbId uint) (*storage.KeyBind, error) {
 	m := new(KeyBind)

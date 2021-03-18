@@ -18,6 +18,7 @@ type StrategyStore interface {
 	ListMethodTemplates(fromIndex, toIndex int) ([]*MethodTemplate, error)
 	DeleteMethodTemplate(mtId uint) error
 
+	UpdateKeyBindMetaTypes(kb *KeyBind) error
 	PutKeyBind(kb *KeyBind) error
 	GetKeyBinds(address string) ([]*KeyBind, error)
 	GetKeyBindByName(name string) (*KeyBind, error)

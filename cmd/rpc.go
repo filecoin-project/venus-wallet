@@ -6,6 +6,7 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/permission"
+	"github.com/ipfs-force-community/venus-wallet/api/remotecli/httpparse"
 	"github.com/ipfs-force-community/venus-wallet/build"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"golang.org/x/xerrors"
@@ -82,7 +83,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ctx = permission.WithIPPerm(ctx)
 		local = true
 	}
-	token := r.Header.Get("Authorization")
+	token := r.Header.Get(httpparse.ServiceToken)
 	if token == "" {
 		token = r.FormValue("token")
 		if token != "" {
@@ -107,7 +108,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ctx = permission.WithPerm(ctx, allow)
 	}
 	if core.WalletStrategyLevel > 0 {
-		strategyToken := r.Header.Get("strategy")
+		strategyToken := r.Header.Get(httpparse.WalletStrategyToken)
 		if strategyToken == "" && !local {
 			log.Warn("missing strategyToken")
 			w.WriteHeader(401)

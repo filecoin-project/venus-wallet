@@ -41,6 +41,11 @@ type IStrategy interface {
 	ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error)
 	ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error)
 
+	PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)
+	PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error)
+	PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)
+	PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error)
+
 	RemoveMsgTypeTemplate(nctx context.Context, ame string) error
 	RemoveGroup(ctx context.Context, name string) error
 	RemoveMethodTemplate(ctx context.Context, name string) error
@@ -187,6 +192,87 @@ func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, address string) (
 	return s.store.DeleteKeyBindsByAddress(address)
 }
 
+func (s *strategy) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	em, err := core.AggregateMsgEnumCode(codes)
+	if err != nil {
+		return nil, err
+	}
+	kb, err := s.store.GetKeyBindByName(name)
+	if err != nil {
+		return nil, err
+	}
+	inc := em - kb.MetaTypes&em
+	if inc == 0 {
+		return kb, nil
+	}
+	kb.MetaTypes += inc
+	err = s.store.UpdateKeyBindMetaTypes(kb)
+	if err != nil {
+		return nil, err
+	}
+	return kb, nil
+}
+func (s *strategy) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	em, err := core.AggregateMethodNames(methods)
+	if err != nil {
+		return nil, err
+	}
+	kb, err := s.store.GetKeyBindByName(name)
+	if err != nil {
+		return nil, err
+	}
+	linq.From(em).Except(linq.From(kb.Methods)).ToSlice(&em)
+	if len(em) == 0 {
+		return kb, nil
+	}
+	kb.Methods = append(kb.Methods, em...)
+	err = s.store.UpdateKeyBindMetaTypes(kb)
+	if err != nil {
+		return nil, err
+	}
+	return kb, nil
+}
+func (s *strategy) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	em, err := core.AggregateMsgEnumCode(codes)
+	if err != nil {
+		return nil, err
+	}
+	kb, err := s.store.GetKeyBindByName(name)
+	if err != nil {
+		return nil, err
+	}
+	dec := kb.MetaTypes & em
+	if dec == 0 {
+		return kb, nil
+	}
+	kb.MetaTypes -= dec
+	err = s.store.UpdateKeyBindMetaTypes(kb)
+	if err != nil {
+		return nil, err
+	}
+	return kb, nil
+}
+func (s *strategy) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	em, err := core.AggregateMethodNames(methods)
+	if err != nil {
+		return nil, err
+	}
+	kb, err := s.store.GetKeyBindByName(name)
+	if err != nil {
+		return nil, err
+	}
+	linq.From(em).Intersect(linq.From(kb.Methods)).ToSlice(&em)
+	if len(em) == 0 {
+		return kb, nil
+	}
+	linq.From(kb.Methods).Except(linq.From(em)).ToSlice(&(kb.Methods))
+	err = s.store.UpdateKeyBindMetaTypes(kb)
+	if err != nil {
+		return nil, err
+	}
+	return kb, nil
+}
+
 func (s *strategy) NewGroup(ctx context.Context, name string, keyBindNames []string) error {
 	if len(keyBindNames) == 0 {
 		return errcode.ErrNilReference
@@ -280,16 +366,22 @@ func (s *strategy) Verify(ctx context.Context, address core.Address, msgType cor
 		return fmt.Errorf("%s: msgType %s", ErrIllegalMetaType, msgType)
 	}
 	if core.WalletStrategyLevel == core.SLMethod && msgType == core.MTChainMsg {
-		actor, err := s.nodeCli.StateGetActor(ctx, msg.To, node.TipSetKey{})
-		if err != nil {
-			return err
-		}
-		fn, err := core.GetMethodName(actor.Code, msg.Method)
-		if err != nil {
-			return err
-		}
-		if !kb.ContainMethod(fn) {
-			return fmt.Errorf("%s: method %s", ErrIllegalMetaType, fn)
+		if msg.Method == 0 {
+			if !linq.From(kb.Methods).Contains("Send") {
+				return fmt.Errorf("%s: method %s", ErrIllegalMetaType, "Send")
+			}
+		} else {
+			actor, err := s.nodeCli.StateGetActor(ctx, msg.To, node.TipSetKey{})
+			if err != nil {
+				return err
+			}
+			fn, err := core.GetMethodName(actor.Code, msg.Method)
+			if err != nil {
+				return err
+			}
+			if !kb.ContainMethod(fn) {
+				return fmt.Errorf("%s: method %s", ErrIllegalMetaType, fn)
+			}
 		}
 	}
 	return nil

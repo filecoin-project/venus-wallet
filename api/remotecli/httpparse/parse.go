@@ -13,6 +13,11 @@ var (
 	strategyToken = regexp.MustCompile("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}") //nolint
 )
 
+const (
+	ServiceToken        = "Authorization"
+	WalletStrategyToken = "StrategyToken"
+)
+
 type APIInfo struct {
 	Addr          multiaddr.Multiaddr
 	Token         []byte
@@ -59,8 +64,8 @@ func (a APIInfo) DialArgs() (string, error) {
 func (a APIInfo) AuthHeader() http.Header {
 	if len(a.Token) != 0 {
 		headers := http.Header{}
-		headers.Add("Authorization", "Bearer "+string(a.Token))
-		headers.Add("StrategyToken", string(a.StrategyToken))
+		headers.Add(ServiceToken, "Bearer "+string(a.Token))
+		headers.Add(WalletStrategyToken, string(a.StrategyToken))
 		return headers
 	}
 	return nil
