@@ -4,10 +4,14 @@ import (
 	"context"
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/venus-wallet/config"
+	"os"
 	"testing"
 )
 
 func TestLotusNode_GetActorCode(t *testing.T) {
+	if os.Getenv("CI") == "test" {
+		t.Skip()
+	}
 	cli, err := NewNodeClient(&config.StrategyConfig{
 		Level:   3,
 		NodeURL: "/ip4/127.0.0.1/tcp/1234/http",
