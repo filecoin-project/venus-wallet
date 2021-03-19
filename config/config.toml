@@ -1,9 +1,20 @@
 # Default config:
 [API]
-ListenAddress = "/ip4/0.0.0.0/tcp/1234/http"
-#  RemoteListenAddress = ""
-#  Timeout = "30s"
-#
+ListenAddress = "/ip4/0.0.0.0/tcp/5678/http"
 
 [DB]
-Conn = "123"
+Conn = "~/.venus_wallet/keystore.sqlit"
+Type = "sqlite"
+DebugMode = true
+
+[JWT]
+Token = "65794a68624763694f694a49557a49314e694973496e523563434936496b705856434a392e65794a42624778766479493657794a795a57466b4969776964334a70644755694c434a7a615764754969776959575274615734695858302e7133787a356f75634f6f543378774d5463743870574d42727668695f67697a4f7a365142674b2d6e4f7763"
+Secret = "7c40ce66a492e35ac828e8333a5703e38b23add87f29bd8fc7343989e08b3458"
+
+[Factor]
+ScryptN = 262144
+ScryptP = 1
+
+[Strategy]
+Level = 2
+NodeURL = "/ip4/127.0.0.1/tcp/2345/http"

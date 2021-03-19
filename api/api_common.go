@@ -2,64 +2,40 @@ package api
 
 import (
 	"context"
-	"github.com/gbrlsnchs/jwt/v3"
-	"github.com/ipfs-force-community/venus-wallet/version"
-	logging "github.com/ipfs/go-log/v2"
-	"go.uber.org/fx"
-	"golang.org/x/xerrors"
+	"github.com/ipfs-force-community/venus-wallet/api/permission"
+	"github.com/ipfs-force-community/venus-wallet/common"
 )
 
-type ICommon interface {
-	// Auth
-	AuthVerify(ctx context.Context, token string) ([]Permission, error)
-	AuthNew(ctx context.Context, perms []Permission) ([]byte, error)
+var _ common.ICommon = &CommonAuth{}
 
-	// Version provides information about API provider
-	Version(context.Context) (Version, error)
-
-	LogList(context.Context) ([]string, error)
-	LogSetLevel(context.Context, string, string) error
-}
-
-type APIAlg jwt.HMACSHA
-
-var _ ICommon = &Common{}
-
-type Common struct {
-	fx.In
-	APISecret *APIAlg
-}
-
-type jwtPayload struct {
-	Allow []string
-}
-
-func (a *Common) AuthVerify(ctx context.Context, token string) ([]Permission, error) {
-	var payload jwtPayload
-	if _, err := jwt.Verify([]byte(token), (*jwt.HMACSHA)(a.APISecret), &payload); err != nil {
-		return nil, xerrors.Errorf("JWT Verification failed: %w", err)
+// common API permissions constraints
+type CommonAuth struct {
+	Internal struct {
+		AuthVerify  func(ctx context.Context, token string) ([]permission.Permission, error) `perm:"read"`
+		AuthNew     func(ctx context.Context, perms []permission.Permission) ([]byte, error) `perm:"admin"`
+		Version     func(context.Context) (common.Version, error)                            `perm:"read"`
+		LogList     func(context.Context) ([]string, error)                                  `perm:"write"`
+		LogSetLevel func(context.Context, string, string) error                              `perm:"write"`
 	}
-	return payload.Allow, nil
 }
 
-func (a *Common) AuthNew(ctx context.Context, perms []Permission) ([]byte, error) {
-	p := jwtPayload{
-		Allow: perms, // TODO: consider checking validity
-	}
-	return jwt.Sign(&p, (*jwt.HMACSHA)(a.APISecret))
+func (c *CommonAuth) AuthVerify(ctx context.Context, token string) ([]permission.Permission, error) {
+	return c.Internal.AuthVerify(ctx, token)
 }
 
-func (a *Common) Version(context.Context) (Version, error) {
-	return Version{
-		Version:    version.UserVersion,
-		APIVersion: version.APIVersion,
-	}, nil
+func (c *CommonAuth) AuthNew(ctx context.Context, perms []permission.Permission) ([]byte, error) {
+	return c.Internal.AuthNew(ctx, perms)
 }
 
-func (a *Common) LogList(context.Context) ([]string, error) {
-	return logging.GetSubsystems(), nil
+// Version implements API.Version
+func (c *CommonAuth) Version(ctx context.Context) (common.Version, error) {
+	return c.Internal.Version(ctx)
 }
 
-func (a *Common) LogSetLevel(ctx context.Context, subsystem, level string) error {
-	return logging.SetLogLevel(subsystem, level)
+func (c *CommonAuth) LogList(ctx context.Context) ([]string, error) {
+	return c.Internal.LogList(ctx)
+}
+
+func (c *CommonAuth) LogSetLevel(ctx context.Context, group, level string) error {
+	return c.Internal.LogSetLevel(ctx, group, level)
 }

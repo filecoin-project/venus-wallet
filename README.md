@@ -11,6 +11,9 @@ and data signing for local and remote calls via RPC or CLI.
 ### Get Started
 #### 1. Build
 ```
+export CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
+export CGO_CFLAGS="-D__BLST_PORTABLE__"
+
 make 
 ```
 #### 2. Setup 

@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
@@ -16,6 +15,13 @@ import (
 	"io"
 	"sync"
 )
+
+type IWalletLock interface {
+	SetPassword(ctx context.Context, password string) error
+	Unlock(ctx context.Context, password string) error
+	Lock(ctx context.Context, password string) error
+	LockState(ctx context.Context) bool
+}
 
 var (
 	ErrLocked          = errors.New("wallet locked")
@@ -32,12 +38,11 @@ type KeyMiddleware interface {
 	Encrypt(key crypto.PrivateKey) (*EncryptedKey, error)
 	Decrypt(key *EncryptedKey) (crypto.PrivateKey, error)
 	Next() error
-	api.IWalletLock
+	IWalletLock
 }
 
 type KeyMixLayer struct {
 	m        sync.RWMutex
-	cache    map[core.Address]crypto.PrivateKey
 	locked   bool
 	password []byte
 	scryptN  int
@@ -46,8 +51,6 @@ type KeyMixLayer struct {
 
 func NewKeyMiddleware(cnf *config.CryptoFactor) KeyMiddleware {
 	return &KeyMixLayer{
-		//todo key cache
-		cache:    make(map[core.Address]crypto.PrivateKey),
 		locked:   true,
 		password: nil,
 		scryptN:  cnf.ScryptN,
@@ -72,6 +75,9 @@ func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
 }
 func (o *KeyMixLayer) Lock(ctx context.Context, password string) error {
 	return o.changeLock(password, true)
+}
+func (o *KeyMixLayer) LockState(ctx context.Context) bool {
+	return o.locked
 }
 func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 	o.m.Lock()

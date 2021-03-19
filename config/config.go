@@ -2,11 +2,17 @@ package config
 
 // full config
 type Config struct {
-	API     *APIConfig     `json:"API"`
-	DB      *DBConfig      `json:"DB" binding:"required"`
-	Metrics *MetricsConfig `json:"METRICS"`
-	JWT     *JWTConfig     `json:"JWT"`
-	Factor  *CryptoFactor  `json:"FACTOR"`
+	API      *APIConfig      `json:"API"`
+	DB       *DBConfig       `json:"DB" binding:"required"`
+	Metrics  *MetricsConfig  `json:"METRICS"`
+	JWT      *JWTConfig      `json:"JWT"`
+	Factor   *CryptoFactor   `json:"FACTOR"`
+	Strategy *StrategyConfig `json:"STRATEGY"`
+}
+
+type StrategyConfig struct {
+	Level   uint8  `json:"level"`
+	NodeURL string `json:"nodeUrl"`
 }
 
 // for keystore

@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"github.com/gbrlsnchs/jwt/v3"
-	"github.com/ipfs-force-community/venus-wallet/api"
+	"github.com/ipfs-force-community/venus-wallet/api/permission"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"io"
 	"io/ioutil"
@@ -26,7 +26,7 @@ func randSecret() (*jwtSecret, error) {
 		return nil, err
 	}
 	p := jwtPayload{
-		Allow: api.AllPermissions,
+		Allow: permission.AllPermissions,
 	}
 	cliToken, err := jwt.Sign(&p, jwt.NewHS256(sk))
 	if err != nil {

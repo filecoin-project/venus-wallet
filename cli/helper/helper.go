@@ -1,10 +1,13 @@
-package cli
+package helper
 
 import (
 	"context"
+	"errors"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
+	"github.com/ipfs-force-community/venus-wallet/api/remotecli/httpparse"
+	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/mitchellh/go-homedir"
 	"github.com/prometheus/common/log"
@@ -13,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
@@ -30,19 +34,19 @@ func (e *ErrCmdFailed) Error() string {
 	return e.msg
 }
 
-func GetAPIInfo(ctx *cli.Context) (remotecli.APIInfo, error) {
+func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 	p, err := homedir.Expand(ctx.String("repo"))
 	if err != nil {
-		return remotecli.APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
+		return httpparse.APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
 	}
 	r, err := filemgr.NewFS(p, nil)
 	if err != nil {
-		return remotecli.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
+		return httpparse.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
 	}
 
 	ma, err := r.APIEndpoint()
 	if err != nil {
-		return remotecli.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
+		return httpparse.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
 	}
 
 	token, err := r.APIToken()
@@ -50,7 +54,7 @@ func GetAPIInfo(ctx *cli.Context) (remotecli.APIInfo, error) {
 		log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 	}
 
-	return remotecli.APIInfo{
+	return httpparse.APIInfo{
 		Addr:  ma,
 		Token: token,
 	}, nil
@@ -70,20 +74,20 @@ func GetRawAPI(ctx *cli.Context) (string, http.Header, error) {
 	return addr, ainfo.AuthHeader(), nil
 }
 
-func GetAPI(ctx *cli.Context) (api.ICommon, jsonrpc.ClientCloser, error) {
+func GetAPI(ctx *cli.Context) (common.ICommon, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return api.NewCommonRPC(ctx.Context, addr, headers)
+	return remotecli.NewCommonRPC(ctx.Context, addr, headers)
 }
 func GetFullNodeAPI(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	return api.NewFullNodeRPC(ctx.Context, addr, headers)
+	return remotecli.NewFullNodeRPC(ctx.Context, addr, headers)
 }
 
 func DaemonContext(cctx *cli.Context) context.Context {
@@ -110,22 +114,43 @@ func ReqContext(cctx *cli.Context) context.Context {
 	return ctx
 }
 
-var Commands = []*cli.Command{
-	authCmd,
-	logCmd,
-	walletNew,
-	walletList,
-	walletExport,
-	walletImport,
-	walletSign,
-	walletDel,
-	walletSetPassword,
-	walletUnlock,
-	walletlock,
+func ReqFromTo(cctx *cli.Context, idx int) (from, to int, err error) {
+	fromStr := cctx.Args().Get(idx)
+	toStr := cctx.Args().Get(idx + 1)
+	f, err := strconv.ParseInt(fromStr, 10, 32)
+	if err != nil {
+		return 0, 0, errors.New("from must be an int")
+	}
+	t, err := strconv.ParseInt(toStr, 10, 32)
+	if err != nil {
+		return 0, 0, errors.New("to must be an int")
+	}
+	return int(f), int(t), nil
 }
 
 //nolint
 func withCategory(cat string, cmd *cli.Command) *cli.Command {
 	cmd.Category = cat
 	return cmd
+}
+func ShowHelp(cctx *cli.Context, err error) error {
+	return &PrintHelpErr{Err: err, Ctx: cctx}
+}
+
+type PrintHelpErr struct {
+	Err error
+	Ctx *cli.Context
+}
+
+func (e *PrintHelpErr) Error() string {
+	return e.Err.Error()
+}
+
+func (e *PrintHelpErr) Unwrap() error {
+	return e.Err
+}
+
+func (e *PrintHelpErr) Is(o error) bool {
+	_, ok := o.(*PrintHelpErr)
+	return ok
 }

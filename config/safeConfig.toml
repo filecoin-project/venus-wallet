@@ -6,3 +6,7 @@
   Conn = "123"
   Type = ""
   DebugMode = false
+
+[Strategy]
+  Level = 0
+  NodeURL = ""

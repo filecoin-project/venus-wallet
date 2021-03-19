@@ -6,6 +6,7 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/build"
 	"github.com/ipfs-force-community/venus-wallet/cmd"
+	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/ipfs-force-community/venus-wallet/middleware"
 	"github.com/ipfs-force-community/venus-wallet/version"
@@ -34,7 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("opening fs repo: %s", err)
 	}
-	log.Println(r)
+	core.WalletStrategyLevel = r.Config().Strategy.Level
 	secret, err := r.APISecret()
 	if err != nil {
 		log.Fatalf("read secret failed: %s", err)
@@ -42,7 +43,7 @@ func main() {
 	var fullAPI api.IFullAPI
 	stop, err := build.New(ctx,
 		build.Override(build.SetNet, func() {
-			address.CurrentNetwork = address.Mainnet
+			address.CurrentNetwork = address.Testnet
 		}),
 		build.FullAPIOpt(&fullAPI),
 		build.WalletOpt(r.Config()),

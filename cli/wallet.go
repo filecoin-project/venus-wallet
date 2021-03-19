@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-address"
 	"github.com/howeyc/gopass"
+	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -18,8 +19,9 @@ import (
 )
 
 var walletSetPassword = &cli.Command{
-	Name:  "set-password",
-	Usage: "Store a credential for a keystore file",
+	Name:    "set-password",
+	Aliases: []string{"setpwd"},
+	Usage:   "Store a credential for a keystore file",
 	Action: func(cctx *cli.Context) error {
 		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
 		if err != nil {
@@ -32,12 +34,12 @@ var walletSetPassword = &cli.Command{
 		if !bytes.Equal(pw, pw2) {
 			return errors.New("the input passwords are inconsistent")
 		}
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 		err = api.SetPassword(ctx, string(pw2))
 		if err != nil {
 			return err
@@ -55,12 +57,12 @@ var walletUnlock = &cli.Command{
 		if err != nil {
 			return err
 		}
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 		err = api.Unlock(ctx, string(pw))
 		if err != nil {
 			return err
@@ -78,12 +80,12 @@ var walletlock = &cli.Command{
 		if err != nil {
 			return err
 		}
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 		err = api.Lock(ctx, string(pw))
 		if err != nil {
 			return err
@@ -93,17 +95,39 @@ var walletlock = &cli.Command{
 	},
 }
 
+var walletLockState = &cli.Command{
+	Name:    "lockState",
+	Aliases: []string{"lockstate"},
+	Usage:   "unlock the wallet and release private key",
+	Action: func(cctx *cli.Context) error {
+
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		locked := api.LockState(ctx)
+		state := "unlocked"
+		if locked {
+			state = "locked"
+		}
+		fmt.Printf("wallet state: %s\n", state)
+		return nil
+	},
+}
+
 var walletNew = &cli.Command{
 	Name:      "new",
 	Usage:     "Generate a new key of the given type",
 	ArgsUsage: "[bls|secp256k1 (default secp256k1)]",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 		t := core.KeyType(cctx.Args().First())
 		if t == "" {
 			t = core.KTSecp256k1
@@ -119,15 +143,16 @@ var walletNew = &cli.Command{
 }
 
 var walletList = &cli.Command{
-	Name:  "list",
-	Usage: "List wallet address",
+	Name:    "list",
+	Aliases: []string{"ls"},
+	Usage:   "List wallet address",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		addrs, err := api.WalletList(ctx)
 		if err != nil {
@@ -146,12 +171,12 @@ var walletExport = &cli.Command{
 	Usage:     "export keys",
 	ArgsUsage: "[address]",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		if !cctx.Args().Present() {
 			return fmt.Errorf("must specify key to export")
@@ -189,12 +214,12 @@ var walletImport = &cli.Command{
 		},
 	},
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		var inpdata []byte
 		if !cctx.Args().Present() || cctx.Args().First() == "-" {
@@ -269,12 +294,12 @@ var walletSign = &cli.Command{
 	Usage:     "sign a message",
 	ArgsUsage: "<signing address> <hexMessage>",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		if !cctx.Args().Present() || cctx.NArg() != 2 {
 			return fmt.Errorf("must specify signing address and message to sign")
@@ -310,12 +335,12 @@ var walletDel = &cli.Command{
 	Usage:     "del a wallet and message",
 	ArgsUsage: "<address>",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		if !cctx.Args().Present() || cctx.NArg() != 1 {
 			return fmt.Errorf("must specify address")

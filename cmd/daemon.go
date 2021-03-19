@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/build"
+	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/filemgr"
 	"github.com/ipfs-force-community/venus-wallet/middleware"
 	"github.com/ipfs-force-community/venus-wallet/version"
@@ -52,7 +53,7 @@ var RunCmd = &cli.Command{
 		if err != nil {
 			return xerrors.Errorf("opening fs repo: %w", err)
 		}
-
+		core.WalletStrategyLevel = r.Config().Strategy.Level
 		secret, err := r.APISecret()
 		if err != nil {
 			return xerrors.Errorf("read secret failed: %w", err)
@@ -67,6 +68,11 @@ var RunCmd = &cli.Command{
 			build.WalletOpt(r.Config()),
 			build.CommonOpt(secret),
 			build.ApplyIf(func(s *build.Settings) bool { return cctx.IsSet(cmdNetwork) },
+				build.Override(build.SetNet, func() {
+					if cctx.String(cmdNetwork) == "test" {
+						address.CurrentNetwork = address.Testnet
+					}
+				}),
 				build.Override(new(build.NetworkName), build.NetworkName(cctx.String(cmdNetwork)))),
 		)
 		if err != nil {

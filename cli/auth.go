@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/api"
-
+	"github.com/ipfs-force-community/venus-wallet/api/permission"
+	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 )
@@ -28,13 +28,13 @@ var authCreateAdminToken = &cli.Command{
 	},
 
 	Action: func(cctx *cli.Context) error {
-		napi, closer, err := GetAPI(cctx)
+		napi, closer, err := helper.GetAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
 
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		if !cctx.IsSet("perm") {
 			return xerrors.New("--perm flag not set")
@@ -42,18 +42,18 @@ var authCreateAdminToken = &cli.Command{
 
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range api.AllPermissions {
+		for i, p := range permission.AllPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", api.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", permission.AllPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := napi.AuthNew(ctx, api.AllPermissions[:idx])
+		token, err := napi.AuthNew(ctx, permission.AllPermissions[:idx])
 		if err != nil {
 			return err
 		}
@@ -76,13 +76,13 @@ var authApiInfoToken = &cli.Command{
 	},
 
 	Action: func(cctx *cli.Context) error {
-		napi, closer, err := GetAPI(cctx)
+		napi, closer, err := helper.GetAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
 
-		ctx := ReqContext(cctx)
+		ctx := helper.ReqContext(cctx)
 
 		if !cctx.IsSet("perm") {
 			return xerrors.New("--perm flag not set")
@@ -90,23 +90,23 @@ var authApiInfoToken = &cli.Command{
 
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range api.AllPermissions {
+		for i, p := range permission.AllPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", api.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", permission.AllPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := napi.AuthNew(ctx, api.AllPermissions[:idx])
+		token, err := napi.AuthNew(ctx, permission.AllPermissions[:idx])
 		if err != nil {
 			return err
 		}
 
-		ainfo, err := GetAPIInfo(cctx)
+		ainfo, err := helper.GetAPIInfo(cctx)
 		if err != nil {
 			return xerrors.Errorf("could not get API info: %w", err)
 		}

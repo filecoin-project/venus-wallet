@@ -2,21 +2,48 @@ package wallet
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
 	"github.com/ipfs-force-community/venus-wallet/storage"
+	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
 	"golang.org/x/xerrors"
+	"sync"
 )
+
+type ILocalWallet interface {
+	IWallet
+	storage.IWalletLock
+}
+
+// remote wallet api
+type IWallet interface {
+	WalletNew(context.Context, core.KeyType) (core.Address, error)
+	WalletHas(ctx context.Context, address core.Address) (bool, error)
+	WalletList(ctx context.Context) ([]core.Address, error)
+	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
+	WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error)
+	WalletImport(context.Context, *core.KeyInfo) (core.Address, error)
+	WalletDelete(context.Context, core.Address) error
+}
+
+var _ IWallet = &wallet{}
 
 // wallet implementation
 type wallet struct {
-	ws storage.KeyStore
-	mw storage.KeyMiddleware
+	keyCache map[string]crypto.PrivateKey
+	ws       storage.KeyStore
+	mw       storage.KeyMiddleware
+	verify   strategy.IStrategyVerify
+	m        sync.RWMutex
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware) api.ILocalWallet {
-	return &wallet{ws: ks, mw: mw}
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.ILocalStrategy) ILocalWallet {
+	return &wallet{
+		ws:       ks,
+		mw:       mw,
+		verify:   verify,
+		keyCache: make(map[string]crypto.PrivateKey),
+	}
 }
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
 	return w.mw.SetPassword(ctx, password)
@@ -27,7 +54,9 @@ func (w *wallet) Unlock(ctx context.Context, password string) error {
 func (w *wallet) Lock(ctx context.Context, password string) error {
 	return w.mw.Lock(ctx, password)
 }
-
+func (w *wallet) LockState(ctx context.Context) bool {
+	return w.mw.LockState(ctx)
+}
 func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error) {
 	if err := w.mw.Next(); err != nil {
 		return core.NilAddress, err
@@ -65,7 +94,6 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 	}
 	var (
 		owner core.Address
-		err   error
 		data  []byte
 	)
 	if meta.Type == core.MTChainMsg {
@@ -77,7 +105,13 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 			return nil, err
 		}
 		owner = msg.From
+		if signer.String() != owner.String() {
+			return nil, xerrors.New("singer does not match from in MSG")
+		}
 		data = msg.Cid().Bytes()
+		if err = w.verify.Verify(ctx, signer, meta.Type, msg); err != nil {
+			return nil, err
+		}
 	} else {
 		_, toSign, err := core.GetSignBytes(toSign, meta)
 		if err != nil {
@@ -85,16 +119,23 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		}
 		owner = signer
 		data = toSign
+		if err = w.verify.Verify(ctx, signer, meta.Type, nil); err != nil {
+			return nil, err
+		}
 	}
-	key, err := w.ws.Get(owner)
-	if err != nil {
-		return nil, err
+	prvKey := w.cacheKey(owner)
+	if prvKey == nil {
+		key, err := w.ws.Get(owner)
+		if err != nil {
+			return nil, err
+		}
+		prvKey, err = w.mw.Decrypt(key)
+		if err != nil {
+			return nil, err
+		}
+		w.pushCache(owner, prvKey)
 	}
-	pkey, err := w.mw.Decrypt(key)
-	if err != nil {
-		return nil, err
-	}
-	return pkey.Sign(data)
+	return prvKey.Sign(data)
 }
 
 func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error) {
@@ -144,7 +185,26 @@ func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 	if err := w.mw.Next(); err != nil {
 		return err
 	}
-	return w.ws.Delete(addr)
+	err := w.ws.Delete(addr)
+	if err != nil {
+		return err
+	}
+	w.pullCache(addr)
+	return nil
 }
 
-var _ api.IWallet = &wallet{}
+func (w *wallet) pushCache(address core.Address, prv crypto.PrivateKey) {
+	w.m.Lock()
+	defer w.m.Unlock()
+	w.keyCache[address.String()] = prv
+}
+func (w *wallet) pullCache(address core.Address) {
+	w.m.Lock()
+	defer w.m.Unlock()
+	delete(w.keyCache, address.String())
+}
+func (w *wallet) cacheKey(address core.Address) crypto.PrivateKey {
+	w.m.RLock()
+	defer w.m.RUnlock()
+	return w.keyCache[address.String()]
+}

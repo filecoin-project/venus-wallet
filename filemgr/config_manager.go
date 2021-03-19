@@ -61,6 +61,12 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 			ScryptP: 1,
 		}
 	}
+	if cnf.Strategy == nil {
+		cnf.Strategy = &config.StrategyConfig{
+			Level:   0,
+			NodeURL: "",
+		}
+	}
 	if op != nil {
 		// override
 		if op.API != core.StringEmpty {
