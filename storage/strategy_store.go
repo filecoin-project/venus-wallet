@@ -35,7 +35,7 @@ type StrategyStore interface {
 	DeleteGroup(gId uint) error
 
 	PutGroupAuth(token string, groupId uint) error
-	GetGroupAuthByGroupId(groupId uint) ([]string, error)
+	GetTokensByGroupId(groupId uint) ([]string, error)
 	GetGroupAuth(token string) (*GroupAuth, error)
 	GetGroupKeyBind(token string, address string) (*KeyBind, error)
 	DeleteGroupAuth(token string) error

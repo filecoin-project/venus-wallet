@@ -195,10 +195,10 @@ func (s *routerStore) UpdateKeyBindMetaTypes(kb *storage.KeyBind) error {
 	err := s.db.Table(TBKeyBind).
 		Where("id=?", kbInner.BindId).
 		Updates(
-		KeyBind{
-			MetaTypes:   kbInner.MetaTypes,
-			MethodNames: kbInner.MethodNames,
-			UpdatedAt:   time.Now().Local()}).
+			KeyBind{
+				MetaTypes:   kbInner.MetaTypes,
+				MethodNames: kbInner.MethodNames,
+				UpdatedAt:   time.Now().Local()}).
 		Error
 	if err != nil {
 		log.Error(err)
@@ -383,7 +383,7 @@ func (s *routerStore) GetGroupKeyBind(token string, address string) (*storage.Ke
 	}
 	return s.mapper.toOuterKeyBind(kb), nil
 }
-func (s *routerStore) GetGroupAuthByGroupId(groupId uint) ([]string, error) {
+func (s *routerStore) GetTokensByGroupId(groupId uint) ([]string, error) {
 	var arr []*GroupAuth
 	err := s.db.Table(TBGroupAuth).Find(&arr, "id=?", groupId).Error
 	if err != nil {

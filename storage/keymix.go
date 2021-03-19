@@ -43,7 +43,6 @@ type KeyMiddleware interface {
 
 type KeyMixLayer struct {
 	m        sync.RWMutex
-	cache    map[core.Address]crypto.PrivateKey
 	locked   bool
 	password []byte
 	scryptN  int
@@ -52,8 +51,6 @@ type KeyMixLayer struct {
 
 func NewKeyMiddleware(cnf *config.CryptoFactor) KeyMiddleware {
 	return &KeyMixLayer{
-		//todo key cache
-		cache:    make(map[core.Address]crypto.PrivateKey),
 		locked:   true,
 		password: nil,
 		scryptN:  cnf.ScryptN,

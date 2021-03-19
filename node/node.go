@@ -13,7 +13,10 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	logging "github.com/ipfs/go-log/v2"
 )
+
+var log = logging.Logger("node")
 
 type TipSetKey struct {
 	// The internal representation is a concatenation of the bytes of the CIDs, which are
@@ -117,5 +120,6 @@ func NewNodeClient(cnf *config.StrategyConfig) (*NodeClient, error) {
 		return nil, err
 	}
 	cli.Cancel = closer
+	log.Info("node client initialize successfully")
 	return cli, nil
 }

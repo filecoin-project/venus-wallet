@@ -6,7 +6,7 @@ import (
 )
 
 func TestContainMsgType(t *testing.T) {
-	multiME :=MEUnknown+ MEChainMsg + MEStorageAsk + MEProviderDealState
+	multiME := MEUnknown + MEChainMsg + MEStorageAsk + MEProviderDealState
 	assert.Equal(t, ContainMsgType(multiME, MTChainMsg), true)
 	assert.Equal(t, ContainMsgType(multiME, MTStorageAsk), true)
 	assert.Equal(t, ContainMsgType(multiME, MTProviderDealState), true)

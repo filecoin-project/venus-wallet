@@ -12,6 +12,7 @@ import (
 	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/ipfs-force-community/venus-wallet/node"
 	"github.com/ipfs-force-community/venus-wallet/storage"
+	"sync"
 )
 
 var (
@@ -67,14 +68,17 @@ type IStrategyVerify interface {
 
 // TODO: add Cache
 type strategy struct {
+	scache  StrategyCache
 	store   storage.StrategyStore
 	nodeCli *node.NodeClient
+	sync.RWMutex
 }
 
 func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient) ILocalStrategy {
 	return &strategy{
 		store:   store,
 		nodeCli: nodeCli,
+		scache:  newStrategyCache(),
 	}
 }
 func (s *strategy) NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error {
@@ -182,17 +186,31 @@ func (s *strategy) ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]
 }
 
 func (s *strategy) RemoveKeyBind(ctx context.Context, name string) error {
+	s.Lock()
+	defer s.Unlock()
 	kb, err := s.store.GetKeyBindByName(name)
 	if err != nil {
 		return err
 	}
-	return s.store.DeleteKeyBind(kb.BindId)
+	err = s.store.DeleteKeyBind(kb.BindId)
+	if err != nil {
+		s.scache.removeKeyBind(kb)
+	}
+	return nil
 }
 func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, address string) (int64, error) {
-	return s.store.DeleteKeyBindsByAddress(address)
+	s.Lock()
+	defer s.Unlock()
+	num, err := s.store.DeleteKeyBindsByAddress(address)
+	if err != nil {
+		s.scache.removeAddress(address)
+	}
+	return num, nil
 }
 
 func (s *strategy) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	s.Lock()
+	defer s.Unlock()
 	em, err := core.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return nil, err
@@ -210,9 +228,12 @@ func (s *strategy) PushMsgTypeIntoKeyBind(ctx context.Context, name string, code
 	if err != nil {
 		return nil, err
 	}
+	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
 func (s *strategy) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	s.Lock()
+	defer s.Unlock()
 	em, err := core.AggregateMethodNames(methods)
 	if err != nil {
 		return nil, err
@@ -230,9 +251,12 @@ func (s *strategy) PushMethodIntoKeyBind(ctx context.Context, name string, metho
 	if err != nil {
 		return nil, err
 	}
+	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
 func (s *strategy) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	s.Lock()
+	defer s.Unlock()
 	em, err := core.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return nil, err
@@ -250,9 +274,12 @@ func (s *strategy) PullMsgTypeFromKeyBind(ctx context.Context, name string, code
 	if err != nil {
 		return nil, err
 	}
+	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
 func (s *strategy) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	s.Lock()
+	defer s.Unlock()
 	em, err := core.AggregateMethodNames(methods)
 	if err != nil {
 		return nil, err
@@ -270,6 +297,7 @@ func (s *strategy) PullMethodFromKeyBind(ctx context.Context, name string, metho
 	if err != nil {
 		return nil, err
 	}
+	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
 
@@ -311,15 +339,36 @@ func (s *strategy) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*s
 }
 
 func (s *strategy) RemoveGroup(ctx context.Context, name string) error {
+	s.Lock()
+	defer s.Unlock()
 	g, err := s.store.GetGroupByName(name)
 	if err != nil {
 		return err
 	}
-	return s.store.DeleteGroup(g.GroupId)
+	err = s.store.DeleteGroup(g.GroupId)
+	if err != nil {
+		tokens, err := s.store.GetTokensByGroupId(g.GroupId)
+		if err == nil {
+			s.scache.removeTokens(tokens)
+		}
+		if err != nil {
+			if err == errcode.ErrDataNotExists {
+				return nil
+			} else {
+				s.scache.refresh()
+			}
+		}
+	}
+	return nil
 }
 
 func (s *strategy) RemoveToken(ctx context.Context, token string) error {
+	s.Lock()
+	defer s.Unlock()
 	err := s.store.DeleteGroupAuth(token)
+	if err != nil {
+		s.scache.removeToken(token)
+	}
 	return err
 }
 
@@ -337,6 +386,9 @@ func (s *strategy) NewWalletToken(ctx context.Context, groupName string) (token 
 	if err != nil {
 		return core.StringEmpty, err
 	}
+	for _, v := range g.KeyBinds {
+		s.scache.removeBlank(token, v.Address)
+	}
 	return token, nil
 }
 func (s *strategy) GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error) {
@@ -344,7 +396,7 @@ func (s *strategy) GetWalletTokensByGroup(ctx context.Context, groupName string)
 	if err != nil {
 		return nil, err
 	}
-	tokens, err := s.store.GetGroupAuthByGroupId(g.GroupId)
+	tokens, err := s.store.GetTokensByGroupId(g.GroupId)
 	if err != nil {
 		return nil, err
 	}
@@ -353,15 +405,36 @@ func (s *strategy) GetWalletTokensByGroup(ctx context.Context, groupName string)
 
 // NOTE: for wallet
 func (s *strategy) Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error {
+	s.RLock()
+	defer s.RUnlock()
 	if core.WalletStrategyLevel == core.SLDisable {
 		return nil
 	}
 	token := core.ContextStrategyToken(ctx)
-	// TODO: Query optimization, (token + address) get one keyBind
-	kb, err := s.store.GetGroupKeyBind(token, address.String())
-	if err != nil {
-		return err
+	var (
+		err error
+		kb  *storage.KeyBind
+	)
+	addrStr := address.String()
+	// cache
+	kb = s.scache.get(token, addrStr)
+	if kb != nil {
+		goto Verify
 	}
+	// is data through
+	if s.scache.through(token, addrStr) {
+		return errcode.ErrDataNotExists
+	}
+	kb, err = s.store.GetGroupKeyBind(token, address.String())
+	if err == nil {
+		s.scache.set(token, kb)
+		goto Verify
+	}
+	if err == errcode.ErrDataNotExists {
+		s.scache.setBlank(token, addrStr)
+	}
+	return err
+Verify:
 	if !kb.ContainMsgType(msgType) {
 		return fmt.Errorf("%s: msgType %s", ErrIllegalMetaType, msgType)
 	}

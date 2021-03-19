@@ -41,7 +41,7 @@ func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
 	sqldb.SetConnMaxIdleTime(300)
 	sqldb.SetMaxIdleConns(8)
 	sqldb.SetMaxOpenConns(64)
-	//db = db.Debug()
+	// db = db.Debug()
 	// key_types 1
 	if !db.Migrator().HasTable(TBWallet) {
 		if err = db.Table(TBWallet).AutoMigrate(&Wallet{}); err != nil {

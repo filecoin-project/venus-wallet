@@ -12,8 +12,8 @@ func TestForEachMethodsMap(t *testing.T) {
 		}
 	}
 }
-func TestMethodNamesMap(t *testing.T){
-	for k, _ := range MethodNamesMap {
+func TestMethodNamesMap(t *testing.T) {
+	for k := range MethodNamesMap {
 		t.Log(k)
 	}
 }
