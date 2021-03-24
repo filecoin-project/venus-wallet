@@ -38,6 +38,7 @@ type IStrategy interface {
 	GetGroupByName(ctx context.Context, name string) (*storage.Group, error)
 	GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error)
 	GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error)
+
 	ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error)
 	ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error)
 	ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error)

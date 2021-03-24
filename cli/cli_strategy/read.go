@@ -253,6 +253,7 @@ var strategyGroupTokens = &cli.Command{
 		return nil
 	},
 }
+
 var strategyTokenInfo = &cli.Command{
 	Name:      "tokenInfo",
 	Aliases:   []string{"ti"},
@@ -289,6 +290,7 @@ var strategyTokenInfo = &cli.Command{
 		return nil
 	},
 }
+
 var strategyListKeyBinds = &cli.Command{
 	Name:      "listKeyBinds",
 	Aliases:   []string{"lkb"},

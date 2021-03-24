@@ -86,11 +86,9 @@ func (o *StrategyAuth) GetKeyBinds(ctx context.Context, address string) ([]*stor
 func (o *StrategyAuth) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
 	return o.Internal.GetGroupByName(ctx, name)
 }
-
 func (o *StrategyAuth) GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error) {
 	return o.Internal.GetWalletTokenInfo(ctx, token)
 }
-
 func (o *StrategyAuth) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error) {
 	return o.Internal.ListGroups(ctx, fromIndex, toIndex)
 }
