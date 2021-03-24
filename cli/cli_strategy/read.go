@@ -153,6 +153,7 @@ var strategyGetKeyBinds = &cli.Command{
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)
 			fmt.Printf("name\t: %s\n", v.Name)
+			fmt.Printf("addr\t: %s\n", v.Address)
 			fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
@@ -252,7 +253,42 @@ var strategyGroupTokens = &cli.Command{
 		return nil
 	},
 }
-
+var strategyTokenInfo = &cli.Command{
+	Name:      "tokenInfo",
+	Aliases:   []string{"ti"},
+	Usage:     "show info about token",
+	ArgsUsage: "[token]",
+	Action: func(cctx *cli.Context) error {
+		if cctx.Args().Len() < 1 {
+			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		}
+		api, closer, err := helper.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+		ctx := helper.ReqContext(cctx)
+		token := cctx.Args().First()
+		ti, err := api.GetWalletTokenInfo(ctx, token)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("groupName: %s\n", ti.Name)
+		fmt.Println("keyBinds:")
+		for k, v := range ti.KeyBinds {
+			var codes []string
+			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
+				return strconv.FormatInt(int64(i), 10)
+			}).ToSlice(&codes)
+			fmt.Printf("\tnum\t: %d\n", k+1)
+			fmt.Printf("\tname\t: %s\n", v.Name)
+			fmt.Printf("\taddr\t: %s\n", v.Address)
+			fmt.Printf("\ttypes\t: %s\n", strings.Join(codes, ","))
+			fmt.Printf("\tmethods\t: %s\n\n", strings.Join(v.Methods, ","))
+		}
+		return nil
+	},
+}
 var strategyListKeyBinds = &cli.Command{
 	Name:      "listKeyBinds",
 	Aliases:   []string{"lkb"},
@@ -284,6 +320,7 @@ var strategyListKeyBinds = &cli.Command{
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)
 			fmt.Printf("name\t: %s\n", v.Name)
+			fmt.Printf("addr\t: %s\n", v.Address)
 			fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
