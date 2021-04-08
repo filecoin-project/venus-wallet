@@ -17,8 +17,18 @@ import (
 // Abstract data types to be signed
 type Types struct {
 	Type      reflect.Type
-	signBytes func(i interface{}) ([]byte, error)
-	parseObj  func([]byte, MsgMeta) (interface{}, error)
+	signBytes FGetSignBytes
+	parseObj  FParseObj
+}
+
+type FGetSignBytes func(in interface{}) ([]byte, error)
+type FParseObj func([]byte, MsgMeta) (interface{}, error)
+
+func RegistSupportedMsgTypes(msgType MsgType, p reflect.Type,
+	fGetSignBytes FGetSignBytes, fParseObj FParseObj) (replaced bool) {
+	_, replaced = SupportedMsgTypes[msgType]
+	SupportedMsgTypes[msgType] = &Types{p, fGetSignBytes, fParseObj}
+	return replaced
 }
 
 // signature type factory
