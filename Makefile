@@ -12,18 +12,27 @@ BINS:=./venus-wallet
 git=$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
 
 ldflags=-X=github.com/ipfs-force-community/venus-wallet/version.CurrentCommit='+git$(git)'
-
 ifneq ($(strip $(LDFLAGS)),)
 	ldflags+=-extldflags=$(LDFLAGS)
 endif
 
+
 GOFLAGS+=-ldflags="$(ldflags)"
 
+wallet:
 wallet: show-env $(BUILD_DEPS)
+	CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
+	CGO_CFLAGS="-D__BLST_PORTABLE__"
 	rm -f venus-wallet
 	go build $(GOFLAGS) -o venus-wallet ./cmd/wallet/main.go
 	./venus-wallet --version
 
+
+linux: 	show-env $(BUILD_DEPS)
+	CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
+	CGO_CFLAGS="-D__BLST_PORTABLE__"
+	rm -f venus-wallet
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static" go build $(GOFLAGS) -o venus-wallet ./cmd/wallet/main.go
 
 show-env:
 	@echo '_________________build_environment_______________'

@@ -20,6 +20,7 @@ var StrategyCmd = &cli.Command{
 		strategyListGroup,
 		strategyGroupTokens,
 		strategyListKeyBinds,
+		strategyTokenInfo,
 		strategyListMethodTemplates,
 		strategyListMsgTypeTemplates,
 		//write

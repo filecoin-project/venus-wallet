@@ -24,6 +24,7 @@ type StrategyAuth struct {
 		GetKeyBinds             func(ctx context.Context, address string) ([]*storage.KeyBind, error)    `perm:"admin" local:"required"`
 		GetGroupByName          func(ctx context.Context, name string) (*storage.Group, error)           `perm:"admin" local:"required"`
 		GetWalletTokensByGroup  func(ctx context.Context, groupName string) ([]string, error)            `perm:"admin" local:"required"`
+		GetWalletTokenInfo      func(ctx context.Context, token string) (*storage.GroupAuth, error)      `perm:"admin" local:"required"`
 
 		ListGroups           func(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error)           `perm:"admin" local:"required"`
 		ListKeyBinds         func(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error)         `perm:"admin" local:"required"`
@@ -85,7 +86,9 @@ func (o *StrategyAuth) GetKeyBinds(ctx context.Context, address string) ([]*stor
 func (o *StrategyAuth) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
 	return o.Internal.GetGroupByName(ctx, name)
 }
-
+func (o *StrategyAuth) GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error) {
+	return o.Internal.GetWalletTokenInfo(ctx, token)
+}
 func (o *StrategyAuth) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error) {
 	return o.Internal.ListGroups(ctx, fromIndex, toIndex)
 }
