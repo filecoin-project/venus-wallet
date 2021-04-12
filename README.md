@@ -38,6 +38,9 @@ Enter Password again:******
 #### 4. Get strategy token
 - Strategy token restricts the authority of business execution
 - How to generate strategy token for remote service [Venus wallet cli](https://github.com/filecoin-project/venus-docs/blob/master/docs/zh/Remote-Wallet.md#jwt%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86)
+- URL append strategy token `<JWT token>:/ip4/0.0.0.0/tcp/5678/http:<Strategy token>`
+
+
 
 > Once we have a connection string, we can connect to the remote wallet through it.
 
