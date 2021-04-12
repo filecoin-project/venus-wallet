@@ -42,7 +42,8 @@ type StrategyAuth struct {
 		RemoveGroup            func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
 		RemoveMethodTemplate   func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
 		RemoveMsgTypeTemplate  func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
-		ScopeWallet            func(ctx context.Context) ([]core.Address, error)                                              `perm:"admin" local:"required"`
+		ScopeWallet            func(ctx context.Context) (*core.AddressScope, error)                                          `perm:"admin" local:"required"`
+		ContainWallet          func(ctx context.Context, address core.Address) bool                                           `perm:"admin" local:"required"`
 		Verify                 func(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error `perm:"admin" local:"required"`
 	}
 }
@@ -133,9 +134,12 @@ func (o *StrategyAuth) RemoveMsgTypeTemplate(ctx context.Context, name string) e
 func (o *StrategyAuth) RemoveToken(ctx context.Context, token string) error {
 	return o.Internal.RemoveToken(ctx, token)
 }
-func (o *StrategyAuth) ScopeWallet(ctx context.Context) ([]core.Address, error) {
+func (o *StrategyAuth) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
 	return o.Internal.ScopeWallet(ctx)
 }
 func (o *StrategyAuth) Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error {
 	return o.Internal.Verify(ctx, address, msgType, msg)
+}
+func (o *StrategyAuth) ContainWallet(ctx context.Context, address core.Address) bool {
+	return o.Internal.ContainWallet(ctx, address)
 }

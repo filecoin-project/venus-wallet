@@ -1,11 +1,16 @@
 package filemgr
 
 import (
+	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"github.com/gbrlsnchs/jwt/v3"
+	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-wallet/common"
 	"github.com/ipfs-force-community/venus-wallet/config"
+	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/crypto/aes"
 	"github.com/mitchellh/go-homedir"
 	"github.com/multiformats/go-multiaddr"
 	"os"
@@ -97,4 +102,21 @@ func (fsr *FsRepo) APIEndpoint() (multiaddr.Multiaddr, error) {
 
 func (fsr *FsRepo) APIToken() ([]byte, error) {
 	return hex.DecodeString(fsr.cnf.JWT.Token)
+}
+
+func (fsr *FsRepo) APIStrategyToken(password string) (string, error) {
+	hashPasswd := aes.Keccak256([]byte(password))
+	rootKey, err := aes.EncryptData(hashPasswd, []byte("root"), fsr.cnf.Factor.ScryptN, fsr.cnf.Factor.ScryptP)
+	if err != nil {
+		return core.StringEmpty, errors.New("failed to gen token seed")
+	}
+	rootKB, err := json.Marshal(rootKey)
+	if err != nil {
+		return core.StringEmpty, errors.New("failed to marshal token seed")
+	}
+	rootk, err := uuid.NewRandomFromReader(bytes.NewBuffer(rootKB))
+	if err != nil {
+		return core.StringEmpty, errors.New("failed to convert token seed to uuid")
+	}
+	return rootk.String(), nil
 }

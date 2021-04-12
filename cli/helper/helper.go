@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/filecoin-project/go-jsonrpc"
+	"github.com/howeyc/gopass"
 	"github.com/ipfs-force-community/venus-wallet/api"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
 	"github.com/ipfs-force-community/venus-wallet/api/remotecli/httpparse"
@@ -24,6 +25,12 @@ const (
 	metadataTraceContext = "traceContext"
 )
 
+type ctxKey string
+
+const (
+	ctxPWD ctxKey = "pwd"
+)
+
 // custom CLI error
 
 type ErrCmdFailed struct {
@@ -37,7 +44,7 @@ func (e *ErrCmdFailed) Error() string {
 func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 	p, err := homedir.Expand(ctx.String("repo"))
 	if err != nil {
-		return httpparse.APIInfo{}, xerrors.Errorf("cound not expand home dir (repo): %w", err)
+		return httpparse.APIInfo{}, xerrors.Errorf("could not expand home dir (repo): %w", err)
 	}
 	r, err := filemgr.NewFS(p, nil)
 	if err != nil {
@@ -54,9 +61,19 @@ func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 		log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 	}
 
+	strategyToken := make([]byte, 0)
+	if pwd, ok := ctx.Context.Value(ctxPWD).([]byte); ok && len(pwd) > 0 {
+		tk, err := r.APIStrategyToken(string(pwd))
+		if err != nil {
+			return httpparse.APIInfo{}, xerrors.Errorf("could not convert strategy token:%w", err)
+		}
+		strategyToken = []byte(tk)
+	}
+
 	return httpparse.APIInfo{
-		Addr:  ma,
-		Token: token,
+		Addr:          ma,
+		Token:         token,
+		StrategyToken: strategyToken,
 	}, nil
 }
 
@@ -82,12 +99,20 @@ func GetAPI(ctx *cli.Context) (common.ICommon, jsonrpc.ClientCloser, error) {
 
 	return remotecli.NewCommonRPC(ctx.Context, addr, headers)
 }
-func GetFullNodeAPI(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
+func GetFullAPI(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
 	return remotecli.NewFullNodeRPC(ctx.Context, addr, headers)
+}
+
+func GetFullAPIWithPWD(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
+	err := withPWD(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return GetFullAPI(ctx)
 }
 
 func DaemonContext(cctx *cli.Context) context.Context {
@@ -112,6 +137,15 @@ func ReqContext(cctx *cli.Context) context.Context {
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP)
 
 	return ctx
+}
+
+func withPWD(cctx *cli.Context) error {
+	pwd, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+	if err != nil {
+		return err
+	}
+	cctx.Context = context.WithValue(cctx.Context, ctxPWD, pwd)
+	return nil
 }
 
 func ReqFromTo(cctx *cli.Context, idx int) (from, to int, err error) {

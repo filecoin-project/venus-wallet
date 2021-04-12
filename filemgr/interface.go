@@ -16,5 +16,8 @@ type Repo interface {
 
 	APISecret() (*common.APIAlg, error)
 
+	// APIStrategyToken cli pwd convert root token
+	APIStrategyToken(password string) (string, error)
+
 	Config() *config.Config
 }

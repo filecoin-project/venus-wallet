@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/crypto/aes"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"golang.org/x/xerrors"
 	"gorm.io/gorm"
@@ -19,7 +20,7 @@ func NewKeyStore(conn *Conn) storage.KeyStore {
 	return &sqliteStorage{db: conn.DB, walletTB: TBWallet}
 }
 
-func (s *sqliteStorage) Put(key *storage.EncryptedKey) error {
+func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 	keyBytes, err := json.Marshal(key.Crypto)
 	if err != nil {
 		return err
@@ -62,17 +63,17 @@ func (s *sqliteStorage) List() ([]core.Address, error) {
 	return addresses, err
 }
 
-func (s *sqliteStorage) Get(addr core.Address) (*storage.EncryptedKey, error) {
+func (s *sqliteStorage) Get(addr core.Address) (*aes.EncryptedKey, error) {
 	res := &Wallet{}
 	if err := s.db.Table(s.walletTB).Where("address=?", addr.String()).First(res).Error; err != nil {
 		return nil, err
 	}
-	cj := new(storage.CryptoJSON)
+	cj := new(aes.CryptoJSON)
 	err := json.Unmarshal(res.KeyInfo.PrivateKey, cj)
 	if err != nil {
 		return nil, err
 	}
-	return &storage.EncryptedKey{
+	return &aes.EncryptedKey{
 		Address: addr.String(),
 		KeyType: res.KeyInfo.Type,
 		Crypto:  cj,

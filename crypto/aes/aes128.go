@@ -1,8 +1,10 @@
-package storage
+package aes
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -12,6 +14,7 @@ import (
 	"golang.org/x/crypto/scrypt"
 	"golang.org/x/crypto/sha3"
 	"hash"
+	"io"
 )
 
 var (
@@ -96,7 +99,7 @@ func aesCTRXOR(key, inText, iv []byte) ([]byte, error) {
 }
 
 // nolint
-func keccak256(data ...[]byte) []byte {
+func Keccak256(data ...[]byte) []byte {
 	b := make([]byte, 32)
 	d := NewKeccakState()
 	for _, b := range data {
@@ -114,4 +117,82 @@ func NewKeccakState() KeccakState {
 type KeccakState interface {
 	hash.Hash
 	Read([]byte) (int, error)
+}
+
+func EncryptData(password, data []byte, scryptN, scryptP int) (*CryptoJSON, error) {
+	salt := make([]byte, 32)
+	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+		panic("reading from crypto/rand failed: " + err.Error())
+	}
+	derivedKey, err := scrypt.Key(password, salt, scryptN, scryptR, scryptP, scryptDKLen)
+	if err != nil {
+		return nil, err
+	}
+	encryptKey := derivedKey[:16]
+
+	iv := make([]byte, aes.BlockSize) // 16
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		panic("reading from crypto/rand failed: " + err.Error())
+	}
+	cipherText, err := aesCTRXOR(encryptKey, data, iv)
+	if err != nil {
+		return nil, err
+	}
+	mac := Keccak256(derivedKey[16:32], cipherText)
+
+	scryptParamsJSON := make(map[string]interface{}, 5)
+	scryptParamsJSON["n"] = scryptN
+	scryptParamsJSON["r"] = scryptR
+	scryptParamsJSON["p"] = scryptN
+	scryptParamsJSON["dklen"] = scryptDKLen
+	scryptParamsJSON["salt"] = hex.EncodeToString(salt)
+	cipherParamsJSON := cipherparamsJSON{
+		IV: hex.EncodeToString(iv),
+	}
+	cryptoStruct := &CryptoJSON{
+		Cipher:       "aes-128-ctr",
+		CipherText:   hex.EncodeToString(cipherText),
+		CipherParams: cipherParamsJSON,
+		KDF:          keyHeaderKDF,
+		KDFParams:    scryptParamsJSON,
+		MAC:          hex.EncodeToString(mac),
+	}
+	return cryptoStruct, nil
+
+}
+
+func Decrypt(cryptoJson *CryptoJSON, pwd []byte) ([]byte, error) {
+	if cryptoJson.Cipher != "aes-128-ctr" {
+		return nil, fmt.Errorf("cipher not supported: %v", cryptoJson.Cipher)
+	}
+	mac, err := hex.DecodeString(cryptoJson.MAC)
+	if err != nil {
+		return nil, err
+	}
+
+	iv, err := hex.DecodeString(cryptoJson.CipherParams.IV)
+	if err != nil {
+		return nil, err
+	}
+
+	cipherText, err := hex.DecodeString(cryptoJson.CipherText)
+	if err != nil {
+		return nil, err
+	}
+
+	derivedKey, err := getKDFKey(cryptoJson, pwd)
+	if err != nil {
+		return nil, err
+	}
+
+	calculatedMAC := Keccak256(derivedKey[16:32], cipherText)
+	if !bytes.Equal(calculatedMAC, mac) {
+		return nil, ErrDecrypt
+	}
+
+	plainText, err := aesCTRXOR(derivedKey[:16], cipherText, iv)
+	if err != nil {
+		return nil, err
+	}
+	return plainText, err
 }
