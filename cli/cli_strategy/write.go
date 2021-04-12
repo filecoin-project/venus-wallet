@@ -6,6 +6,7 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/urfave/cli/v2"
 	"strconv"
 	"strings"
@@ -18,15 +19,16 @@ var strategyNewWalletToken = &cli.Command{
 	ArgsUsage: "[groupName]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		groupName := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		groupName := cctx.Args().First()
+		defer closer()
 
 		token, err := api.NewWalletToken(ctx, groupName)
 		if err != nil {
@@ -44,9 +46,9 @@ var strategyNewMsgTypeTemplate = &cli.Command{
 	ArgsUsage: "[name, code1 code2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -77,9 +79,9 @@ var strategyNewMethodTemplate = &cli.Command{
 	ArgsUsage: "[name, method1 method2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -101,12 +103,12 @@ var strategyNewKeyBindCustom = &cli.Command{
 	Name:      "newKeyBindCustom",
 	Aliases:   []string{"newKBC"},
 	Usage:     "create a strategy about wallet bind msgType and methods",
-	ArgsUsage: "[name, address, codes, methods]",
+	ArgsUsage: "[name, address, codes, <methods>]",
 	Action: func(cctx *cli.Context) error {
-		if cctx.Args().Len() < 4 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		if cctx.Args().Len() < 3 {
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -115,8 +117,6 @@ var strategyNewKeyBindCustom = &cli.Command{
 		name := cctx.Args().First()
 		address := cctx.Args().Get(1)
 		codesStr := cctx.Args().Get(2)
-		methodsStr := cctx.Args().Get(3)
-		methods := strings.Split(methodsStr, ",")
 		var codes []int
 		for _, v := range strings.Split(codesStr, ",") {
 			code, err := strconv.Atoi(v)
@@ -124,6 +124,11 @@ var strategyNewKeyBindCustom = &cli.Command{
 				return errors.New("codes must be int type")
 			}
 			codes = append(codes, code)
+		}
+		methods := make([]string, 0)
+		if cctx.NArg() == 4 {
+			methodsStr := cctx.Args().Get(3)
+			methods = strings.Split(methodsStr, ",")
 		}
 		err = api.NewKeyBindCustom(ctx, name, address, codes, methods)
 		if err != nil {
@@ -138,12 +143,12 @@ var strategyNewKeyBindFromTemplate = &cli.Command{
 	Name:      "newKeyBindFromTemplate",
 	Aliases:   []string{"newKBFT"},
 	Usage:     "create a strategy about wallet bind msgType and methods with template",
-	ArgsUsage: "[name, address, msgTypeTemplateName, methodTemplateName]",
+	ArgsUsage: "[name, address, msgTypeTemplateName, <methodTemplateName>]",
 	Action: func(cctx *cli.Context) error {
-		if cctx.Args().Len() < 4 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+		if cctx.NArg() < 3 {
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -152,7 +157,10 @@ var strategyNewKeyBindFromTemplate = &cli.Command{
 		name := cctx.Args().First()
 		address := cctx.Args().Get(1)
 		mttName := cctx.Args().Get(2)
-		mtName := cctx.Args().Get(3)
+		mtName := ""
+		if cctx.NArg() == 4 {
+			mtName = cctx.Args().Get(3)
+		}
 
 		err = api.NewKeyBindFromTemplate(ctx, name, address, mttName, mtName)
 		if err != nil {
@@ -170,9 +178,9 @@ var strategyNewGroup = &cli.Command{
 	ArgsUsage: "[name, keyBindName1 keyBindName2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -197,9 +205,9 @@ var strategyRemoveMsgTypeTemplate = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -222,9 +230,9 @@ var strategyRemoveMethodTemplate = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -247,15 +255,17 @@ var strategyRemoveKeyBind = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		name := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		name := cctx.Args().First()
+		defer closer()
+
 		err = api.RemoveKeyBind(ctx, name)
 		if err != nil {
 			return err
@@ -272,15 +282,16 @@ var strategyRemoveKeyBindByAddress = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		name := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		name := cctx.Args().First()
+		defer closer()
 
 		num, err := api.RemoveKeyBindByAddress(ctx, name)
 		if err != nil {
@@ -298,15 +309,16 @@ var strategyRemoveGroup = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		name := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		name := cctx.Args().First()
+		defer closer()
 
 		err = api.RemoveGroup(ctx, name)
 		if err != nil {
@@ -324,15 +336,16 @@ var strategyRemoveToken = &cli.Command{
 	ArgsUsage: "[token]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		token := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		token := cctx.Args().First()
+		defer closer()
 
 		err = api.RemoveToken(ctx, token)
 		if err != nil {
@@ -350,14 +363,8 @@ var strategyPullMsgTypeFromKeyBind = &cli.Command{
 	ArgsUsage: "[keyBindName, code1 code2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
-		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
 		codes := make([]int, 0)
 		for _, arg := range cctx.Args().Slice()[1:] {
@@ -367,6 +374,14 @@ var strategyPullMsgTypeFromKeyBind = &cli.Command{
 			}
 			codes = append(codes, code)
 		}
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		if err != nil {
+			return err
+		}
+		ctx := helper.ReqContext(cctx)
+		defer closer()
+
 		kb, err := api.PullMsgTypeFromKeyBind(ctx, name, codes)
 		if err != nil {
 			return err
@@ -389,17 +404,19 @@ var strategyPullMethodIntoKeyBind = &cli.Command{
 	ArgsUsage: "[keyBindName, method1 method2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
-		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
 		methods := make([]string, 0)
 		methods = append(methods, cctx.Args().Slice()[1:]...)
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		if err != nil {
+			return err
+		}
+		ctx := helper.ReqContext(cctx)
+		defer closer()
+
 		kb, err := api.PullMethodFromKeyBind(ctx, name, methods)
 		if err != nil {
 			return err
@@ -422,14 +439,8 @@ var strategyPushMsgTypeIntoKeyBind = &cli.Command{
 	ArgsUsage: "[keyBindName, code1 code2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
-		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
 		codes := make([]int, 0)
 		for _, arg := range cctx.Args().Slice()[1:] {
@@ -439,6 +450,14 @@ var strategyPushMsgTypeIntoKeyBind = &cli.Command{
 			}
 			codes = append(codes, code)
 		}
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		if err != nil {
+			return err
+		}
+		ctx := helper.ReqContext(cctx)
+		defer closer()
+
 		kb, err := api.PushMsgTypeIntoKeyBind(ctx, name, codes)
 		if err != nil {
 			return err
@@ -461,17 +480,19 @@ var strategyPushMethodIntoKeyBind = &cli.Command{
 	ArgsUsage: "[keyBindName, method1 method2 ...]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
-		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
 		methods := make([]string, 0)
 		methods = append(methods, cctx.Args().Slice()[1:]...)
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		if err != nil {
+			return err
+		}
+		ctx := helper.ReqContext(cctx)
+		defer closer()
+
 		kb, err := api.PushMethodIntoKeyBind(ctx, name, methods)
 		if err != nil {
 			return err

@@ -3,16 +3,14 @@ package storage
 import (
 	"bytes"
 	"context"
-	"crypto/aes"
-	"crypto/rand"
-	"encoding/hex"
+	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-wallet/config"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
-	"golang.org/x/crypto/scrypt"
-	"io"
+	"github.com/ipfs-force-community/venus-wallet/crypto/aes"
+	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"sync"
 )
 
@@ -35,18 +33,21 @@ var (
 type DecryptFunc func(keyJson []byte, keyType core.KeyType) (crypto.PrivateKey, error)
 
 type KeyMiddleware interface {
-	Encrypt(key crypto.PrivateKey) (*EncryptedKey, error)
-	Decrypt(key *EncryptedKey) (crypto.PrivateKey, error)
+	Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error)
+	Decrypt(key *aes.EncryptedKey) (crypto.PrivateKey, error)
 	Next() error
+	EqualRootToken(token string) error
+	CheckToken(ctx context.Context) error
 	IWalletLock
 }
 
 type KeyMixLayer struct {
-	m        sync.RWMutex
-	locked   bool
-	password []byte
-	scryptN  int
-	scryptP  int
+	m         sync.RWMutex
+	rootToken string
+	locked    bool
+	password  []byte
+	scryptN   int
+	scryptP   int
 }
 
 func NewKeyMiddleware(cnf *config.CryptoFactor) KeyMiddleware {
@@ -64,12 +65,41 @@ func (o *KeyMixLayer) SetPassword(ctx context.Context, password string) error {
 	if len(o.password) != 0 {
 		return ErrPasswordExist
 	}
-	hashPasswd := keccak256([]byte(password))
+	rootToken, err := o.genRootToken(ctx, password)
+	if err != nil {
+		return err
+	}
+	o.rootToken = rootToken
+	hashPasswd := aes.Keccak256([]byte(password))
 	o.password = hashPasswd
 	o.locked = false
 	return nil
 }
-
+func (o *KeyMixLayer) genRootToken(ctx context.Context, password string) (string, error) {
+	hashPasswd := aes.Keccak256([]byte(password))
+	rootKey, err := aes.EncryptData(hashPasswd, []byte("root"), o.scryptN, o.scryptP)
+	if err != nil {
+		return core.StringEmpty, errors.New("failed to gen token seed")
+	}
+	rootKB, err := json.Marshal(rootKey)
+	if err != nil {
+		return core.StringEmpty, errors.New("failed to marshal token seed")
+	}
+	rootk, err := uuid.NewRandomFromReader(bytes.NewBuffer(rootKB))
+	if err != nil {
+		return core.StringEmpty, errors.New("failed to convert token seed to uuid")
+	}
+	return rootk.String(), nil
+}
+func (o *KeyMixLayer) EqualRootToken(token string) error {
+	if len(o.password) == 0 || len(o.rootToken) == 0 {
+		return ErrPasswordEmpty
+	}
+	if o.rootToken == token {
+		return nil
+	}
+	return errcode.ErrWithoutPermission
+}
 func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
 	return o.changeLock(password, false)
 }
@@ -92,12 +122,22 @@ func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 			return ErrAlreadyUnlocked
 		}
 	}
-	hashPasswd := keccak256([]byte(password))
+	hashPasswd := aes.Keccak256([]byte(password))
 	if !bytes.Equal(o.password, hashPasswd) {
 		return ErrInvalidPassword
 	}
 	o.locked = lock
 	return nil
+}
+func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
+	token := core.ContextStrategyToken(ctx)
+	if len(o.password) == 0 || len(o.rootToken) == 0 {
+		return ErrPasswordEmpty
+	}
+	if o.rootToken == token {
+		return nil
+	}
+	return errcode.ErrWithoutPermission
 }
 
 func (o *KeyMixLayer) Next() error {
@@ -112,7 +152,7 @@ func (o *KeyMixLayer) Next() error {
 	return nil
 }
 
-func (o *KeyMixLayer) Encrypt(key crypto.PrivateKey) (*EncryptedKey, error) {
+func (o *KeyMixLayer) Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error) {
 	// EncryptKey encrypts a key using the specified scrypt parameters into a json
 	// blob that can be decrypted later on.
 	cryptoStruct, err := o.encryptData(key.Bytes())
@@ -120,7 +160,7 @@ func (o *KeyMixLayer) Encrypt(key crypto.PrivateKey) (*EncryptedKey, error) {
 		return nil, err
 	}
 	addr, _ := key.Address()
-	encryptedKeyJSON := &EncryptedKey{
+	encryptedKeyJSON := &aes.EncryptedKey{
 		Address: addr.String(),
 		KeyType: key.KeyType(),
 		Crypto:  cryptoStruct,
@@ -128,50 +168,13 @@ func (o *KeyMixLayer) Encrypt(key crypto.PrivateKey) (*EncryptedKey, error) {
 	return encryptedKeyJSON, nil
 }
 
-// Encryptdata encrypts the data given as 'data' with the password 'auth'.
-func (o *KeyMixLayer) encryptData(data []byte) (*CryptoJSON, error) {
-	salt := make([]byte, 32)
-	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
-		panic("reading from crypto/rand failed: " + err.Error())
-	}
-	derivedKey, err := scrypt.Key(o.password, salt, o.scryptN, scryptR, o.scryptP, scryptDKLen)
-	if err != nil {
-		return nil, err
-	}
-	encryptKey := derivedKey[:16]
-
-	iv := make([]byte, aes.BlockSize) // 16
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic("reading from crypto/rand failed: " + err.Error())
-	}
-	cipherText, err := aesCTRXOR(encryptKey, data, iv)
-	if err != nil {
-		return nil, err
-	}
-	mac := keccak256(derivedKey[16:32], cipherText)
-
-	scryptParamsJSON := make(map[string]interface{}, 5)
-	scryptParamsJSON["n"] = o.scryptN
-	scryptParamsJSON["r"] = scryptR
-	scryptParamsJSON["p"] = o.scryptP
-	scryptParamsJSON["dklen"] = scryptDKLen
-	scryptParamsJSON["salt"] = hex.EncodeToString(salt)
-	cipherParamsJSON := cipherparamsJSON{
-		IV: hex.EncodeToString(iv),
-	}
-	cryptoStruct := &CryptoJSON{
-		Cipher:       "aes-128-ctr",
-		CipherText:   hex.EncodeToString(cipherText),
-		CipherParams: cipherParamsJSON,
-		KDF:          keyHeaderKDF,
-		KDFParams:    scryptParamsJSON,
-		MAC:          hex.EncodeToString(mac),
-	}
-	return cryptoStruct, nil
+func (o *KeyMixLayer) encryptData(data []byte) (*aes.CryptoJSON, error) {
+	return aes.EncryptData(o.password, data, o.scryptN, o.scryptP)
 }
-func (o *KeyMixLayer) Decrypt(key *EncryptedKey) (crypto.PrivateKey, error) {
+
+func (o *KeyMixLayer) Decrypt(key *aes.EncryptedKey) (crypto.PrivateKey, error) {
 	// Depending on the version try to parse one way or another
-	keyBytes, err := o.decrypt(key.Crypto)
+	keyBytes, err := aes.Decrypt(key.Crypto, o.password)
 	// Handle any decryption errors and return the key
 	if err != nil {
 		return nil, err
@@ -181,40 +184,4 @@ func (o *KeyMixLayer) Decrypt(key *EncryptedKey) (crypto.PrivateKey, error) {
 		return nil, err
 	}
 	return pkey, nil
-}
-
-func (o *KeyMixLayer) decrypt(cryptoJson *CryptoJSON) ([]byte, error) {
-	if cryptoJson.Cipher != "aes-128-ctr" {
-		return nil, fmt.Errorf("cipher not supported: %v", cryptoJson.Cipher)
-	}
-	mac, err := hex.DecodeString(cryptoJson.MAC)
-	if err != nil {
-		return nil, err
-	}
-
-	iv, err := hex.DecodeString(cryptoJson.CipherParams.IV)
-	if err != nil {
-		return nil, err
-	}
-
-	cipherText, err := hex.DecodeString(cryptoJson.CipherText)
-	if err != nil {
-		return nil, err
-	}
-
-	derivedKey, err := getKDFKey(cryptoJson, o.password)
-	if err != nil {
-		return nil, err
-	}
-
-	calculatedMAC := keccak256(derivedKey[16:32], cipherText)
-	if !bytes.Equal(calculatedMAC, mac) {
-		return nil, ErrDecrypt
-	}
-
-	plainText, err := aesCTRXOR(derivedKey[:16], cipherText, iv)
-	if err != nil {
-		return nil, err
-	}
-	return plainText, err
 }

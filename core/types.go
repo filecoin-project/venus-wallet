@@ -21,6 +21,11 @@ const (
 	SigTypeBLS
 )
 
+type AddressScope struct {
+	Root      bool
+	Addresses []Address
+}
+
 type Address = address.Address
 type Signature = crypto.Signature
 type TokenAmount = abi.TokenAmount

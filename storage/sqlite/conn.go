@@ -7,6 +7,7 @@ import (
 	"golang.org/x/xerrors"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var log = logging.Logger("sqlite")
@@ -41,7 +42,7 @@ func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
 	sqldb.SetConnMaxIdleTime(300)
 	sqldb.SetMaxIdleConns(8)
 	sqldb.SetMaxOpenConns(64)
-	// db = db.Debug()
+	db.Logger = logger.Default.LogMode(logger.Silent)
 	// key_types 1
 	if !db.Migrator().HasTable(TBWallet) {
 		if err = db.Table(TBWallet).AutoMigrate(&Wallet{}); err != nil {

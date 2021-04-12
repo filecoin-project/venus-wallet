@@ -2,8 +2,10 @@ package wallet
 
 import (
 	"context"
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/core"
 	"github.com/ipfs-force-community/venus-wallet/crypto"
+	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/ipfs-force-community/venus-wallet/storage"
 	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
 	"golang.org/x/xerrors"
@@ -61,6 +63,10 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 	if err := w.mw.Next(); err != nil {
 		return core.NilAddress, err
 	}
+	err := w.mw.CheckToken(ctx)
+	if err != nil {
+		return core.NilAddress, err
+	}
 	prv, err := crypto.GeneratePrivateKey(core.KeyType2Sign(kt))
 	if err != nil {
 		return core.NilAddress, err
@@ -81,11 +87,29 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 
 }
 func (w *wallet) WalletHas(ctx context.Context, address core.Address) (bool, error) {
+	if !w.verify.ContainWallet(ctx, address) {
+		return false, errcode.ErrWithoutPermission
+	}
 	return w.ws.Has(address)
 }
 
 func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
-	return w.ws.List()
+	addrScope, err := w.verify.ScopeWallet(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if addrScope.Root {
+		return w.ws.List()
+	}
+	if len(addrScope.Addresses) == 0 {
+		return addrScope.Addresses, nil
+	}
+	addrs, err := w.ws.List()
+	if err != nil {
+		return nil, err
+	}
+	linq.From(addrs).Intersect(linq.From(addrScope.Addresses)).ToSlice(&addrs)
+	return addrs, nil
 }
 
 func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
@@ -142,6 +166,9 @@ func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.Key
 	if err := w.mw.Next(); err != nil {
 		return nil, err
 	}
+	if !w.verify.ContainWallet(ctx, addr) {
+		return nil, errcode.ErrWithoutPermission
+	}
 	key, err := w.ws.Get(addr)
 	if err != nil {
 		return nil, err
@@ -152,8 +179,13 @@ func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.Key
 	}
 	return pkey.ToKeyInfo(), nil
 }
+
 func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
 	if err := w.mw.Next(); err != nil {
+		return core.NilAddress, err
+	}
+	err := w.mw.CheckToken(ctx)
+	if err != nil {
 		return core.NilAddress, err
 	}
 	pk, err := crypto.NewKeyFromKeyInfo(ki)
@@ -181,9 +213,13 @@ func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Addre
 	}
 	return addr, nil
 }
+
 func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 	if err := w.mw.Next(); err != nil {
 		return err
+	}
+	if !w.verify.ContainWallet(ctx, addr) {
+		return errcode.ErrWithoutPermission
 	}
 	err := w.ws.Delete(addr)
 	if err != nil {
@@ -198,6 +234,7 @@ func (w *wallet) pushCache(address core.Address, prv crypto.PrivateKey) {
 	defer w.m.Unlock()
 	w.keyCache[address.String()] = prv
 }
+
 func (w *wallet) pullCache(address core.Address) {
 	w.m.Lock()
 	defer w.m.Unlock()

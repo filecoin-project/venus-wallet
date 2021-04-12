@@ -78,10 +78,8 @@ type Handler struct {
 // JWT verify
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	local := false
 	if r.RemoteAddr[:len("127.0.0.1")] == "127.0.0.1" {
 		ctx = permission.WithIPPerm(ctx)
-		local = true
 	}
 	token := r.Header.Get(httpparse.ServiceToken)
 	if token == "" {
@@ -107,15 +105,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ctx = permission.WithPerm(ctx, allow)
 	}
-	if core.WalletStrategyLevel > 0 {
-		strategyToken := r.Header.Get(httpparse.WalletStrategyToken)
-		if strategyToken == "" && !local {
-			log.Warn("missing strategyToken")
-			w.WriteHeader(401)
-			return
-		}
-		ctx = context.WithValue(ctx, core.CtxKeyStrategy, strategyToken)
-	}
-
+	strategyToken := r.Header.Get(httpparse.WalletStrategyToken)
+	ctx = context.WithValue(ctx, core.CtxKeyStrategy, strategyToken)
 	h.Next(w, r.WithContext(ctx))
 }

@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/crypto/aes"
 )
 
 var (
@@ -14,9 +15,9 @@ var (
 // has: sqlite
 type KeyStore interface {
 	// Put saves a key info
-	Put(key *EncryptedKey) error
+	Put(key *aes.EncryptedKey) error
 	// Get gets a key out of keystore and returns PrivateKey corresponding to key address
-	Get(addr core.Address) (*EncryptedKey, error)
+	Get(addr core.Address) (*aes.EncryptedKey, error)
 	// Has check the PrivateKey exist in the KeyStore
 	Has(addr core.Address) (bool, error)
 	// List lists all the keys stored in the KeyStore

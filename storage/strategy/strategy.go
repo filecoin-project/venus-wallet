@@ -65,7 +65,9 @@ type VerifyFunc func(token, address string, enum core.MsgEnum, method core.Metho
 // NOTE: for wallet
 type IStrategyVerify interface {
 	Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error
-	ScopeWallet(ctx context.Context) ([]core.Address, error)
+	//@bool: root can do anything
+	ScopeWallet(ctx context.Context) (*core.AddressScope, error)
+	ContainWallet(ctx context.Context, address core.Address) bool
 }
 
 // TODO: add Cache
@@ -73,14 +75,16 @@ type strategy struct {
 	scache  StrategyCache
 	store   storage.StrategyStore
 	nodeCli *node.NodeClient
+	mw      storage.KeyMiddleware
 	sync.RWMutex
 }
 
-func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient) ILocalStrategy {
+func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient, mw storage.KeyMiddleware) ILocalStrategy {
 	return &strategy{
 		store:   store,
 		nodeCli: nodeCli,
 		scache:  newStrategyCache(),
+		mw:      mw,
 	}
 }
 func (s *strategy) NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error {
@@ -154,6 +158,7 @@ func (s *strategy) NewKeyBindCustom(ctx context.Context, name, address string, c
 	}
 	return nil
 }
+
 func (s *strategy) NewKeyBindFromTemplate(ctx context.Context, name, address, mttName, mtName string) error {
 	mtt, err := s.store.GetMsgTypeTemplateByName(mttName)
 	if err != nil {
@@ -190,6 +195,10 @@ func (s *strategy) ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]
 func (s *strategy) RemoveKeyBind(ctx context.Context, name string) error {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return err
+	}
 	kb, err := s.store.GetKeyBindByName(name)
 	if err != nil {
 		return err
@@ -200,9 +209,14 @@ func (s *strategy) RemoveKeyBind(ctx context.Context, name string) error {
 	}
 	return nil
 }
+
 func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, address string) (int64, error) {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return 0, err
+	}
 	num, err := s.store.DeleteKeyBindsByAddress(address)
 	if err != nil {
 		s.scache.removeAddress(address)
@@ -213,6 +227,10 @@ func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, address string) (
 func (s *strategy) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return nil, err
+	}
 	em, err := core.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return nil, err
@@ -233,9 +251,14 @@ func (s *strategy) PushMsgTypeIntoKeyBind(ctx context.Context, name string, code
 	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
+
 func (s *strategy) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return nil, err
+	}
 	em, err := core.AggregateMethodNames(methods)
 	if err != nil {
 		return nil, err
@@ -256,9 +279,14 @@ func (s *strategy) PushMethodIntoKeyBind(ctx context.Context, name string, metho
 	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
+
 func (s *strategy) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return nil, err
+	}
 	em, err := core.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return nil, err
@@ -279,9 +307,14 @@ func (s *strategy) PullMsgTypeFromKeyBind(ctx context.Context, name string, code
 	s.scache.removeKeyBind(kb)
 	return kb, nil
 }
+
 func (s *strategy) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return nil, err
+	}
 	em, err := core.AggregateMethodNames(methods)
 	if err != nil {
 		return nil, err
@@ -336,6 +369,7 @@ func (s *strategy) NewGroup(ctx context.Context, name string, keyBindNames []str
 func (s *strategy) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
 	return s.store.GetGroupByName(name)
 }
+
 func (s *strategy) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error) {
 	return s.store.ListGroups(fromIndex, toIndex)
 }
@@ -343,6 +377,10 @@ func (s *strategy) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*s
 func (s *strategy) RemoveGroup(ctx context.Context, name string) error {
 	s.Lock()
 	defer s.Unlock()
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return err
+	}
 	g, err := s.store.GetGroupByName(name)
 	if err != nil {
 		return err
@@ -367,7 +405,11 @@ func (s *strategy) RemoveGroup(ctx context.Context, name string) error {
 func (s *strategy) RemoveToken(ctx context.Context, token string) error {
 	s.Lock()
 	defer s.Unlock()
-	err := s.store.DeleteGroupAuth(token)
+	err := s.mw.CheckToken(ctx)
+	if err != nil {
+		return err
+	}
+	err = s.store.DeleteGroupAuth(token)
 	if err != nil {
 		s.scache.removeToken(token)
 	}
@@ -375,6 +417,10 @@ func (s *strategy) RemoveToken(ctx context.Context, token string) error {
 }
 
 func (s *strategy) NewWalletToken(ctx context.Context, groupName string) (token string, err error) {
+	err = s.mw.CheckToken(ctx)
+	if err != nil {
+		return core.StringEmpty, err
+	}
 	g, err := s.store.GetGroupByName(groupName)
 	if err != nil {
 		return core.StringEmpty, err
@@ -393,6 +439,7 @@ func (s *strategy) NewWalletToken(ctx context.Context, groupName string) (token 
 	}
 	return token, nil
 }
+
 func (s *strategy) GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error) {
 	g, err := s.store.GetGroupByName(groupName)
 	if err != nil {
@@ -404,6 +451,7 @@ func (s *strategy) GetWalletTokensByGroup(ctx context.Context, groupName string)
 	}
 	return tokens, nil
 }
+
 func (s *strategy) GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error) {
 	return s.store.GetGroupAuth(token)
 }
@@ -467,17 +515,31 @@ Verify:
 
 // NOTE: for wallet
 // list wallets binding with group token
-func (s *strategy) ScopeWallet(ctx context.Context) ([]core.Address, error) {
+func (s *strategy) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
 	token := core.ContextStrategyToken(ctx)
+	err := s.mw.EqualRootToken(token)
+	if err == nil {
+		return &core.AddressScope{Root: true}, nil
+	}
 	//TODO: Rich Domain Mode, need replace
 	kb, err := s.store.GetGroupAuth(token)
 	if err != nil {
-		return nil, err
+		return &core.AddressScope{Root: false}, err
 	}
 	var addresses []core.Address
 	linq.From(kb.KeyBinds).SelectT(func(i *storage.KeyBind) core.Address {
 		addr, _ := address.NewFromString(i.Address)
 		return addr
 	}).ToSlice(&addresses)
-	return addresses, nil
+	return &core.AddressScope{Root: false, Addresses: addresses}, nil
+}
+
+func (s *strategy) ContainWallet(ctx context.Context, address core.Address) bool {
+	token := core.ContextStrategyToken(ctx)
+	err := s.mw.EqualRootToken(token)
+	if err == nil {
+		return true
+	}
+	_, err = s.store.GetGroupKeyBind(token, address.String())
+	return err == nil
 }

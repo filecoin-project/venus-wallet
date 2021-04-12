@@ -1,18 +1,14 @@
 package cli_strategy
 
 import (
-	"errors"
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/ipfs-force-community/venus-wallet/cli/helper"
 	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"github.com/urfave/cli/v2"
 	"strconv"
 	"strings"
-)
-
-var (
-	ErrParameterMismatch = errors.New("parameter mismatch")
 )
 
 var strategyTypeList = &cli.Command{
@@ -45,9 +41,9 @@ var strategyGetMsgTypeTemplate = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -74,9 +70,9 @@ var strategyGetMethodTemplateByName = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -100,9 +96,9 @@ var strategyGetKeyBindByName = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -132,9 +128,9 @@ var strategyGetKeyBinds = &cli.Command{
 	ArgsUsage: "[address]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -168,9 +164,9 @@ var strategyGetGroupByName = &cli.Command{
 	ArgsUsage: "[name]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -203,9 +199,9 @@ var strategyListGroup = &cli.Command{
 	ArgsUsage: "[from to]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -234,15 +230,17 @@ var strategyGroupTokens = &cli.Command{
 	ArgsUsage: "[groupName]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		groupName := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		groupName := cctx.Args().First()
+		defer closer()
+
 		tks, err := api.GetWalletTokensByGroup(ctx, groupName)
 		if err != nil {
 			return err
@@ -261,15 +259,17 @@ var strategyTokenInfo = &cli.Command{
 	ArgsUsage: "[token]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		token := cctx.Args().First()
+
+		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
 			return err
 		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
-		token := cctx.Args().First()
+		defer closer()
+
 		ti, err := api.GetWalletTokenInfo(ctx, token)
 		if err != nil {
 			return err
@@ -298,9 +298,9 @@ var strategyListKeyBinds = &cli.Command{
 	ArgsUsage: "[from to]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -337,9 +337,9 @@ var strategyListMethodTemplates = &cli.Command{
 	ArgsUsage: "[from to]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -369,9 +369,9 @@ var strategyListMsgTypeTemplates = &cli.Command{
 	ArgsUsage: "[from to]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, ErrParameterMismatch)
+			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		api, closer, err := helper.GetFullNodeAPI(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
