@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	infoWithToken = regexp.MustCompile("^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?:.+$")                    //nolint
-	strategyToken = regexp.MustCompile("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}") //nolint
+	regJWTToken = regexp.MustCompile("[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?")                         //nolint
+	regUUID     = regexp.MustCompile("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}") //nolint
+	regIPv4     = regexp.MustCompile("/ip4/0.0.0.0/tcp/[0-9]{4,5}/http")
 )
 
 const (
@@ -25,31 +26,17 @@ type APIInfo struct {
 }
 
 func ParseApiInfo(s string) (*APIInfo, error) {
-
-	var (
-		tok        []byte
-		strategyTk []byte
-	)
-
-	if infoWithToken.Match([]byte(s)) {
-		sp := strings.SplitN(s, ":", 2)
-		tok = []byte(sp[0])
-		s = sp[1]
-	}
-	if strategyToken.Match([]byte(s)) {
-		sp := strings.SplitN(s, ":", 2)
-		strategyTk = []byte(sp[1])
-		s = sp[0]
-	}
-	strma := strings.TrimSpace(s)
-	apima, err := multiaddr.NewMultiaddr(strma)
+	token := []byte(regJWTToken.FindString(s))
+	strategyToken := []byte(regUUID.FindString(s))
+	addr := regIPv4.FindString(s)
+	apima, err := multiaddr.NewMultiaddr(addr)
 	if err != nil {
 		return nil, err
 	}
 	return &APIInfo{
 		Addr:          apima,
-		Token:         tok,
-		StrategyToken: strategyTk,
+		Token:         token,
+		StrategyToken: strategyToken,
 	}, nil
 }
 
