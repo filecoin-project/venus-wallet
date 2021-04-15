@@ -12,7 +12,7 @@ import (
 var (
 	regJWTToken = regexp.MustCompile("[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?")                         //nolint
 	regUUID     = regexp.MustCompile("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}") //nolint
-	regIPv4     = regexp.MustCompile("/ip4/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/tcp/[0-9]{4,5}/http")
+	regIPv4     = regexp.MustCompile("/ip4/0.0.0.0/tcp/[0-9]{4,5}/http")
 )
 
 const (
