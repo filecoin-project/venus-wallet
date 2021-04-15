@@ -129,10 +129,14 @@ func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 	o.locked = lock
 	return nil
 }
+
 func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
 	token := core.ContextStrategyToken(ctx)
 	if len(o.password) == 0 || len(o.rootToken) == 0 {
 		return ErrPasswordEmpty
+	}
+	if core.WalletStrategyLevel == core.SLDisable {
+		return nil
 	}
 	if o.rootToken == token {
 		return nil

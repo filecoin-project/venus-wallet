@@ -515,7 +515,14 @@ Verify:
 
 // NOTE: for wallet
 // list wallets binding with group token
+// level: 0  all pass
+// level: 1  check token
+// level: 2  check token
 func (s *strategy) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
+	// strategy disable, root view
+	if core.WalletStrategyLevel == core.SLDisable {
+		return &core.AddressScope{Root: true}, nil
+	}
 	token := core.ContextStrategyToken(ctx)
 	err := s.mw.EqualRootToken(token)
 	if err == nil {
@@ -534,7 +541,14 @@ func (s *strategy) ScopeWallet(ctx context.Context) (*core.AddressScope, error) 
 	return &core.AddressScope{Root: false, Addresses: addresses}, nil
 }
 
+// level: 0  all pass
+// level: 1  check token
+// level: 2  check token
 func (s *strategy) ContainWallet(ctx context.Context, address core.Address) bool {
+	// strategy disable, root view
+	if core.WalletStrategyLevel == core.SLDisable {
+		return true
+	}
 	token := core.ContextStrategyToken(ctx)
 	err := s.mw.EqualRootToken(token)
 	if err == nil {

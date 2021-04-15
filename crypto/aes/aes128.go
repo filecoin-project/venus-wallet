@@ -143,7 +143,7 @@ func EncryptData(password, data []byte, scryptN, scryptP int) (*CryptoJSON, erro
 	scryptParamsJSON := make(map[string]interface{}, 5)
 	scryptParamsJSON["n"] = scryptN
 	scryptParamsJSON["r"] = scryptR
-	scryptParamsJSON["p"] = scryptN
+	scryptParamsJSON["p"] = scryptP
 	scryptParamsJSON["dklen"] = scryptDKLen
 	scryptParamsJSON["salt"] = hex.EncodeToString(salt)
 	cipherParamsJSON := cipherparamsJSON{
