@@ -1,11 +1,12 @@
 package httpparse
 
 import (
-	"github.com/multiformats/go-multiaddr"
-	manet "github.com/multiformats/go-multiaddr/net"
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/multiformats/go-multiaddr"
+	manet "github.com/multiformats/go-multiaddr/net"
 )
 
 var (

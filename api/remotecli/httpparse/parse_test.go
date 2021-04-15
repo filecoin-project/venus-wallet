@@ -1,8 +1,9 @@
 package httpparse
 
 import (
-	"gotest.tools/assert"
 	"testing"
+
+	"gotest.tools/assert"
 )
 
 func TestParseApiInfo(t *testing.T) {
