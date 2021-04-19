@@ -1,8 +1,9 @@
 package httpparse
 
 import (
-	"gotest.tools/assert"
 	"testing"
+
+	"gotest.tools/assert"
 )
 
 func TestParseApiInfo(t *testing.T) {
@@ -15,6 +16,7 @@ func TestParseApiInfo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	assert.Equal(t, apiInfo.Addr.String(), apiInfo2.Addr.String())
 	assert.DeepEqual(t, apiInfo.Token, apiInfo2.Token)
 	assert.DeepEqual(t, apiInfo2.StrategyToken, []byte("62d3c94c-86d1-11eb-b252-acde48001122"))
