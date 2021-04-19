@@ -42,4 +42,5 @@ func TestParseApiInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, ipv4Info.Addr.String(), ipv4)
+
 }
