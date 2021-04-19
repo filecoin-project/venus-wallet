@@ -29,4 +29,16 @@ func TestParseApiInfo(t *testing.T) {
 	assert.Equal(t, apiInfo.Addr.String(), apiInfo3.Addr.String())
 	assert.DeepEqual(t, apiInfo.Token, apiInfo3.Token)
 	assert.DeepEqual(t, apiInfo3.StrategyToken, []byte("62d3c94c-86d1-11eb-b252-acde48001122"))
+	ipv4 := "/ip4/0.0.0.0/tcp/5678/http"
+	ipv4Info, err := ParseApiInfo(ipv4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, ipv4Info.Addr.String(), ipv4)
+	ipv4 = "/ip4/192.168.1.151/tcp/5678/http"
+	ipv4Info, err = ParseApiInfo(ipv4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, ipv4Info.Addr.String(), ipv4)
 }
