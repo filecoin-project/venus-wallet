@@ -9,8 +9,8 @@ endif
 CLEAN:=
 BINS:=./venus-wallet
 
-CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
-CGO_CFLAGS="-D__BLST_PORTABLE__"
+CGO_CFLAGS_ALLOW="-O -D__BLST_PORTABLE__"
+CGO_CFLAGS="-O -D__BLST_PORTABLE__"
 
 git=$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
 
