@@ -9,9 +9,6 @@ endif
 CLEAN:=
 BINS:=./venus-wallet
 
-CGO_CFLAGS_ALLOW="-O -D__BLST_PORTABLE__"
-CGO_CFLAGS="-O -D__BLST_PORTABLE__"
-
 git=$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
 
 ldflags=-X=github.com/ipfs-force-community/venus-wallet/version.CurrentCommit='+git$(git)'
@@ -19,10 +16,8 @@ ifneq ($(strip $(LDFLAGS)),)
 	ldflags+=-extldflags=$(LDFLAGS)
 endif
 
-
 GOFLAGS+=-ldflags="$(ldflags)"
 
-wallet:
 wallet: show-env $(BUILD_DEPS)
 	rm -f venus-wallet
 	go build $(GOFLAGS) -o venus-wallet ./cmd/wallet/main.go
