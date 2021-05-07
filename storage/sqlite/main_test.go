@@ -1,8 +1,8 @@
 package sqlite
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/config"
-	"github.com/ipfs-force-community/venus-wallet/storage"
+	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/storage"
 	"os"
 	"testing"
 )

@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"github.com/gbrlsnchs/jwt/v3"
-	"github.com/ipfs-force-community/venus-wallet/api/permission"
-	"github.com/ipfs-force-community/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/api/permission"
+	"github.com/filecoin-project/venus-wallet/config"
 	"io"
 	"io/ioutil"
 )

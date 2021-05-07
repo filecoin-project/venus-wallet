@@ -1,4 +1,4 @@
-module github.com/ipfs-force-community/venus-wallet
+module github.com/filecoin-project/venus-wallet
 
 go 1.15
 

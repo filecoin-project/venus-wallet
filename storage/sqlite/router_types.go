@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
-	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/core"
 	"time"
 )
 

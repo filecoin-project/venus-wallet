@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/api/permission"
-	"github.com/ipfs-force-community/venus-wallet/common"
+	"github.com/filecoin-project/venus-wallet/api/permission"
+	"github.com/filecoin-project/venus-wallet/common"
 )
 
 var _ common.ICommon = &CommonAuth{}

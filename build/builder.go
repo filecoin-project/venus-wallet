@@ -2,14 +2,14 @@ package build
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/api"
-	"github.com/ipfs-force-community/venus-wallet/common"
-	"github.com/ipfs-force-community/venus-wallet/config"
-	"github.com/ipfs-force-community/venus-wallet/node"
-	"github.com/ipfs-force-community/venus-wallet/storage"
-	"github.com/ipfs-force-community/venus-wallet/storage/sqlite"
-	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
-	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus-wallet/api"
+	"github.com/filecoin-project/venus-wallet/common"
+	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/node"
+	"github.com/filecoin-project/venus-wallet/storage"
+	"github.com/filecoin-project/venus-wallet/storage/sqlite"
+	"github.com/filecoin-project/venus-wallet/storage/strategy"
+	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
 )

@@ -1,6 +1,6 @@
 package sqlite
 
-import "github.com/ipfs-force-community/venus-wallet/errcode"
+import "github.com/filecoin-project/venus-wallet/errcode"
 
 func (s *routerStore) hasName(name, tb string) error {
 	var count int64

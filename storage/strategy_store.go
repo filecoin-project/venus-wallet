@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/core"
 )
 
 type StrategyStore interface {

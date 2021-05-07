@@ -1,8 +1,8 @@
 package signature
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/crypto"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/crypto"
 	"golang.org/x/xerrors"
 )
 

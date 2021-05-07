@@ -2,8 +2,8 @@ package sqlite
 
 import (
 	"github.com/google/uuid"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/storage"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/storage"
 	"gotest.tools/assert"
 	"math/rand"
 	"strconv"

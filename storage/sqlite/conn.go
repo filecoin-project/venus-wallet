@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
-	"github.com/ipfs-force-community/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/config"
 	logging "github.com/ipfs/go-log/v2"
 	"golang.org/x/xerrors"
 	"gorm.io/driver/sqlite"

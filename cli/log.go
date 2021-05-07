@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/cli/helper"
+	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 )

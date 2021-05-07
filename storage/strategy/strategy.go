@@ -8,10 +8,10 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/go-address"
 	"github.com/google/uuid"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/errcode"
-	"github.com/ipfs-force-community/venus-wallet/node"
-	"github.com/ipfs-force-community/venus-wallet/storage"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/errcode"
+	"github.com/filecoin-project/venus-wallet/node"
+	"github.com/filecoin-project/venus-wallet/storage"
 	"sync"
 )
 

@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/api/remotecli"
-	"github.com/ipfs-force-community/venus-wallet/api/remotecli/httpparse"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus-wallet/api/remotecli"
+	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"golang.org/x/xerrors"
 	"io/ioutil"
 	"log"

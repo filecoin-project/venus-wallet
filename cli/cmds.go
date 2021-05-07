@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/cli/cli_strategy"
+	"github.com/filecoin-project/venus-wallet/cli/cli_strategy"
 	"github.com/urfave/cli/v2"
 )
 

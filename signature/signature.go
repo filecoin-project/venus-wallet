@@ -2,7 +2,7 @@ package signature
 
 import (
 	"github.com/filecoin-project/go-address"
-	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/core"
 	"golang.org/x/xerrors"
 )
 

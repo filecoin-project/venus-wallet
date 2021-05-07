@@ -1,6 +1,6 @@
 package api
 
-import "github.com/ipfs-force-community/venus-wallet/api/permission"
+import "github.com/filecoin-project/venus-wallet/api/permission"
 
 var _ IFullAPI = &ServiceAuth{}
 

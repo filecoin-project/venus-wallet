@@ -2,8 +2,8 @@ package storage
 
 import (
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/crypto/aes"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/crypto/aes"
 )
 
 var (

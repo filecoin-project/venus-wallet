@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	localCli "github.com/ipfs-force-community/venus-wallet/cli"
-	"github.com/ipfs-force-community/venus-wallet/cli/helper"
-	main2 "github.com/ipfs-force-community/venus-wallet/cmd"
-	loclog "github.com/ipfs-force-community/venus-wallet/log"
-	"github.com/ipfs-force-community/venus-wallet/middleware"
-	"github.com/ipfs-force-community/venus-wallet/version"
+	localCli "github.com/filecoin-project/venus-wallet/cli"
+	"github.com/filecoin-project/venus-wallet/cli/helper"
+	main2 "github.com/filecoin-project/venus-wallet/cmd"
+	loclog "github.com/filecoin-project/venus-wallet/log"
+	"github.com/filecoin-project/venus-wallet/middleware"
+	"github.com/filecoin-project/venus-wallet/version"
 	"github.com/prometheus/common/log"
 	"github.com/urfave/cli/v2"
 	"go.opencensus.io/trace"
