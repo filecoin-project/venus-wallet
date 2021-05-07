@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/core"
 )
 
 // private key constraints in wallet

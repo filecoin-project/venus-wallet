@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/common"
-	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
-	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus-wallet/common"
+	"github.com/filecoin-project/venus-wallet/storage/strategy"
+	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/multiformats/go-multiaddr"
 )
 

@@ -1,8 +1,8 @@
 package filemgr
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/config"
-	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/core"
 	"os"
 	"path/filepath"
 )

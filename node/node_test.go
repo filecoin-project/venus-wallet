@@ -3,7 +3,7 @@ package node
 import (
 	"context"
 	"github.com/filecoin-project/go-address"
-	"github.com/ipfs-force-community/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/config"
 	"os"
 	"testing"
 )

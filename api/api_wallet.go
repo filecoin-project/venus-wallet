@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/storage/wallet"
 )
 
 var _ wallet.IWallet = &WalletAuth{}

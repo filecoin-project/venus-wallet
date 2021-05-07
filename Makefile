@@ -11,7 +11,7 @@ BINS:=./venus-wallet
 
 git=$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
 
-ldflags=-X=github.com/ipfs-force-community/venus-wallet/version.CurrentCommit='+git$(git)'
+ldflags=-X=github.com/filecoin-project/venus-wallet/version.CurrentCommit='+git$(git)'
 ifneq ($(strip $(LDFLAGS)),)
 	ldflags+=-extldflags=$(LDFLAGS)
 endif

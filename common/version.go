@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/version"
+	"github.com/filecoin-project/venus-wallet/version"
 )
 
 // Version provides various build-time information

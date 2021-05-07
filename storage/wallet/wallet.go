@@ -3,11 +3,11 @@ package wallet
 import (
 	"context"
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/crypto"
-	"github.com/ipfs-force-community/venus-wallet/errcode"
-	"github.com/ipfs-force-community/venus-wallet/storage"
-	"github.com/ipfs-force-community/venus-wallet/storage/strategy"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/crypto"
+	"github.com/filecoin-project/venus-wallet/errcode"
+	"github.com/filecoin-project/venus-wallet/storage"
+	"github.com/filecoin-project/venus-wallet/storage/strategy"
 	"golang.org/x/xerrors"
 	"sync"
 )

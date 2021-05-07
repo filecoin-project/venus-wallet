@@ -3,7 +3,7 @@ package crypto
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/ipfs-force-community/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/core"
 	"gotest.tools/assert"
 	"testing"
 )

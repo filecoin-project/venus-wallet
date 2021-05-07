@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"github.com/ipfs-force-community/venus-wallet/storage"
+	"github.com/filecoin-project/venus-wallet/storage"
 )
 
 var _ storage.IWalletLock = &WalletLockAuth{}

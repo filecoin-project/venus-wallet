@@ -1,8 +1,8 @@
 package filemgr
 
 import (
-	"github.com/ipfs-force-community/venus-wallet/common"
-	"github.com/ipfs-force-community/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/common"
+	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/multiformats/go-multiaddr"
 )
 

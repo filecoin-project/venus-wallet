@@ -5,12 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/crypto"
+	"github.com/filecoin-project/venus-wallet/crypto/aes"
+	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/google/uuid"
-	"github.com/ipfs-force-community/venus-wallet/config"
-	"github.com/ipfs-force-community/venus-wallet/core"
-	"github.com/ipfs-force-community/venus-wallet/crypto"
-	"github.com/ipfs-force-community/venus-wallet/crypto/aes"
-	"github.com/ipfs-force-community/venus-wallet/errcode"
 	"sync"
 )
 

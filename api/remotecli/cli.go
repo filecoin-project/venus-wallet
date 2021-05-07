@@ -3,9 +3,9 @@ package remotecli
 import (
 	"context"
 	"github.com/filecoin-project/go-jsonrpc"
-	"github.com/ipfs-force-community/venus-wallet/api"
-	"github.com/ipfs-force-community/venus-wallet/common"
-	"github.com/ipfs-force-community/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus-wallet/api"
+	"github.com/filecoin-project/venus-wallet/common"
+	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"net/http"
 )
 
