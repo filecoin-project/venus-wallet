@@ -2,9 +2,9 @@ package common
 
 import (
 	"context"
-	"github.com/gbrlsnchs/jwt/v3"
 	"github.com/filecoin-project/venus-wallet/api/permission"
 	"github.com/filecoin-project/venus-wallet/version"
+	"github.com/gbrlsnchs/jwt/v3"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
