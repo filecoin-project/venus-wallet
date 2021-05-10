@@ -39,7 +39,7 @@ Enter Password again:******
 
 #### 4. Get strategy token
 - Strategy token restricts the authority of business execution
-- How to generate strategy token for remote service [Venus wallet cli](https://github.com/filecoin-project/venus-docs/blob/master/docs/zh/Remote-Wallet.md#jwt%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86)
+- How to generate strategy token for remote service [Venus wallet cli](https://venus.filecoin.io/Venus%20wallet.html#basic-operation-of-venus-wallet)
 - URL append strategy token `<JWT token>:/ip4/0.0.0.0/tcp/5678/http:<Strategy token>`
 
 
@@ -53,20 +53,32 @@ Enter Password again:******
 ### Config
 ```
 [API]
-  ListenAddress = "/ip4/0.0.0.0/tcp/5678/http"
+ListenAddress = "/ip4/0.0.0.0/tcp/5678/http"
 
 [DB]
-  Conn = "[homePath]/keystore.sqlit"
-  Type = "sqlite"
-  DebugMode = true
+Conn = "[homePath]/keystore.sqlit"
+Type = "sqlite"
+DebugMode = true
+
+[Factor]
+# aes variable
+ScryptN = 262144
+ScryptP = 1
 
 [JWT]
-  #  hex JWT token, generate by secret
-  Token = "" 
-  # hex JWT secret, randam generate first init
-  Secret = ""
+#  hex JWT token, generate by secret
+Token = "" 
+# hex JWT secret, randam generate first init
+Secret = ""
 
+[Strategy]
+# strategy level
+# 0：nouse  1：only check struct  2：check struct and msg.method
+Level = 2
+# need config when Level = 2 and get the actor for msg.to
+NodeURL = "/ip4/127.0.0.1/tcp/2345/http"
 
+```
 ```
 ---
 ### Package concept
@@ -98,3 +110,5 @@ Enter Password again:******
 +-- version // git version by ldflags
 
 ```
+
+

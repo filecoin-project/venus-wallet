@@ -17,7 +17,7 @@ type ILocalWallet interface {
 	storage.IWalletLock
 }
 
-// remote wallet api
+// IWallet remote wallet api
 type IWallet interface {
 	WalletNew(context.Context, core.KeyType) (core.Address, error)
 	WalletHas(ctx context.Context, address core.Address) (bool, error)

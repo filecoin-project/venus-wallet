@@ -9,7 +9,9 @@ import (
 	"net/http"
 )
 
-// RPCClient returns an RPC client connected to a node
+// NewWalletRPC RPCClient returns an RPC client connected to a node
+// @addr			reference ./httpparse/ParseApiInfo()
+// @requestHeader 	reference ./httpparse/ParseApiInfo()
 func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (wallet.IWallet, jsonrpc.ClientCloser, error) {
 	var res api.WalletAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",

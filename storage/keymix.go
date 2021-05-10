@@ -15,9 +15,13 @@ import (
 )
 
 type IWalletLock interface {
+	// SetPassword do it first after program setup
 	SetPassword(ctx context.Context, password string) error
+	// unlock the wallet and enable IWallet logic
 	Unlock(ctx context.Context, password string) error
+	// lock the wallet and disable IWallet logic
 	Lock(ctx context.Context, password string) error
+	// show lock state
 	LockState(ctx context.Context) bool
 }
 
@@ -32,6 +36,7 @@ var (
 
 type DecryptFunc func(keyJson []byte, keyType core.KeyType) (crypto.PrivateKey, error)
 
+// KeyMiddleware the middleware bridging strategy and wallet
 type KeyMiddleware interface {
 	Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error)
 	Decrypt(key *aes.EncryptedKey) (crypto.PrivateKey, error)
@@ -43,11 +48,11 @@ type KeyMiddleware interface {
 
 type KeyMixLayer struct {
 	m         sync.RWMutex
-	rootToken string
+	rootToken string // gen from password
 	locked    bool
 	password  []byte
-	scryptN   int
-	scryptP   int
+	scryptN   int // aes cryptographic variable
+	scryptP   int // aes cryptographic variable
 }
 
 func NewKeyMiddleware(cnf *config.CryptoFactor) KeyMiddleware {

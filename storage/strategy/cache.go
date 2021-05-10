@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// StrategyCache memory based wallet policy cache
 type StrategyCache interface {
 	// when then upstream task transaction remove group succeed and next func failed,
 	// remove all cache to prevent data correctly
@@ -32,12 +33,14 @@ func genKeyBindKey(kb *storage.KeyBind) keyBindKey {
 	return kb.Address + "|" + kb.Name
 }
 
+// strategyCache memory based wallet policy cache
 type strategyCache struct {
 	sync.RWMutex
-	blank map[string]struct{}
+	blank map[string]struct{} //prevent data penetration
 	cache map[tokenKey]map[addressKey]*storage.KeyBind
-	// for kb remove and remove all token
-	kbCache   map[keyBindKey][]tokenKey
+	// keyBind index, for remove keyBind or token
+	kbCache map[keyBindKey][]tokenKey
+	// wallet address index, for remove keyBind or token
 	addrCache map[addressKey][]tokenKey
 }
 
@@ -49,6 +52,8 @@ func newStrategyCache() StrategyCache {
 		kbCache:   make(map[keyBindKey][]tokenKey),
 	}
 }
+
+// refresh clear the cache
 func (c *strategyCache) refresh() {
 	c.Lock()
 	defer c.Unlock()
@@ -56,6 +61,7 @@ func (c *strategyCache) refresh() {
 	c.cache = make(map[tokenKey]map[addressKey]*storage.KeyBind)
 }
 
+// set cache a single keyBind with token index
 func (c *strategyCache) set(token string, kb *storage.KeyBind) {
 	c.Lock()
 	defer c.Unlock()
@@ -76,6 +82,7 @@ func (c *strategyCache) set(token string, kb *storage.KeyBind) {
 	c.addrCache[kb.Address] = append(c.addrCache[kb.Address], token)
 }
 
+// remove deletes the cache at the specified address
 func (c *strategyCache) remove(token, address string) {
 	c.Lock()
 	defer c.Unlock()
@@ -90,6 +97,7 @@ func (c *strategyCache) remove(token, address string) {
 	c.rmKBWithAddr(kb)
 }
 
+// removeToken deletes the cache by strategy token
 func (c *strategyCache) removeToken(token string) {
 	c.Lock()
 	defer c.Unlock()
@@ -103,6 +111,7 @@ func (c *strategyCache) removeToken(token string) {
 	}
 }
 
+// removeTokens deletes the caches that the key contain strategy tokens
 func (c *strategyCache) removeTokens(tokens []string) {
 	c.Lock()
 	defer c.Unlock()
@@ -118,6 +127,7 @@ func (c *strategyCache) removeTokens(tokens []string) {
 	}
 }
 
+// get gets a keyBind by strategy token and wallet address
 func (c *strategyCache) get(token, address string) *storage.KeyBind {
 	c.RLock()
 	defer c.RUnlock()
@@ -127,17 +137,22 @@ func (c *strategyCache) get(token, address string) *storage.KeyBind {
 	}
 	return mp[address]
 }
+
+// setBlank cache penetration data that does not exist
 func (c *strategyCache) setBlank(token, address string) {
 	c.Lock()
 	defer c.Unlock()
 	c.blank[token+address] = struct{}{}
 }
+
+// removeBlank delete  penetration data
 func (c *strategyCache) removeBlank(token, address string) {
 	c.Lock()
 	defer c.Unlock()
 	delete(c.blank, token+address)
 }
 
+// through check the token exists
 func (c *strategyCache) through(token, address string) bool {
 	c.RLock()
 	defer c.RUnlock()
@@ -145,6 +160,7 @@ func (c *strategyCache) through(token, address string) bool {
 	return exist
 }
 
+// rmKBWithAddr deletes keyBind from the cache
 func (c *strategyCache) rmKBWithAddr(kb *storage.KeyBind) {
 	key := genKeyBindKey(kb)
 	tokens, ok := c.kbCache[key]
@@ -157,11 +173,13 @@ func (c *strategyCache) rmKBWithAddr(kb *storage.KeyBind) {
 	}
 }
 
+// rmKBOnly just delete keyBind in the kbCache
 func (c *strategyCache) rmKBOnly(kb *storage.KeyBind) {
 	key := genKeyBindKey(kb)
 	delete(c.kbCache, key)
 }
 
+// removeKeyBind delete keyBind from the cache
 func (c *strategyCache) removeKeyBind(kb *storage.KeyBind) {
 	c.Lock()
 	defer c.Unlock()
@@ -179,6 +197,7 @@ func (c *strategyCache) removeKeyBind(kb *storage.KeyBind) {
 	}
 }
 
+// rmTokenInAddrCache deletes the cache by strategy token and wallet addr
 func (c *strategyCache) rmTokenInAddrCache(token, addr string) {
 	tokens, ok := c.addrCache[addr]
 	if !ok {
@@ -190,6 +209,7 @@ func (c *strategyCache) rmTokenInAddrCache(token, addr string) {
 	c.addrCache[addr] = tokens
 }
 
+// removeAddress deletes the cache by address
 func (c *strategyCache) removeAddress(address string) {
 	c.Lock()
 	defer c.Unlock()
