@@ -92,7 +92,9 @@ type Actor struct {
 	Balance big.Int
 }
 
+// NodeClient connect Lotus or Venus node and call json RPC API
 type NodeClient struct {
+	// NOTE:
 	StateGetActor func(ctx context.Context, actor core.Address, tsk TipSetKey) (*Actor, error)
 	Cancel        func()
 }

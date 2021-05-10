@@ -33,13 +33,19 @@ const (
 var AllPermissions = []Permission{PermRead, PermWrite, PermSign, PermAdmin}
 var defaultPerms = []Permission{PermRead, PermWrite}
 
+// WithPerm fill Permission into context
+// PermissionedAny will reflect it to decide whether the process continues or not
 func WithPerm(ctx context.Context, perms []Permission) context.Context {
 	return context.WithValue(ctx, permCtxKey, perms)
 }
+
+// WithIPPerm fill IP is local into context
+// PermissionedAny will reflect it to decide whether the process continues or not
 func WithIPPerm(ctx context.Context) context.Context {
 	return context.WithValue(ctx, permCtxLocal, true)
 }
 
+// HasPerm get Permission from context and compare with perm
 func HasPerm(ctx context.Context, perm Permission) bool {
 	callerPerms, ok := ctx.Value(permCtxKey).([]Permission)
 	if !ok {
@@ -64,6 +70,8 @@ func HasIPPerm(ctx context.Context, required bool) bool {
 	}
 	return localPerm
 }
+
+// PermissionedAny the scheduler between API and internal business
 func PermissionedAny(in interface{}, out interface{}) {
 	rint := reflect.ValueOf(out).Elem()
 	ra := reflect.ValueOf(in)

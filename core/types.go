@@ -22,8 +22,8 @@ const (
 )
 
 type AddressScope struct {
-	Root      bool
-	Addresses []Address
+	Root      bool      // is root auth,  true : can get all addresses in the wallet
+	Addresses []Address // when root==false, should fill a scope of wallet addresses
 }
 
 type Address = address.Address

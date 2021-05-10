@@ -43,6 +43,7 @@ func NewKeyFromKeyInfo(ki *core.KeyInfo) (PrivateKey, error) {
 		return nil, fmt.Errorf("invalid key type: %s", ki.Type)
 	}
 }
+
 func NewKeyFromData2(kt core.KeyType, prv []byte) (PrivateKey, error) {
 	switch kt {
 	case core.KTBLS:
@@ -53,6 +54,7 @@ func NewKeyFromData2(kt core.KeyType, prv []byte) (PrivateKey, error) {
 		return nil, fmt.Errorf("invalid key type: %s", kt)
 	}
 }
+
 func NewKeyFromData(st core.SigType, prv []byte) (PrivateKey, error) {
 	switch st {
 	case core.SigTypeSecp256k1:

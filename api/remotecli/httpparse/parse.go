@@ -20,6 +20,7 @@ const (
 	WalletStrategyToken = "StrategyToken"
 )
 
+// APIInfo parse URL string to
 type APIInfo struct {
 	Addr          multiaddr.Multiaddr
 	Token         []byte
