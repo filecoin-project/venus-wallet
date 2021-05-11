@@ -2,11 +2,10 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/filecoin-project/venus-wallet)](https://goreportcard.com/report/github.com/filecoin-project/venus-wallet)
 ![Go](https://github.com/filecoin-project/venus-wallet/workflows/Go/badge.svg)
 
-- a private key management tool
-- an independent and brief business structure
-- provide services such as private key management 
-and data signing for local and remote calls via RPC or CLI.
-
+- A remote wallet for Filecoin and supports JsonRPC2.0 call. 
+- The project is decoupled from Lotus and Venus independently, and can be called by different implementations of Filecoin.
+- It can dynamically configure strategy to limit the signature rules of the Wallet group.
+- Through the configuration of signature strategy, it can achieve environmental isolation of different wallet groups
 ---
 ### Get Started
 #### 1. Build
@@ -49,6 +48,7 @@ Enter Password again:******
 ---
 
 ### [How to access remote wallet](./example)
+
 ---
 ### Config
 ```
@@ -77,11 +77,12 @@ Secret = ""
 Level = 2
 # need config when Level = 2 and get the actor for msg.to
 NodeURL = "/ip4/127.0.0.1/tcp/2345/http"
+```
 
-```
-```
 ---
+
 ### Package concept
+
 ```
 +-- api // RPC service interface permission setting
 |
