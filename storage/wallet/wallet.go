@@ -219,10 +219,11 @@ func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 	if err := w.mw.Next(); err != nil {
 		return err
 	}
-	if !w.verify.ContainWallet(ctx, addr) {
-		return errcode.ErrWithoutPermission
+	err := w.mw.CheckToken(ctx)
+	if err != nil {
+		return err
 	}
-	err := w.ws.Delete(addr)
+	err = w.ws.Delete(addr)
 	if err != nil {
 		return err
 	}
