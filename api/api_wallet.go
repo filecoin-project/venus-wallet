@@ -6,10 +6,10 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 )
 
-var _ wallet.IWallet = &WalletAuth{}
+var _ wallet.IWallet = &WalletAPIAdapter{}
 
 // wallet API permissions constraints
-type WalletAuth struct {
+type WalletAPIAdapter struct {
 	Internal struct {
 		WalletNew    func(ctx context.Context, kt core.KeyType) (core.Address, error)                                          `perm:"admin"`
 		WalletHas    func(ctx context.Context, address core.Address) (bool, error)                                             `perm:"write"`
@@ -21,30 +21,30 @@ type WalletAuth struct {
 	}
 }
 
-func (c *WalletAuth) WalletNew(ctx context.Context, keyType core.KeyType) (core.Address, error) {
+func (c *WalletAPIAdapter) WalletNew(ctx context.Context, keyType core.KeyType) (core.Address, error) {
 	return c.Internal.WalletNew(ctx, keyType)
 }
 
-func (c *WalletAuth) WalletHas(ctx context.Context, addr core.Address) (bool, error) {
+func (c *WalletAPIAdapter) WalletHas(ctx context.Context, addr core.Address) (bool, error) {
 	return c.Internal.WalletHas(ctx, addr)
 }
 
-func (c *WalletAuth) WalletList(ctx context.Context) ([]core.Address, error) {
+func (c *WalletAPIAdapter) WalletList(ctx context.Context) ([]core.Address, error) {
 	return c.Internal.WalletList(ctx)
 }
 
-func (c *WalletAuth) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
+func (c *WalletAPIAdapter) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
 	return c.Internal.WalletSign(ctx, signer, toSign, meta)
 }
 
-func (c *WalletAuth) WalletExport(ctx context.Context, a core.Address) (*core.KeyInfo, error) {
+func (c *WalletAPIAdapter) WalletExport(ctx context.Context, a core.Address) (*core.KeyInfo, error) {
 	return c.Internal.WalletExport(ctx, a)
 }
 
-func (c *WalletAuth) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
+func (c *WalletAPIAdapter) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
 	return c.Internal.WalletImport(ctx, ki)
 }
 
-func (c *WalletAuth) WalletDelete(ctx context.Context, addr core.Address) error {
+func (c *WalletAPIAdapter) WalletDelete(ctx context.Context, addr core.Address) error {
 	return c.Internal.WalletDelete(ctx, addr)
 }

@@ -2,7 +2,7 @@ package sqlite
 
 import "github.com/filecoin-project/venus-wallet/errcode"
 
-func (s *routerStore) hasName(name, tb string) error {
+func (s *strategyStore) hasName(name, tb string) error {
 	var count int64
 	err := s.db.Table(tb).Where("name=?", name).Count(&count).Error
 	if err != nil {
@@ -15,7 +15,7 @@ func (s *routerStore) hasName(name, tb string) error {
 	return nil
 }
 
-func (s *routerStore) errorAdapter(err error) error {
+func (s *strategyStore) errorAdapter(err error) error {
 	errMsg := err.Error()
 	if errMsg == "record not found" {
 		return errcode.ErrDataNotExists

@@ -6,10 +6,10 @@ import (
 	"github.com/filecoin-project/venus-wallet/common"
 )
 
-var _ common.ICommon = &CommonAuth{}
+var _ common.ICommon = &CommonAPIAdapter{}
 
 // common API permissions constraints
-type CommonAuth struct {
+type CommonAPIAdapter struct {
 	Internal struct {
 		AuthVerify  func(ctx context.Context, token string) ([]permission.Permission, error) `perm:"read"`
 		AuthNew     func(ctx context.Context, perms []permission.Permission) ([]byte, error) `perm:"admin"`
@@ -19,23 +19,23 @@ type CommonAuth struct {
 	}
 }
 
-func (c *CommonAuth) AuthVerify(ctx context.Context, token string) ([]permission.Permission, error) {
+func (c *CommonAPIAdapter) AuthVerify(ctx context.Context, token string) ([]permission.Permission, error) {
 	return c.Internal.AuthVerify(ctx, token)
 }
 
-func (c *CommonAuth) AuthNew(ctx context.Context, perms []permission.Permission) ([]byte, error) {
+func (c *CommonAPIAdapter) AuthNew(ctx context.Context, perms []permission.Permission) ([]byte, error) {
 	return c.Internal.AuthNew(ctx, perms)
 }
 
 // Version implements API.Version
-func (c *CommonAuth) Version(ctx context.Context) (common.Version, error) {
+func (c *CommonAPIAdapter) Version(ctx context.Context) (common.Version, error) {
 	return c.Internal.Version(ctx)
 }
 
-func (c *CommonAuth) LogList(ctx context.Context) ([]string, error) {
+func (c *CommonAPIAdapter) LogList(ctx context.Context) ([]string, error) {
 	return c.Internal.LogList(ctx)
 }
 
-func (c *CommonAuth) LogSetLevel(ctx context.Context, group, level string) error {
+func (c *CommonAPIAdapter) LogSetLevel(ctx context.Context, group, level string) error {
 	return c.Internal.LogSetLevel(ctx, group, level)
 }

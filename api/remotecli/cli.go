@@ -13,7 +13,7 @@ import (
 // @addr			reference ./httpparse/ParseApiInfo()
 // @requestHeader 	reference ./httpparse/ParseApiInfo()
 func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (wallet.IWallet, jsonrpc.ClientCloser, error) {
-	var res api.WalletAuth
+	var res api.WalletAPIAdapter
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
 			&res.Internal,
@@ -24,7 +24,7 @@ func NewWalletRPC(ctx context.Context, addr string, requestHeader http.Header) (
 }
 
 func NewCommonRPC(ctx context.Context, addr string, requestHeader http.Header) (common.ICommon, jsonrpc.ClientCloser, error) {
-	var res api.CommonAuth
+	var res api.CommonAPIAdapter
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
 			&res.Internal,
@@ -40,10 +40,10 @@ func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header)
 	var res api.ServiceAuth
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
-			&res.CommonAuth.Internal,
-			&res.WalletAuth.Internal,
-			&res.WalletLockAuth.Internal,
-			&res.StrategyAuth.Internal,
+			&res.CommonAPIAdapter.Internal,
+			&res.WalletAPIAdapter.Internal,
+			&res.WalletLockAPIAdapter.Internal,
+			&res.StrategyAPIAdapter.Internal,
 		}, requestHeader)
 
 	return &res, closer, err

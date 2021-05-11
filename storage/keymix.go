@@ -38,10 +38,15 @@ type DecryptFunc func(keyJson []byte, keyType core.KeyType) (crypto.PrivateKey, 
 
 // KeyMiddleware the middleware bridging strategy and wallet
 type KeyMiddleware interface {
+	// Encrypt aes encrypt key
 	Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error)
+	// Decrypt decrypt aes key
 	Decrypt(key *aes.EncryptedKey) (crypto.PrivateKey, error)
+	// Next Check the password has been set and the wallet is locked
 	Next() error
+	// EqualRootToken compare the root token
 	EqualRootToken(token string) error
+	// CheckToken check if the `strategy` token has all permissions
 	CheckToken(ctx context.Context) error
 	IWalletLock
 }
@@ -149,6 +154,7 @@ func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
 	return errcode.ErrWithoutPermission
 }
 
+// Next Check the password has been set and the wallet is locked
 func (o *KeyMixLayer) Next() error {
 	o.m.RLock()
 	defer o.m.RUnlock()

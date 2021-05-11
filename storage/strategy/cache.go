@@ -11,17 +11,25 @@ type StrategyCache interface {
 	// when then upstream task transaction remove group succeed and next func failed,
 	// remove all cache to prevent data correctly
 	refresh()
-
+	// set cache a single keyBind with token index
 	set(token string, kb *storage.KeyBind)
+	// remove deletes the cache at the specified address
 	remove(token, address string)
+	// removeToken deletes the cache by strategy token
 	removeToken(token string)
+	// removeTokens deletes the caches that the key contain strategy tokens
 	removeTokens(tokens []string)
+	// get gets a keyBind by strategy token and wallet address
 	get(token, address string) *storage.KeyBind
-
+	// setBlank cache penetration data that does not exist
 	setBlank(token, address string)
+	// through check the token exists
 	through(token, address string) bool
+	// removeBlank delete  penetration data
 	removeBlank(token, address string)
+	// removeKeyBind delete keyBind from the cache
 	removeKeyBind(kb *storage.KeyBind)
+	// removeAddress deletes the cache by address
 	removeAddress(address string)
 }
 

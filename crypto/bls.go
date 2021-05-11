@@ -82,3 +82,11 @@ func (p *blsPrivate) ToKeyInfo() *core.KeyInfo {
 		Type:       core.KTBLS,
 	}
 }
+
+// sig []byte, sigGroupcheck bool, pk []byte, pkValidate bool, msg Message, dst []byte,
+func blsVerify(sig []byte, a core.Address, msg []byte) error {
+	if !new(Signature).VerifyCompressed(sig, false, a.Payload()[:], false, msg, []byte(DST)) {
+		return xerrors.New("bls signature failed to verify")
+	}
+	return nil
+}

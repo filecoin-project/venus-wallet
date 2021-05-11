@@ -32,10 +32,10 @@ var _ IWallet = &wallet{}
 
 // wallet implementation
 type wallet struct {
-	keyCache map[string]crypto.PrivateKey
-	ws       storage.KeyStore
-	mw       storage.KeyMiddleware
-	verify   strategy.IStrategyVerify
+	keyCache map[string]crypto.PrivateKey // simple key cache
+	ws       storage.KeyStore             // key storage
+	mw       storage.KeyMiddleware        //
+	verify   strategy.IStrategyVerify     // check wallet strategy with token
 	m        sync.RWMutex
 }
 

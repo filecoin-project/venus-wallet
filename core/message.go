@@ -29,24 +29,24 @@ type Message struct {
 	Params []byte
 }
 
-func (m *Message) Serialize() ([]byte, error) {
+func (msg *Message) Serialize() ([]byte, error) {
 	buf := new(bytes.Buffer)
-	if err := m.MarshalCBOR(buf); err != nil {
+	if err := msg.MarshalCBOR(buf); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
 }
 
-func (m *Message) Cid() cid.Cid {
-	b, err := m.ToStorageBlock()
+func (msg *Message) Cid() cid.Cid {
+	b, err := msg.ToStorageBlock()
 	if err != nil {
 		panic(fmt.Sprintf("failed to marshal message: %s", err)) // I think this is maybe sketchy, what happens if we try to serialize a message with an undefined address in it?
 	}
 	return b.Cid()
 }
 
-func (m *Message) ToStorageBlock() (block.Block, error) {
-	data, err := m.Serialize()
+func (msg *Message) ToStorageBlock() (block.Block, error) {
+	data, err := msg.Serialize()
 	if err != nil {
 		return nil, err
 	}

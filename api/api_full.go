@@ -6,17 +6,17 @@ var _ IFullAPI = &ServiceAuth{}
 
 // full service API permissions constraints
 type ServiceAuth struct {
-	CommonAuth
-	WalletAuth
-	WalletLockAuth
-	StrategyAuth
+	CommonAPIAdapter
+	WalletAPIAdapter
+	WalletLockAPIAdapter
+	StrategyAPIAdapter
 }
 
 func PermissionedFullAPI(a IFullAPI) IFullAPI {
 	var out ServiceAuth
-	permission.PermissionedAny(a, &out.WalletAuth.Internal)
-	permission.PermissionedAny(a, &out.CommonAuth.Internal)
-	permission.PermissionedAny(a, &out.WalletLockAuth.Internal)
-	permission.PermissionedAny(a, &out.StrategyAuth.Internal)
+	permission.PermissionedAny(a, &out.WalletAPIAdapter.Internal)
+	permission.PermissionedAny(a, &out.CommonAPIAdapter.Internal)
+	permission.PermissionedAny(a, &out.WalletLockAPIAdapter.Internal)
+	permission.PermissionedAny(a, &out.StrategyAPIAdapter.Internal)
 	return &out
 }
