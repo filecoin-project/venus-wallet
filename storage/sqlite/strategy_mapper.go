@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type iRouterMapper interface {
+type iStrategyMapper interface {
 	toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) *MsgTypeTemplate
 	toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage.MsgTypeTemplate
 	toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*storage.MsgTypeTemplate
@@ -25,14 +25,14 @@ type iRouterMapper interface {
 
 const splitChar = ","
 
-type routerMapper struct {
+type strategyMapper struct {
 }
 
-func newRouterMapper() iRouterMapper {
-	return &routerMapper{}
+func newRouterMapper() iStrategyMapper {
+	return &strategyMapper{}
 }
 
-func (m *routerMapper) toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) *MsgTypeTemplate {
+func (m *strategyMapper) toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) *MsgTypeTemplate {
 	if outer == nil {
 		return nil
 	}
@@ -44,7 +44,7 @@ func (m *routerMapper) toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) *M
 	return res
 }
 
-func (m *routerMapper) toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage.MsgTypeTemplate {
+func (m *strategyMapper) toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage.MsgTypeTemplate {
 	if inner == nil {
 		return nil
 	}
@@ -56,7 +56,7 @@ func (m *routerMapper) toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage.M
 	return res
 }
 
-func (m *routerMapper) toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*storage.MsgTypeTemplate {
+func (m *strategyMapper) toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*storage.MsgTypeTemplate {
 	res := make([]*storage.MsgTypeTemplate, 0, len(inners))
 	for _, v := range inners {
 		res = append(res, m.toOuterMsgTypeTemplate(v))
@@ -64,7 +64,7 @@ func (m *routerMapper) toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*sto
 	return res
 }
 
-func (m *routerMapper) toInnerMethodTemplate(outer *storage.MethodTemplate) *MethodTemplate {
+func (m *strategyMapper) toInnerMethodTemplate(outer *storage.MethodTemplate) *MethodTemplate {
 	if outer == nil {
 		return nil
 	}
@@ -76,7 +76,7 @@ func (m *routerMapper) toInnerMethodTemplate(outer *storage.MethodTemplate) *Met
 	}
 }
 
-func (m *routerMapper) toInnerMethodTemplates(outers []*storage.MethodTemplate) []*MethodTemplate {
+func (m *strategyMapper) toInnerMethodTemplates(outers []*storage.MethodTemplate) []*MethodTemplate {
 	res := make([]*MethodTemplate, 0, len(outers))
 	for _, v := range outers {
 		res = append(res, m.toInnerMethodTemplate(v))
@@ -84,7 +84,7 @@ func (m *routerMapper) toInnerMethodTemplates(outers []*storage.MethodTemplate) 
 	return res
 }
 
-func (m *routerMapper) toOuterMethodTemplate(inner *MethodTemplate) *storage.MethodTemplate {
+func (m *strategyMapper) toOuterMethodTemplate(inner *MethodTemplate) *storage.MethodTemplate {
 	if inner == nil {
 		return nil
 	}
@@ -94,7 +94,7 @@ func (m *routerMapper) toOuterMethodTemplate(inner *MethodTemplate) *storage.Met
 		Methods: strings.Split(inner.Methods, splitChar),
 	}
 }
-func (m *routerMapper) toOuterMethodTemplates(inner []*MethodTemplate) []*storage.MethodTemplate {
+func (m *strategyMapper) toOuterMethodTemplates(inner []*MethodTemplate) []*storage.MethodTemplate {
 	res := make([]*storage.MethodTemplate, 0, len(inner))
 	for _, v := range inner {
 		res = append(res, m.toOuterMethodTemplate(v))
@@ -102,7 +102,7 @@ func (m *routerMapper) toOuterMethodTemplates(inner []*MethodTemplate) []*storag
 	return res
 }
 
-func (m *routerMapper) toInnerKeyBind(outer *storage.KeyBind) *KeyBind {
+func (m *strategyMapper) toInnerKeyBind(outer *storage.KeyBind) *KeyBind {
 	if outer == nil {
 		return nil
 	}
@@ -116,7 +116,7 @@ func (m *routerMapper) toInnerKeyBind(outer *storage.KeyBind) *KeyBind {
 	}
 }
 
-func (m *routerMapper) toOuterKeyBind(inner *KeyBind) *storage.KeyBind {
+func (m *strategyMapper) toOuterKeyBind(inner *KeyBind) *storage.KeyBind {
 	if inner == nil {
 		return nil
 	}
@@ -130,7 +130,7 @@ func (m *routerMapper) toOuterKeyBind(inner *KeyBind) *storage.KeyBind {
 	}
 }
 
-func (m *routerMapper) toOuterKeyBinds(inner []*KeyBind) []*storage.KeyBind {
+func (m *strategyMapper) toOuterKeyBinds(inner []*KeyBind) []*storage.KeyBind {
 	res := make([]*storage.KeyBind, 0, len(inner))
 	for _, v := range inner {
 		res = append(res, m.toOuterKeyBind(v))
@@ -138,7 +138,7 @@ func (m *routerMapper) toOuterKeyBinds(inner []*KeyBind) []*storage.KeyBind {
 	return res
 }
 
-func (m *routerMapper) toOuterGroup(inner *Group, kbs []*KeyBind) *storage.Group {
+func (m *strategyMapper) toOuterGroup(inner *Group, kbs []*KeyBind) *storage.Group {
 	if inner == nil {
 		return nil
 	}
@@ -149,7 +149,7 @@ func (m *routerMapper) toOuterGroup(inner *Group, kbs []*KeyBind) *storage.Group
 	}
 }
 
-func (m *routerMapper) toOuterGroups(inner []*Group) []*storage.Group {
+func (m *strategyMapper) toOuterGroups(inner []*Group) []*storage.Group {
 	res := make([]*storage.Group, 0, len(inner))
 	for _, v := range inner {
 		res = append(res, m.toOuterGroup(v, nil))

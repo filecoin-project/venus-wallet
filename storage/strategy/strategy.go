@@ -24,36 +24,61 @@ var (
 var _ ILocalStrategy = &strategy{}
 
 type IStrategy interface {
+	// NewMsgTypeTemplate create a msgType template
 	NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error
+	// NewMethodTemplate create a method template
 	NewMethodTemplate(ctx context.Context, name string, methods []string) error
+	// NewKeyBindCustom create a keyBind with custom msyTypes and methods
 	NewKeyBindCustom(ctx context.Context, name, address string, codes []int, methods []core.MethodName) error
+	// NewKeyBindFromTemplate create a keyBind form msgType template and method template
 	NewKeyBindFromTemplate(ctx context.Context, name, address, mttName, mtName string) error
+	// NewGroup create a group to group multiple keyBinds together
 	NewGroup(ctx context.Context, name string, keyBindNames []string) error
+	// NewWalletToken generate a random token from group
 	NewWalletToken(ctx context.Context, groupName string) (token string, err error)
-
+	// GetMsgTypeTemplate get a msgType template by name
 	GetMsgTypeTemplate(ctx context.Context, name string) (*storage.MsgTypeTemplate, error)
+	// GetMethodTemplateByName get a method template by name
 	GetMethodTemplateByName(ctx context.Context, name string) (*storage.MethodTemplate, error)
+	// GetKeyBindByName get a keyBind by name
 	GetKeyBindByName(ctx context.Context, name string) (*storage.KeyBind, error)
+	// GetKeyBinds list keyBinds by address
 	GetKeyBinds(ctx context.Context, address string) ([]*storage.KeyBind, error)
+	// GetGroupByName get a group by name
 	GetGroupByName(ctx context.Context, name string) (*storage.Group, error)
+	// GetWalletTokensByGroup list strategy tokens under the group
 	GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error)
+	// GetWalletTokenInfo get group details by token
 	GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error)
-
+	// ListGroups list groups' simple information
 	ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error)
+	// ListKeyBinds list keyBinds' details
 	ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error)
+	// ListMethodTemplates list method templates' details
 	ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error)
+	// ListMsgTypeTemplates list msgType templates' details
 	ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error)
 
+	// PushMsgTypeIntoKeyBind append msgTypes into keyBind
 	PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)
+	// PushMethodIntoKeyBind append methods into keyBind
 	PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error)
+	// PullMsgTypeFromKeyBind remove msgTypes form keyBind
 	PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)
+	// PullMethodFromKeyBind remove methods from keyBind
 	PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error)
 
-	RemoveMsgTypeTemplate(nctx context.Context, ame string) error
+	// RemoveMsgTypeTemplate delete msgType template by name
+	RemoveMsgTypeTemplate(ctx context.Context, name string) error
+	// RemoveGroup delete group by name
 	RemoveGroup(ctx context.Context, name string) error
+	// RemoveMethodTemplate delete method template by name
 	RemoveMethodTemplate(ctx context.Context, name string) error
+	// RemoveKeyBind delete keyBind by name
 	RemoveKeyBind(ctx context.Context, name string) error
+	// RemoveKeyBindByAddress delete some keyBinds by address
 	RemoveKeyBindByAddress(ctx context.Context, address string) (int64, error)
+	// RemoveToken delete strategy token
 	RemoveToken(ctx context.Context, token string) error
 }
 type ILocalStrategy interface {
@@ -64,18 +89,20 @@ type VerifyFunc func(token, address string, enum core.MsgEnum, method core.Metho
 
 // NOTE: for wallet
 type IStrategyVerify interface {
+	// Verify verify the address strategy permissions
 	Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error
-	//@bool: root can do anything
+	// ScopeWallet get the wallet scope
 	ScopeWallet(ctx context.Context) (*core.AddressScope, error)
+	// ContainWallet Check if it is visible to the wallet
 	ContainWallet(ctx context.Context, address core.Address) bool
 }
 
 // TODO: add Cache
 type strategy struct {
-	scache  StrategyCache
-	store   storage.StrategyStore
-	nodeCli *node.NodeClient
-	mw      storage.KeyMiddleware
+	scache  StrategyCache         // atomicity strategy cache
+	store   storage.StrategyStore // strategy store
+	nodeCli *node.NodeClient      // venus or lotus node, to call Json-RPC2.0 API
+	mw      storage.KeyMiddleware // check auth token
 	sync.RWMutex
 }
 

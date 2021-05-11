@@ -67,9 +67,14 @@ func main() {
 		Stdout: os.Stdout,
 		Stderr: os.Stdout,
 	}
-	_ = cmd.Start()
-	_ = cmd.Wait()
-
+	err = cmd.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = cmd.Wait()
+	if err != nil {
+		log.Fatal(err)
+	}
 	tb, err := ioutil.ReadFile(path.Join(dir, "example", "remote-token.tmp"))
 	if err != nil {
 		log.Fatal(err)

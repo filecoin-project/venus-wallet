@@ -106,23 +106,23 @@ type Block struct {
 	ParentBaseFee TokenAmount `json:"parentBaseFee"`
 }
 
-func (b *Block) SignatureData() []byte {
+func (bk *Block) SignatureData() []byte {
 	tmp := &Block{
-		Miner:                 b.Miner,
-		Ticket:                b.Ticket,
-		ElectionProof:         b.ElectionProof,
-		Parents:               b.Parents,
-		ParentWeight:          b.ParentWeight,
-		Height:                b.Height,
-		Messages:              b.Messages,
-		ParentStateRoot:       b.ParentStateRoot,
-		ParentMessageReceipts: b.ParentMessageReceipts,
-		WinPoStProof:          b.WinPoStProof,
-		BeaconEntries:         b.BeaconEntries,
-		Timestamp:             b.Timestamp,
-		BLSAggregate:          b.BLSAggregate,
-		ForkSignaling:         b.ForkSignaling,
-		ParentBaseFee:         b.ParentBaseFee,
+		Miner:                 bk.Miner,
+		Ticket:                bk.Ticket,
+		ElectionProof:         bk.ElectionProof,
+		Parents:               bk.Parents,
+		ParentWeight:          bk.ParentWeight,
+		Height:                bk.Height,
+		Messages:              bk.Messages,
+		ParentStateRoot:       bk.ParentStateRoot,
+		ParentMessageReceipts: bk.ParentMessageReceipts,
+		WinPoStProof:          bk.WinPoStProof,
+		BeaconEntries:         bk.BeaconEntries,
+		Timestamp:             bk.Timestamp,
+		BLSAggregate:          bk.BLSAggregate,
+		ForkSignaling:         bk.ForkSignaling,
+		ParentBaseFee:         bk.ParentBaseFee,
 		// BlockSig omitted
 	}
 
@@ -138,9 +138,9 @@ const DefaultHashFunction = uint64(BLAKE2B_MIN + 31)
 // Note that sector commitments use a different scheme.
 var DefaultCidBuilder = cid.V1Builder{Codec: cid.DagCBOR, MhType: DefaultHashFunction}
 
-func (b *Block) rawData() []byte {
+func (bk *Block) rawData() []byte {
 	buf := new(bytes.Buffer)
-	err := b.MarshalCBOR(buf)
+	err := bk.MarshalCBOR(buf)
 	if err != nil {
 		panic(err)
 	}
@@ -338,8 +338,8 @@ func (tipsetKey TipSetKey) MarshalCBOR(w io.Writer) error {
 	return nil
 }
 
-func (t *Block) MarshalCBOR(w io.Writer) error {
-	if t == nil {
+func (bk *Block) MarshalCBOR(w io.Writer) error {
+	if bk == nil {
 		_, err := w.Write(cbg.CborNull)
 		return err
 	}
@@ -350,111 +350,111 @@ func (t *Block) MarshalCBOR(w io.Writer) error {
 	scratch := make([]byte, 9)
 
 	// t.Miner (address.Address) (struct)
-	if err := t.Miner.MarshalCBOR(w); err != nil {
+	if err := bk.Miner.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.Ticket (block.Ticket) (struct)
-	if err := t.Ticket.MarshalCBOR(w); err != nil {
+	if err := bk.Ticket.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.ElectionProof (block.ElectionProof) (struct)
-	if err := t.ElectionProof.MarshalCBOR(w); err != nil {
+	if err := bk.ElectionProof.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.BeaconEntries ([]*block.BeaconEntry) (slice)
-	if len(t.BeaconEntries) > cbg.MaxLength {
+	if len(bk.BeaconEntries) > cbg.MaxLength {
 		return xerrors.Errorf("Slice value in field t.BeaconEntries was too long")
 	}
 
-	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajArray, uint64(len(t.BeaconEntries))); err != nil {
+	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajArray, uint64(len(bk.BeaconEntries))); err != nil {
 		return err
 	}
-	for _, v := range t.BeaconEntries {
+	for _, v := range bk.BeaconEntries {
 		if err := v.MarshalCBOR(w); err != nil {
 			return err
 		}
 	}
 
 	// t.WinPoStProof ([]block.PoStProof) (slice)
-	if len(t.WinPoStProof) > cbg.MaxLength {
+	if len(bk.WinPoStProof) > cbg.MaxLength {
 		return xerrors.Errorf("Slice value in field t.WinPoStProof was too long")
 	}
 
-	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajArray, uint64(len(t.WinPoStProof))); err != nil {
+	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajArray, uint64(len(bk.WinPoStProof))); err != nil {
 		return err
 	}
-	for _, v := range t.WinPoStProof {
+	for _, v := range bk.WinPoStProof {
 		if err := v.MarshalCBOR(w); err != nil {
 			return err
 		}
 	}
 
 	// t.Parents (block.TipSetKey) (struct)
-	if err := t.Parents.MarshalCBOR(w); err != nil {
+	if err := bk.Parents.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.ParentWeight (big.Int) (struct)
-	if err := t.ParentWeight.MarshalCBOR(w); err != nil {
+	if err := bk.ParentWeight.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.Height (abi.ChainEpoch) (int64)
-	if t.Height >= 0 {
-		if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajUnsignedInt, uint64(t.Height)); err != nil {
+	if bk.Height >= 0 {
+		if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajUnsignedInt, uint64(bk.Height)); err != nil {
 			return err
 		}
 	} else {
-		if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajNegativeInt, uint64(-t.Height-1)); err != nil {
+		if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajNegativeInt, uint64(-bk.Height-1)); err != nil {
 			return err
 		}
 	}
 
 	// t.ParentStateRoot (cid.Cid) (struct)
 
-	if err := cbg.WriteCidBuf(scratch, w, t.ParentStateRoot); err != nil {
+	if err := cbg.WriteCidBuf(scratch, w, bk.ParentStateRoot); err != nil {
 		return xerrors.Errorf("failed to write cid field t.ParentStateRoot: %w", err)
 	}
 
 	// t.ParentMessageReceipts (cid.Cid) (struct)
 
-	if err := cbg.WriteCidBuf(scratch, w, t.ParentMessageReceipts); err != nil {
+	if err := cbg.WriteCidBuf(scratch, w, bk.ParentMessageReceipts); err != nil {
 		return xerrors.Errorf("failed to write cid field t.ParentMessageReceipts: %w", err)
 	}
 
 	// t.Messages (cid.Cid) (struct)
 
-	if err := cbg.WriteCidBuf(scratch, w, t.Messages); err != nil {
+	if err := cbg.WriteCidBuf(scratch, w, bk.Messages); err != nil {
 		return xerrors.Errorf("failed to write cid field t.Messages: %w", err)
 	}
 
 	// t.BLSAggregate (crypto.Signature) (struct)
-	if err := t.BLSAggregate.MarshalCBOR(w); err != nil {
+	if err := bk.BLSAggregate.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.Timestamp (uint64) (uint64)
 
-	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajUnsignedInt, uint64(t.Timestamp)); err != nil {
+	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajUnsignedInt, uint64(bk.Timestamp)); err != nil {
 		return err
 	}
 
 	// t.BlockSig (crypto.Signature) (struct)
-	if err := t.BlockSig.MarshalCBOR(w); err != nil {
+	if err := bk.BlockSig.MarshalCBOR(w); err != nil {
 		return err
 	}
 
 	// t.ForkSignaling (uint64) (uint64)
 
-	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajUnsignedInt, uint64(t.ForkSignaling)); err != nil {
+	if err := cbg.WriteMajorTypeHeaderBuf(scratch, w, cbg.MajUnsignedInt, uint64(bk.ForkSignaling)); err != nil {
 		return err
 	}
 
 	// t.ParentBaseFee (big.Int) (struct)
-	if err := t.ParentBaseFee.MarshalCBOR(w); err != nil {
+	if err := bk.ParentBaseFee.MarshalCBOR(w); err != nil {
 		return err
 	}
 	return nil

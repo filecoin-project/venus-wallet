@@ -7,9 +7,9 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
 )
 
-var _ strategy.ILocalStrategy = &StrategyAuth{}
+var _ strategy.ILocalStrategy = &StrategyAPIAdapter{}
 
-type StrategyAuth struct {
+type StrategyAPIAdapter struct {
 	Internal struct {
 		NewMsgTypeTemplate     func(ctx context.Context, name string, codes []int) error                                     `perm:"admin" local:"required"`
 		NewMethodTemplate      func(ctx context.Context, name string, methods []string) error                                `perm:"admin" local:"required"`
@@ -48,98 +48,98 @@ type StrategyAuth struct {
 	}
 }
 
-func (o *StrategyAuth) NewWalletToken(ctx context.Context, groupName string) (token string, err error) {
+func (o *StrategyAPIAdapter) NewWalletToken(ctx context.Context, groupName string) (token string, err error) {
 	return o.Internal.NewWalletToken(ctx, groupName)
 }
 
-func (o *StrategyAuth) GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error) {
+func (o *StrategyAPIAdapter) GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error) {
 	return o.Internal.GetWalletTokensByGroup(ctx, groupName)
 }
 
-func (o *StrategyAuth) NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error {
+func (o *StrategyAPIAdapter) NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error {
 	return o.Internal.NewMsgTypeTemplate(ctx, name, codes)
 }
-func (o *StrategyAuth) NewMethodTemplate(ctx context.Context, name string, methods []string) error {
+func (o *StrategyAPIAdapter) NewMethodTemplate(ctx context.Context, name string, methods []string) error {
 	return o.Internal.NewMethodTemplate(ctx, name, methods)
 }
-func (o *StrategyAuth) NewKeyBindCustom(ctx context.Context, name, address string, codes []int, methods []core.MethodName) error {
+func (o *StrategyAPIAdapter) NewKeyBindCustom(ctx context.Context, name, address string, codes []int, methods []core.MethodName) error {
 	return o.Internal.NewKeyBindCustom(ctx, name, address, codes, methods)
 }
-func (o *StrategyAuth) NewKeyBindFromTemplate(ctx context.Context, name, address, mttName, mtName string) error {
+func (o *StrategyAPIAdapter) NewKeyBindFromTemplate(ctx context.Context, name, address, mttName, mtName string) error {
 	return o.Internal.NewKeyBindFromTemplate(ctx, name, address, mttName, mtName)
 }
-func (o *StrategyAuth) NewGroup(ctx context.Context, name string, keyBindNames []string) error {
+func (o *StrategyAPIAdapter) NewGroup(ctx context.Context, name string, keyBindNames []string) error {
 	return o.Internal.NewGroup(ctx, name, keyBindNames)
 }
 
-func (o *StrategyAuth) GetMsgTypeTemplate(ctx context.Context, name string) (*storage.MsgTypeTemplate, error) {
+func (o *StrategyAPIAdapter) GetMsgTypeTemplate(ctx context.Context, name string) (*storage.MsgTypeTemplate, error) {
 	return o.Internal.GetMsgTypeTemplate(ctx, name)
 }
-func (o *StrategyAuth) GetMethodTemplateByName(ctx context.Context, name string) (*storage.MethodTemplate, error) {
+func (o *StrategyAPIAdapter) GetMethodTemplateByName(ctx context.Context, name string) (*storage.MethodTemplate, error) {
 	return o.Internal.GetMethodTemplateByName(ctx, name)
 }
-func (o *StrategyAuth) GetKeyBindByName(ctx context.Context, name string) (*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) GetKeyBindByName(ctx context.Context, name string) (*storage.KeyBind, error) {
 	return o.Internal.GetKeyBindByName(ctx, name)
 }
-func (o *StrategyAuth) GetKeyBinds(ctx context.Context, address string) ([]*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) GetKeyBinds(ctx context.Context, address string) ([]*storage.KeyBind, error) {
 	return o.Internal.GetKeyBinds(ctx, address)
 }
-func (o *StrategyAuth) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
+func (o *StrategyAPIAdapter) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
 	return o.Internal.GetGroupByName(ctx, name)
 }
-func (o *StrategyAuth) GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error) {
+func (o *StrategyAPIAdapter) GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error) {
 	return o.Internal.GetWalletTokenInfo(ctx, token)
 }
-func (o *StrategyAuth) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error) {
+func (o *StrategyAPIAdapter) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error) {
 	return o.Internal.ListGroups(ctx, fromIndex, toIndex)
 }
-func (o *StrategyAuth) ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error) {
 	return o.Internal.ListKeyBinds(ctx, fromIndex, toIndex)
 }
-func (o *StrategyAuth) ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error) {
+func (o *StrategyAPIAdapter) ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error) {
 	return o.Internal.ListMethodTemplates(ctx, fromIndex, toIndex)
 }
-func (o *StrategyAuth) ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) {
+func (o *StrategyAPIAdapter) ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) {
 	return o.Internal.ListMsgTypeTemplates(ctx, fromIndex, toIndex)
 }
 
-func (o *StrategyAuth) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
 	return o.Internal.PushMsgTypeIntoKeyBind(ctx, name, codes)
 }
-func (o *StrategyAuth) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
 	return o.Internal.PushMethodIntoKeyBind(ctx, name, methods)
 }
-func (o *StrategyAuth) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
 	return o.Internal.PullMsgTypeFromKeyBind(ctx, name, codes)
 }
-func (o *StrategyAuth) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
 	return o.Internal.PullMethodFromKeyBind(ctx, name, methods)
 }
 
-func (o *StrategyAuth) RemoveKeyBind(ctx context.Context, name string) error {
+func (o *StrategyAPIAdapter) RemoveKeyBind(ctx context.Context, name string) error {
 	return o.Internal.RemoveKeyBind(ctx, name)
 }
-func (o *StrategyAuth) RemoveKeyBindByAddress(ctx context.Context, address string) (int64, error) {
+func (o *StrategyAPIAdapter) RemoveKeyBindByAddress(ctx context.Context, address string) (int64, error) {
 	return o.Internal.RemoveKeyBindByAddress(ctx, address)
 }
-func (o *StrategyAuth) RemoveGroup(ctx context.Context, name string) error {
+func (o *StrategyAPIAdapter) RemoveGroup(ctx context.Context, name string) error {
 	return o.Internal.RemoveGroup(ctx, name)
 }
-func (o *StrategyAuth) RemoveMethodTemplate(ctx context.Context, name string) error {
+func (o *StrategyAPIAdapter) RemoveMethodTemplate(ctx context.Context, name string) error {
 	return o.Internal.RemoveMethodTemplate(ctx, name)
 }
-func (o *StrategyAuth) RemoveMsgTypeTemplate(ctx context.Context, name string) error {
+func (o *StrategyAPIAdapter) RemoveMsgTypeTemplate(ctx context.Context, name string) error {
 	return o.Internal.RemoveMsgTypeTemplate(ctx, name)
 }
-func (o *StrategyAuth) RemoveToken(ctx context.Context, token string) error {
+func (o *StrategyAPIAdapter) RemoveToken(ctx context.Context, token string) error {
 	return o.Internal.RemoveToken(ctx, token)
 }
-func (o *StrategyAuth) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
+func (o *StrategyAPIAdapter) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
 	return o.Internal.ScopeWallet(ctx)
 }
-func (o *StrategyAuth) Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error {
+func (o *StrategyAPIAdapter) Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error {
 	return o.Internal.Verify(ctx, address, msgType, msg)
 }
-func (o *StrategyAuth) ContainWallet(ctx context.Context, address core.Address) bool {
+func (o *StrategyAPIAdapter) ContainWallet(ctx context.Context, address core.Address) bool {
 	return o.Internal.ContainWallet(ctx, address)
 }

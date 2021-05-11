@@ -14,7 +14,7 @@ if (($result > 0)); then
 fi
 
 # build
-go build -o venus-wallet ./cmd
+go build -o venus-wallet ./cmd/wallet/main.go
 pwd
 
 # wait for successful startup

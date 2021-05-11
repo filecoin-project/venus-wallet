@@ -10,9 +10,10 @@ type Config struct {
 	Strategy *StrategyConfig `json:"STRATEGY"`
 }
 
+// strategy validation
 type StrategyConfig struct {
-	Level   uint8  `json:"level"`
-	NodeURL string `json:"nodeUrl"`
+	Level   uint8  `json:"level"`   // 0：nouse  1：only check struct  2：check struct and msg.method
+	NodeURL string `json:"nodeUrl"` // need config when Level = 2 and get the actor for msg.to
 }
 
 // for keystore
@@ -39,6 +40,7 @@ type JWTConfig struct {
 	Secret string `json:"secret"`
 }
 
+// aes
 type CryptoFactor struct {
 	// ScryptN is the N parameter of Scrypt encryption algorithm, using 256MB
 	// memory and taking approximately 1s CPU time on a modern processor.
