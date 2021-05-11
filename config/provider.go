@@ -10,6 +10,7 @@ import (
 	"os"
 )
 
+// DecodeConfig
 func DecodeConfig(path string) (c *Config, err error) {
 	provider, err := FromConfigString(path, "toml")
 	if err != nil {
@@ -23,6 +24,7 @@ func DecodeConfig(path string) (c *Config, err error) {
 	return
 }
 
+// ConfigComment parse toml config to bytes
 func ConfigComment(t interface{}) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	_, _ = buf.WriteString("# Default config:\n")
@@ -35,6 +37,8 @@ func ConfigComment(t interface{}) ([]byte, error) {
 	b = bytes.ReplaceAll(b, []byte("#["), []byte("["))
 	return b, nil
 }
+
+// CoverConfig rewrite config
 func CoverConfig(path string, config *Config) error {
 	c, err := os.Create(path)
 	if err != nil {
