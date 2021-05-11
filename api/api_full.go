@@ -2,10 +2,10 @@ package api
 
 import "github.com/filecoin-project/venus-wallet/api/permission"
 
-var _ IFullAPI = &ServiceAuth{}
+var _ IFullAPI = &FullAPIAdapter{}
 
 // full service API permissions constraints
-type ServiceAuth struct {
+type FullAPIAdapter struct {
 	CommonAPIAdapter
 	WalletAPIAdapter
 	WalletLockAPIAdapter
@@ -13,7 +13,7 @@ type ServiceAuth struct {
 }
 
 func PermissionedFullAPI(a IFullAPI) IFullAPI {
-	var out ServiceAuth
+	var out FullAPIAdapter
 	permission.PermissionedAny(a, &out.WalletAPIAdapter.Internal)
 	permission.PermissionedAny(a, &out.CommonAPIAdapter.Internal)
 	permission.PermissionedAny(a, &out.WalletLockAPIAdapter.Internal)

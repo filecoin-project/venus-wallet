@@ -37,7 +37,7 @@ func NewCommonRPC(ctx context.Context, addr string, requestHeader http.Header) (
 
 // NewFullNodeRPC creates a new httpparse jsonrpc remotecli.
 func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header) (api.IFullAPI, jsonrpc.ClientCloser, error) {
-	var res api.ServiceAuth
+	var res api.FullAPIAdapter
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
 			&res.CommonAPIAdapter.Internal,
