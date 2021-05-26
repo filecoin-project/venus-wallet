@@ -20,4 +20,6 @@ type Repo interface {
 	APIStrategyToken(password string) (string, error)
 
 	Config() *config.Config
+
+	AppendSupportAccount(newAccount string) error
 }

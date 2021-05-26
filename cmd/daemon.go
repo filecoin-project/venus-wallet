@@ -65,7 +65,7 @@ var RunCmd = &cli.Command{
 				address.CurrentNetwork = address.Mainnet
 			}),
 			build.FullAPIOpt(&fullAPI),
-			build.WalletOpt(r.Config()),
+			build.WalletOpt(r),
 			build.CommonOpt(secret),
 			build.ApplyIf(func(s *build.Settings) bool { return cctx.IsSet(cmdNetwork) },
 				build.Override(build.SetNet, func() {

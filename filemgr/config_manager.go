@@ -67,6 +67,13 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 			NodeURL: "",
 		}
 	}
+	if cnf.APIRegisterHub == nil {
+		cnf.APIRegisterHub = &config.APIRegisterHubConfig{
+			RegisterAPI:     []string{},
+			Token:           "",
+			SupportAccounts: []string{},
+		}
+	}
 	if op != nil {
 		// override
 		if op.API != core.StringEmpty {
@@ -101,4 +108,9 @@ func (fsr *FsRepo) loadConfig() (*config.Config, error) {
 }
 func (fsr *FsRepo) configPath() string {
 	return filepath.Join(fsr.path, skConfig)
+}
+
+func (fsr *FsRepo) AppendSupportAccount(newAccount string) error {
+	fsr.cnf.APIRegisterHub.SupportAccounts = append(fsr.cnf.APIRegisterHub.SupportAccounts, newAccount)
+	return config.CoverConfig(fsr.configPath(), fsr.cnf)
 }
