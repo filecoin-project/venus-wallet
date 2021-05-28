@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-gateway/types"
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"net/http"
@@ -13,7 +14,7 @@ import (
 
 type WalletRegisterClient struct {
 	ResponseWalletEvent func(ctx context.Context, resp *types.ResponseEvent) error
-	ListenWalletEvent   func(ctx context.Context, supportAccounts []string) (chan *types.RequestEvent, error)
+	ListenWalletEvent   func(ctx context.Context, policy *walletevent.WalletRegisterPolicy) (chan *types.RequestEvent, error)
 	SupportNewAccount   func(ctx context.Context, channelId uuid.UUID, account string) error
 }
 

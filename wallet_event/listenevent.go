@@ -8,6 +8,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-gateway/types"
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
@@ -115,8 +116,10 @@ func (e *WalletEvent) listenWalletRequest(ctx context.Context) {
 func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
-	walletEventCh, err := e.client.ListenWalletEvent(ctx, e.cfg.SupportAccounts)
+	policy := &walletevent.WalletRegisterPolicy{
+		SupportAccounts: e.cfg.SupportAccounts,
+	}
+	walletEventCh, err := e.client.ListenWalletEvent(ctx, policy)
 	if err != nil {
 		// Retry is handled by caller
 		return xerrors.Errorf("listenWalletRequestOnce listenWalletRequestOnce call failed: %w", err)

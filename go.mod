@@ -27,7 +27,7 @@ require (
 	github.com/google/gopacket v1.1.18 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
-	github.com/ipfs-force-community/venus-gateway v0.0.0-20210527074102-11537de8365a // indirect
+	github.com/ipfs-force-community/venus-gateway v0.0.0-20210528060921-460ec6185a7d // indirect
 	github.com/ipfs/go-bitswap v0.3.2 // indirect
 	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-blockservice v0.1.4 // indirect
