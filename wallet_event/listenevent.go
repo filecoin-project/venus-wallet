@@ -3,6 +3,7 @@ package wallet_event
 import (
 	"context"
 	"encoding/json"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
@@ -19,7 +20,8 @@ import (
 var log = logging.Logger("wallet_event")
 
 type IAPIRegisterHub interface {
-	SupportNewAccount(ctx context.Context, supportAccount string) error
+	SupportNewAccount(ctx context.Context, account string) error
+	AddNewAddress(ctx context.Context, newAddrs []address.Address) error
 }
 
 type IWalletProcess interface {
@@ -75,6 +77,18 @@ func (apiRegisterhub *APIRegisterHub) SupportNewAccount(ctx context.Context, sup
 	return nil
 }
 
+func (apiRegisterhub *APIRegisterHub) AddNewAddress(ctx context.Context, newAddrs []address.Address) error {
+	apiRegisterhub.lk.Lock()
+	defer apiRegisterhub.lk.Unlock()
+	for _, c := range apiRegisterhub.registerClient {
+		err := c.AddNewAddress(ctx, newAddrs)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type WalletEvent struct {
 	processor IWalletProcess
 	client    *WalletRegisterClient
@@ -93,6 +107,10 @@ func (e *WalletEvent) SupportAccount(ctx context.Context, supportAccount string)
 		return err
 	}
 	return nil
+}
+
+func (e *WalletEvent) AddNewAddress(ctx context.Context, newAddrs []address.Address) error {
+	return e.client.AddNewAddress(ctx, e.channel, newAddrs)
 }
 
 func (e *WalletEvent) listenWalletRequest(ctx context.Context) {
