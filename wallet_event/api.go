@@ -6,7 +6,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"golang.org/x/xerrors"
-	"math/rand"
 )
 
 type IWalletEventAPI interface {
@@ -39,8 +38,6 @@ func (walletEventAPI *WalletEventAPI) AddSupportAccount(ctx context.Context, sup
 	if err != nil {
 		return err
 	}
-	sss, _ := address.NewIDAddress(rand.Uint64())
-	walletEventAPI.apiRegisterHub.AddNewAddress(ctx, []address.Address{sss})
 	return walletEventAPI.fsr.AppendSupportAccount(supportAccount)
 }
 
