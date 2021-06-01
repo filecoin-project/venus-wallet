@@ -29,7 +29,7 @@ func NewWalletRegisterClient(ctx context.Context, url, token string) (*WalletReg
 		return nil, nil, err
 	}
 	walletEventClient := &WalletRegisterClient{}
-	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin", []interface{}{walletEventClient}, headers)
+	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Gateway", []interface{}{walletEventClient}, headers)
 	if err != nil {
 		return nil, nil, err
 	}
