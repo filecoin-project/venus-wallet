@@ -164,6 +164,7 @@ func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
 
 			e.value(ctx, event.Id, addrs)
 		case "WalletSign":
+			log.Info("receive WalletSign event")
 			req := types.WalletSignRequest{}
 			err := json.Unmarshal(event.Payload, &req)
 			if err != nil {
@@ -171,13 +172,16 @@ func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
 				e.error(ctx, event.Id, err)
 				continue
 			}
+			log.Info("start WalletSign")
 			sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, req.Meta)
 			if err != nil {
 				e.log.Errorf("WalletSign error %s", err)
 				e.error(ctx, event.Id, err)
 				continue
 			}
+			log.Info("end WalletSign")
 			e.value(ctx, event.Id, sig)
+			log.Info("end WalletSign response")
 
 		default:
 			e.log.Errorf("unexpect proof event type %s", event.Method)
