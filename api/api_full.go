@@ -10,6 +10,7 @@ type FullAPIAdapter struct {
 	WalletAPIAdapter
 	WalletLockAPIAdapter
 	StrategyAPIAdapter
+	WalletEventAPIAdapter
 }
 
 func PermissionedFullAPI(a IFullAPI) IFullAPI {
@@ -18,5 +19,6 @@ func PermissionedFullAPI(a IFullAPI) IFullAPI {
 	permission.PermissionedAny(a, &out.CommonAPIAdapter.Internal)
 	permission.PermissionedAny(a, &out.WalletLockAPIAdapter.Internal)
 	permission.PermissionedAny(a, &out.StrategyAPIAdapter.Internal)
+	permission.PermissionedAny(a, &out.WalletEventAPIAdapter.Internal)
 	return &out
 }

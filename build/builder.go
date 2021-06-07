@@ -5,11 +5,13 @@ import (
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/node"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus-wallet/storage/sqlite"
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus-wallet/wallet_event"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
 )
@@ -49,8 +51,10 @@ func defaults() []Option {
 	}
 }
 
-func WalletOpt(c *config.Config) Option {
+func WalletOpt(repo filemgr.Repo) Option {
+	c := repo.Config()
 	return Options(
+		Override(new(filemgr.Repo), repo),
 		Override(new(*config.DBConfig), c.DB),
 		Override(new(*sqlite.Conn), sqlite.NewSQLiteConn),
 		Override(new(storage.StrategyStore), sqlite.NewRouterStore),
@@ -61,15 +65,20 @@ func WalletOpt(c *config.Config) Option {
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),
 		Override(new(wallet.ILocalWallet), wallet.NewWallet),
+
+		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
+		Override(new(wallet_event.IAPIRegisterHub), wallet_event.NewAPIRegisterHub),
+		Override(new(wallet_event.IWalletEventAPI), wallet_event.NewWalletEventAPI),
 	)
 }
+
 func CommonOpt(alg *common.APIAlg) Option {
 	return Options(
 		Override(new(*common.APIAlg), alg),
 		Override(new(common.ICommon), From(new(common.Common))),
 	)
-
 }
+
 func FullAPIOpt(out *api.IFullAPI) Option {
 	return func(s *Settings) error {
 		resAPI := &api.FullAPI{}

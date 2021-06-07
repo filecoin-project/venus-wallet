@@ -44,6 +44,7 @@ func NewFullNodeRPC(ctx context.Context, addr string, requestHeader http.Header)
 			&res.WalletAPIAdapter.Internal,
 			&res.WalletLockAPIAdapter.Internal,
 			&res.StrategyAPIAdapter.Internal,
+			&res.WalletEventAPIAdapter.Internal,
 		}, requestHeader)
 
 	return &res, closer, err

@@ -2,18 +2,25 @@ package config
 
 // full config
 type Config struct {
-	API      *APIConfig      `json:"API"`
-	DB       *DBConfig       `json:"DB" binding:"required"`
-	Metrics  *MetricsConfig  `json:"METRICS"`
-	JWT      *JWTConfig      `json:"JWT"`
-	Factor   *CryptoFactor   `json:"FACTOR"`
-	Strategy *StrategyConfig `json:"STRATEGY"`
+	API            *APIConfig            `json:"API"`
+	DB             *DBConfig             `json:"DB" binding:"required"`
+	Metrics        *MetricsConfig        `json:"METRICS"`
+	JWT            *JWTConfig            `json:"JWT"`
+	Factor         *CryptoFactor         `json:"FACTOR"`
+	Strategy       *StrategyConfig       `json:"STRATEGY"`
+	APIRegisterHub *APIRegisterHubConfig `json:"WalletEvent"`
 }
 
 // strategy validation
 type StrategyConfig struct {
 	Level   uint8  `json:"level"`   // 0：nouse  1：only check struct  2：check struct and msg.method
 	NodeURL string `json:"nodeUrl"` // need config when Level = 2 and get the actor for msg.to
+}
+
+type APIRegisterHubConfig struct {
+	RegisterAPI     []string `json:"apiRegisterHub"`
+	Token           string   `json:"token"`
+	SupportAccounts []string `json:"supportAccounts"`
 }
 
 // for keystore

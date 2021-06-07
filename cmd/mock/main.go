@@ -46,7 +46,7 @@ func main() {
 			address.CurrentNetwork = address.Testnet
 		}),
 		build.FullAPIOpt(&fullAPI),
-		build.WalletOpt(r.Config()),
+		build.WalletOpt(r),
 		build.CommonOpt(secret),
 		build.Override(new(build.NetworkName), build.NetworkName("main net")),
 	)
