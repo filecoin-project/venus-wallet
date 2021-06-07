@@ -46,6 +46,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process wallet.ILocalWallet, cfg *config
 		if err != nil {
 			//todo return or continue. allow failed client
 			log.Errorf("connect to api hub %s faile %v", apiHub, err)
+			cancel()
 			return nil, err
 		}
 		mLog := log.With("api hub", apiHub)
@@ -195,11 +196,12 @@ func (e *WalletEvent) value(ctx context.Context, id uuid.UUID, val interface{}) 
 	respBytes, err := json.Marshal(val)
 	if err != nil {
 		e.log.Errorf("marshal address list error %s", err)
-		e.client.ResponseWalletEvent(ctx, &types.ResponseEvent{
+		err = e.client.ResponseWalletEvent(ctx, &types.ResponseEvent{
 			Id:      id,
 			Payload: nil,
 			Error:   err.Error(),
 		})
+		e.log.Errorf("response wallet event error %s", err)
 		return
 	}
 	err = e.client.ResponseWalletEvent(ctx, &types.ResponseEvent{
