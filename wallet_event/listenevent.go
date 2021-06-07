@@ -156,40 +156,46 @@ func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
 			e.log.Infof("connect to server %v", req.ChannelId)
 			//do not response
 		case "WalletList":
-			addrs, err := e.processor.WalletList(ctx)
-			if err != nil {
-				e.log.Errorf("WalletList error %s", err)
-				e.error(ctx, event.Id, err)
-				continue
-			}
-
-			e.value(ctx, event.Id, addrs)
+			go e.walletList(ctx, event.Id)
 		case "WalletSign":
-			log.Debug("receive WalletSign event")
-			req := types.WalletSignRequest{}
-			err := json.Unmarshal(event.Payload, &req)
-			if err != nil {
-				e.log.Errorf("unmarshal WalletSignRequest error %s", err)
-				e.error(ctx, event.Id, err)
-				continue
-			}
-			log.Debug("start WalletSign")
-			sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, req.Meta)
-			if err != nil {
-				e.log.Errorf("WalletSign error %s", err)
-				e.error(ctx, event.Id, err)
-				continue
-			}
-			log.Debug("end WalletSign")
-			e.value(ctx, event.Id, sig)
-			log.Info("end WalletSign response")
-
+			go e.walletSign(ctx, event)
 		default:
 			e.log.Errorf("unexpect proof event type %s", event.Method)
 		}
 	}
 
 	return nil
+}
+
+func (e *WalletEvent) walletList(ctx context.Context, id uuid.UUID) {
+	addrs, err := e.processor.WalletList(ctx)
+	if err != nil {
+		e.log.Errorf("WalletList error %s", err)
+		e.error(ctx, id, err)
+		return
+	}
+	e.value(ctx, id, addrs)
+}
+
+func (e *WalletEvent) walletSign(ctx context.Context, event *types.RequestEvent) {
+	log.Debug("receive WalletSign event")
+	req := types.WalletSignRequest{}
+	err := json.Unmarshal(event.Payload, &req)
+	if err != nil {
+		e.log.Errorf("unmarshal WalletSignRequest error %s", err)
+		e.error(ctx, event.Id, err)
+		return
+	}
+	log.Debug("start WalletSign")
+	sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, req.Meta)
+	if err != nil {
+		e.log.Errorf("WalletSign error %s", err)
+		e.error(ctx, event.Id, err)
+		return
+	}
+	log.Debug("end WalletSign")
+	e.value(ctx, event.Id, sig)
+	log.Debug("end WalletSign response")
 }
 
 func (e *WalletEvent) value(ctx context.Context, id uuid.UUID, val interface{}) {
