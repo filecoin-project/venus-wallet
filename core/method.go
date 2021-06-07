@@ -3,18 +3,23 @@ package core
 import (
 	"bytes"
 	"fmt"
-	"github.com/ahmetb/go-linq/v3"
-	"github.com/filecoin-project/go-state-types/rt"
-	exported0 "github.com/filecoin-project/specs-actors/actors/builtin/exported"
-	exported2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/exported"
-	"github.com/filecoin-project/specs-actors/v3/actors/builtin"
-	exported3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/exported"
-	exported4 "github.com/filecoin-project/specs-actors/v4/actors/builtin/exported"
-	"github.com/filecoin-project/venus-wallet/errcode"
 	"reflect"
 	"runtime"
 	"sort"
 	"strings"
+
+	"github.com/ahmetb/go-linq/v3"
+	"github.com/filecoin-project/go-state-types/rt"
+
+	exported0 "github.com/filecoin-project/specs-actors/actors/builtin/exported"
+	exported2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/exported"
+	exported3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/exported"
+	exported4 "github.com/filecoin-project/specs-actors/v4/actors/builtin/exported"
+	exported5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/exported"
+
+	"github.com/filecoin-project/specs-actors/v3/actors/builtin"
+
+	"github.com/filecoin-project/venus-wallet/errcode"
 )
 
 var MethodsMap = map[Cid]map[MethodNum]MethodMeta{}
@@ -32,6 +37,8 @@ func init() {
 	actors = append(actors, exported2.BuiltinActors()...)
 	actors = append(actors, exported3.BuiltinActors()...)
 	actors = append(actors, exported4.BuiltinActors()...)
+	actors = append(actors, exported5.BuiltinActors()...)
+
 	MethodNamesMap["Send"] = struct{}{}
 	for _, actor := range actors {
 		exports := actor.Exports()
