@@ -18,7 +18,7 @@ require (
 	github.com/filecoin-project/specs-actors/v4 v4.0.1
 	github.com/filecoin-project/specs-actors/v5 v5.0.0-20210602024058-0c296bb386bf
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/fxamacker/cbor v1.5.1
+	github.com/fxamacker/cbor/v2 v2.3.0
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
 	github.com/google/uuid v1.2.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
