@@ -2,11 +2,12 @@ package core
 
 import (
 	"errors"
+	"math"
+	"reflect"
+
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/specs-actors/v3/actors/builtin"
 	"github.com/filecoin-project/venus-wallet/errcode"
-	"math"
-	"reflect"
 )
 
 var (
@@ -32,6 +33,7 @@ const (
 	MENetWorkResponse
 	MEProviderDealState
 	MEClientDeal
+	MEVerifyAddress
 )
 
 var MsgEnumPool = []struct {
@@ -127,6 +129,8 @@ func convertToMsgEnum(mt MsgType) MsgEnum {
 		return MEProviderDealState
 	case MTClientDeal:
 		return MEClientDeal
+	case MTVerifyAddress:
+		return MEVerifyAddress
 	default:
 		return MEUnknown
 	}

@@ -3,19 +3,20 @@ package wallet_event
 import (
 	"context"
 	"encoding/json"
-	"github.com/asaskevich/EventBus"
 	"sync"
 	"time"
 
+	"github.com/asaskevich/EventBus"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/google/uuid"
-	"github.com/ipfs-force-community/venus-gateway/types"
-	"github.com/ipfs-force-community/venus-gateway/walletevent"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
+
+	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-gateway/types"
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 )
 
 type ShimWallet interface {
@@ -178,7 +179,9 @@ func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
 	defer cancel()
 	policy := &walletevent.WalletRegisterPolicy{
 		SupportAccounts: e.cfg.SupportAccounts,
+		SignBytes:       core.RandSignBytes,
 	}
+	log.Infow("", "rand sign byte", core.RandSignBytes)
 	walletEventCh, err := e.client.ListenWalletEvent(ctx, policy)
 	if err != nil {
 		// Retry is handled by caller

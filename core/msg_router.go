@@ -2,7 +2,10 @@ package core
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
+	"reflect"
+
 	cborutil "github.com/filecoin-project/go-cbor-util"
 	"github.com/filecoin-project/go-fil-markets/storagemarket"
 	"github.com/filecoin-project/go-fil-markets/storagemarket/migrations"
@@ -11,8 +14,9 @@ import (
 	"github.com/filecoin-project/specs-actors/v2/actors/builtin/market"
 	"github.com/filecoin-project/specs-actors/v2/actors/builtin/paych"
 	"golang.org/x/xerrors"
-	"reflect"
 )
+
+var hash256 = sha256.New()
 
 // Abstract data types to be signed
 type Types struct {
@@ -89,6 +93,20 @@ var SupportedMsgTypes = map[MsgType]*Types{
 		}
 		return nil, fmt.Errorf("un-expected MsgType:%s", meta.Type)
 	}},
+	MTVerifyAddress: {
+		Type: reflect.TypeOf([]byte{}),
+		signBytes: func(in interface{}) ([]byte, error) {
+			return in.([]byte), nil
+		},
+		parseObj: func(in []byte, meta MsgMeta) (interface{}, error) {
+			expected := hash256.Sum(append(meta.Extra, RandSignBytes...))
+			if !bytes.Equal(in, expected) {
+				return nil, xerrors.Errorf("sign data not match, actual %v, expected %v", in, expected)
+			}
+
+			return in, nil
+		},
+	},
 }
 
 // Matches the type and returns the data that needs to be signed
