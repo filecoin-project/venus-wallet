@@ -3,6 +3,9 @@ package wallet_event
 import (
 	"context"
 	"encoding/json"
+	"sync"
+	"time"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
@@ -13,8 +16,6 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
-	"sync"
-	"time"
 )
 
 var log = logging.Logger("wallet_event")
@@ -45,7 +46,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process wallet.ILocalWallet, cfg *config
 		walletEventClient, closer, err := NewWalletRegisterClient(ctx, apiHub, cfg.Token)
 		if err != nil {
 			//todo return or continue. allow failed client
-			log.Errorf("connect to api hub %s faile %v", apiHub, err)
+			log.Errorf("connect to api hub %s failed %v", apiHub, err)
 			cancel()
 			return nil, err
 		}

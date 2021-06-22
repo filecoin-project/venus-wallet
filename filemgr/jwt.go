@@ -3,11 +3,12 @@ package filemgr
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/filecoin-project/venus-wallet/api/permission"
-	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/gbrlsnchs/jwt/v3"
 	"io"
 	"io/ioutil"
+
+	"github.com/filecoin-project/venus-wallet/api/permission"
+	"github.com/filecoin-project/venus-wallet/config"
+	jwt "github.com/gbrlsnchs/jwt/v3"
 )
 
 type jwtPayload struct {

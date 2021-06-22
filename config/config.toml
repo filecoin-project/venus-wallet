@@ -20,7 +20,7 @@ Level = 2
 NodeURL = "/ip4/127.0.0.1/tcp/2345/http"
 
 [WalletEvent]
-GatewayUrl      = ""
+GatewayAPI      = ""
 MessagerUrl     = ""
 MinerUrl        = ""
 Token           = ""

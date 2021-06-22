@@ -3,13 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/filecoin-project/go-jsonrpc"
-	"github.com/filecoin-project/venus-wallet/api"
-	"github.com/filecoin-project/venus-wallet/api/permission"
-	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
-	"github.com/filecoin-project/venus-wallet/build"
-	"github.com/filecoin-project/venus-wallet/core"
-	"golang.org/x/xerrors"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -17,8 +10,16 @@ import (
 	"strings"
 	"syscall"
 
+	jsonrpc "github.com/filecoin-project/go-jsonrpc"
+	"github.com/filecoin-project/venus-wallet/api"
+	"github.com/filecoin-project/venus-wallet/api/permission"
+	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
+	"github.com/filecoin-project/venus-wallet/build"
+	"github.com/filecoin-project/venus-wallet/core"
+	"golang.org/x/xerrors"
+
 	logging "github.com/ipfs/go-log/v2"
-	"github.com/multiformats/go-multiaddr"
+	multiaddr "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 )
 

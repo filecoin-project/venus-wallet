@@ -2,6 +2,7 @@ package build
 
 import (
 	"context"
+
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
@@ -51,7 +52,7 @@ func defaults() []Option {
 	}
 }
 
-func WalletOpt(repo filemgr.Repo) Option {
+func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 	c := repo.Config()
 	return Options(
 		Override(new(filemgr.Repo), repo),
@@ -64,6 +65,11 @@ func WalletOpt(repo filemgr.Repo) Option {
 		Override(new(*config.CryptoFactor), c.Factor),
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),
+		Override(new(wallet.GetPwdFunc), func() wallet.GetPwdFunc {
+			return func() string {
+				return walletPwd
+			}
+		}),
 		Override(new(wallet.ILocalWallet), wallet.NewWallet),
 
 		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
