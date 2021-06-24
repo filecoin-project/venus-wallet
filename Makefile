@@ -1,3 +1,6 @@
+export CGO_CFLAGS_ALLOW=-D__BLST_PORTABLE__
+export CGO_CFLAGS=-D__BLST_PORTABLE__
+
 SHELL=/usr/bin/env bash
 
 GOVERSION:=$(shell go version | cut -d' ' -f 3 | cut -d. -f 2)
