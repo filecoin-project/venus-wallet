@@ -5,17 +5,19 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
+	"strings"
+
+	jwt "github.com/gbrlsnchs/jwt/v3"
+	"github.com/google/uuid"
+	homedir "github.com/mitchellh/go-homedir"
+	multiaddr "github.com/multiformats/go-multiaddr"
+
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
-	"github.com/gbrlsnchs/jwt/v3"
-	"github.com/google/uuid"
-	"github.com/mitchellh/go-homedir"
-	"github.com/multiformats/go-multiaddr"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 var (
@@ -33,6 +35,10 @@ type FsRepo struct {
 
 type OverrideParams struct {
 	API string
+
+	GatewayAPI      []string
+	GatewayToken    string
+	SupportAccounts []string
 }
 
 var _ Repo = &FsRepo{}

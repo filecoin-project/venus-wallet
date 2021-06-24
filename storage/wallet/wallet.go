@@ -2,15 +2,20 @@ package wallet
 
 import (
 	"context"
+	"sync"
+
 	"github.com/ahmetb/go-linq/v3"
+	logging "github.com/ipfs/go-log/v2"
+	"golang.org/x/xerrors"
+
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
-	"golang.org/x/xerrors"
-	"sync"
 )
+
+var log = logging.Logger("wallet")
 
 type ILocalWallet interface {
 	IWallet
@@ -28,6 +33,8 @@ type IWallet interface {
 	WalletDelete(context.Context, core.Address) error
 }
 
+type GetPwdFunc func() string
+
 var _ IWallet = &wallet{}
 
 // wallet implementation
@@ -39,13 +46,22 @@ type wallet struct {
 	m        sync.RWMutex
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.ILocalStrategy) ILocalWallet {
-	return &wallet{
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.ILocalStrategy, getPwd GetPwdFunc) ILocalWallet {
+	w := &wallet{
 		ws:       ks,
 		mw:       mw,
 		verify:   verify,
 		keyCache: make(map[string]crypto.PrivateKey),
 	}
+	if getPwd != nil {
+		if pwd := getPwd(); len(pwd) != 0 {
+			if err := w.SetPassword(context.Background(), pwd); err != nil {
+				log.Fatalf("set password(%s) failed %v", pwd, err)
+			}
+		}
+	}
+
+	return w
 }
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
 	return w.mw.SetPassword(ctx, password)
@@ -140,7 +156,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 	} else {
 		_, toSign, err := core.GetSignBytes(toSign, meta)
 		if err != nil {
-			return nil, xerrors.Errorf("get sign bytes failed:%w", err)
+			return nil, xerrors.Errorf("get sign bytes failed: %w", err)
 		}
 		owner = signer
 		data = toSign

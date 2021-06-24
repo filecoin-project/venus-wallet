@@ -3,7 +3,7 @@ package filemgr
 import (
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/multiformats/go-multiaddr"
+	multiaddr "github.com/multiformats/go-multiaddr"
 )
 
 // file system
