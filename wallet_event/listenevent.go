@@ -188,7 +188,7 @@ func (e *WalletEvent) walletSign(ctx context.Context, event *types.RequestEvent)
 		return
 	}
 	log.Debug("start WalletSign")
-	sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, req.Meta)
+	sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, core.MsgMeta{Type: core.MsgType(req.Meta.Type), Extra: req.Meta.Extra})
 	if err != nil {
 		e.log.Errorf("WalletSign error %s", err)
 		e.error(ctx, event.Id, err)
