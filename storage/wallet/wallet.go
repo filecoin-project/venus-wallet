@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"context"
+	"github.com/asaskevich/EventBus"
 	"sync"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -43,14 +44,16 @@ type wallet struct {
 	ws       storage.KeyStore             // key storage
 	mw       storage.KeyMiddleware        //
 	verify   strategy.IStrategyVerify     // check wallet strategy with token
+	bus      EventBus.Bus
 	m        sync.RWMutex
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, verify strategy.ILocalStrategy, getPwd GetPwdFunc) ILocalWallet {
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, verify strategy.ILocalStrategy, getPwd GetPwdFunc) ILocalWallet {
 	w := &wallet{
 		ws:       ks,
 		mw:       mw,
 		verify:   verify,
+		bus:      bus,
 		keyCache: make(map[string]crypto.PrivateKey),
 	}
 	if getPwd != nil {
@@ -100,9 +103,12 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 	if err != nil {
 		return core.NilAddress, err
 	}
+	//notify
+	w.bus.Publish("wallet:add_address", addr)
 	return addr, nil
 
 }
+
 func (w *wallet) WalletHas(ctx context.Context, address core.Address) (bool, error) {
 	if !w.verify.ContainWallet(ctx, address) {
 		return false, errcode.ErrWithoutPermission
@@ -244,6 +250,7 @@ func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 		return err
 	}
 	w.pullCache(addr)
+	w.bus.Publish("wallet:remove_address", addr)
 	return nil
 }
 

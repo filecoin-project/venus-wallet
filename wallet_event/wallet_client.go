@@ -18,6 +18,7 @@ type WalletRegisterClient struct {
 	ListenWalletEvent   func(ctx context.Context, policy *walletevent.WalletRegisterPolicy) (chan *types.RequestEvent, error)
 	SupportNewAccount   func(ctx context.Context, channelId uuid.UUID, account string) error
 	AddNewAddress       func(ctx context.Context, channelId uuid.UUID, newAddrs []address.Address) error
+	RemoveAddress       func(ctx context.Context, channelId uuid.UUID, newAddrs []address.Address) error
 }
 
 func NewWalletRegisterClient(ctx context.Context, url, token string) (*WalletRegisterClient, jsonrpc.ClientCloser, error) {
