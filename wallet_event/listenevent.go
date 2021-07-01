@@ -73,14 +73,20 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		})
 	}
 
-	bus.Subscribe("wallet:add_address", func(addr core.Address) {
+	_ = bus.Subscribe("wallet:add_address", func(addr core.Address) {
 		log.Infof("wallet add address %s", addr)
-		apiRegister.AddNewAddress(context.TODO(), []address.Address{addr})
+		err := apiRegister.AddNewAddress(context.TODO(), []address.Address{addr})
+		if err != nil {
+			log.Errorf("cannot add addres %s", addr)
+		}
 	})
 
-	bus.Subscribe("wallet:remove_address", func(addr core.Address) {
+	_ = bus.Subscribe("wallet:remove_address", func(addr core.Address) {
 		log.Infof("wallet remove address %s", addr)
-		apiRegister.RemoveAddress(context.TODO(), []address.Address{addr})
+		err := apiRegister.RemoveAddress(context.TODO(), []address.Address{addr})
+		if err != nil {
+			log.Errorf("cannot remove addres %s", addr)
+		}
 	})
 	return apiRegister, nil
 }
