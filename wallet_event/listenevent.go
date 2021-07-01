@@ -3,13 +3,13 @@ package wallet_event
 import (
 	"context"
 	"encoding/json"
+	"github.com/asaskevich/EventBus"
 	"sync"
 	"time"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
-	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/google/uuid"
 	"github.com/ipfs-force-community/venus-gateway/types"
 	"github.com/ipfs-force-community/venus-gateway/walletevent"
@@ -18,11 +18,17 @@ import (
 	"golang.org/x/xerrors"
 )
 
+type ShimWallet interface {
+	WalletList(ctx context.Context) ([]core.Address, error)
+	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
+}
+
 var log = logging.Logger("wallet_event")
 
 type IAPIRegisterHub interface {
 	SupportNewAccount(ctx context.Context, account string) error
 	AddNewAddress(ctx context.Context, newAddrs []address.Address) error
+	RemoveAddress(ctx context.Context, newAddrs []address.Address) error
 }
 
 type IWalletProcess interface {
@@ -32,12 +38,14 @@ type IWalletProcess interface {
 
 type APIRegisterHub struct {
 	registerClient map[string]*WalletEvent
+	bus            EventBus.Bus
 	lk             sync.Mutex
 }
 
-func NewAPIRegisterHub(lc fx.Lifecycle, process wallet.ILocalWallet, cfg *config.APIRegisterHubConfig) (*APIRegisterHub, error) {
+func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cfg *config.APIRegisterHubConfig) (*APIRegisterHub, error) {
 	apiRegister := &APIRegisterHub{
 		registerClient: make(map[string]*WalletEvent),
+		bus:            bus,
 		lk:             sync.Mutex{},
 	}
 
@@ -64,6 +72,22 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process wallet.ILocalWallet, cfg *config
 			},
 		})
 	}
+
+	_ = bus.Subscribe("wallet:add_address", func(addr core.Address) {
+		log.Infof("wallet add address %s", addr)
+		err := apiRegister.AddNewAddress(context.TODO(), []address.Address{addr})
+		if err != nil {
+			log.Errorf("cannot add addres %s", addr)
+		}
+	})
+
+	_ = bus.Subscribe("wallet:remove_address", func(addr core.Address) {
+		log.Infof("wallet remove address %s", addr)
+		err := apiRegister.RemoveAddress(context.TODO(), []address.Address{addr})
+		if err != nil {
+			log.Errorf("cannot remove addres %s", addr)
+		}
+	})
 	return apiRegister, nil
 }
 
@@ -84,6 +108,18 @@ func (apiRegisterhub *APIRegisterHub) AddNewAddress(ctx context.Context, newAddr
 	defer apiRegisterhub.lk.Unlock()
 	for _, c := range apiRegisterhub.registerClient {
 		err := c.AddNewAddress(ctx, newAddrs)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (apiRegisterhub *APIRegisterHub) RemoveAddress(ctx context.Context, newAddrs []address.Address) error {
+	apiRegisterhub.lk.Lock()
+	defer apiRegisterhub.lk.Unlock()
+	for _, c := range apiRegisterhub.registerClient {
+		err := c.RemoveAddress(ctx, newAddrs)
 		if err != nil {
 			return err
 		}
@@ -113,6 +149,10 @@ func (e *WalletEvent) SupportAccount(ctx context.Context, supportAccount string)
 
 func (e *WalletEvent) AddNewAddress(ctx context.Context, newAddrs []address.Address) error {
 	return e.client.AddNewAddress(ctx, e.channel, newAddrs)
+}
+
+func (e *WalletEvent) RemoveAddress(ctx context.Context, newAddrs []address.Address) error {
+	return e.client.RemoveAddress(ctx, e.channel, newAddrs)
 }
 
 func (e *WalletEvent) listenWalletRequest(ctx context.Context) {

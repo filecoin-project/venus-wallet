@@ -2,6 +2,7 @@ package build
 
 import (
 	"context"
+	"github.com/asaskevich/EventBus"
 
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/common"
@@ -57,6 +58,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 	return Options(
 		Override(new(filemgr.Repo), repo),
 		Override(new(*config.DBConfig), c.DB),
+		Override(new(EventBus.Bus), node.NewEventBus),
 		Override(new(*sqlite.Conn), sqlite.NewSQLiteConn),
 		Override(new(storage.StrategyStore), sqlite.NewRouterStore),
 		Override(new(*config.StrategyConfig), c.Strategy),
@@ -72,6 +74,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		}),
 		Override(new(wallet.ILocalWallet), wallet.NewWallet),
 
+		Override(new(wallet_event.ShimWallet), From(new(wallet.ILocalWallet))),
 		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
 		Override(new(wallet_event.IAPIRegisterHub), wallet_event.NewAPIRegisterHub),
 		Override(new(wallet_event.IWalletEventAPI), wallet_event.NewWalletEventAPI),
