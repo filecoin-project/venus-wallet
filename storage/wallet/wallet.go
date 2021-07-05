@@ -2,15 +2,16 @@ package wallet
 
 import (
 	"context"
-	"github.com/asaskevich/EventBus"
 	"sync"
 
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/asaskevich/EventBus"
 	logging "github.com/ipfs/go-log/v2"
 	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
+	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
@@ -67,7 +68,29 @@ func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, 
 	return w
 }
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
+	if err := w.checkPassword(ctx, password); err != nil {
+		return err
+	}
 	return w.mw.SetPassword(ctx, password)
+}
+func (w *wallet) checkPassword(ctx context.Context, password string) error {
+	hashPasswd := aes.Keccak256([]byte(password))
+	addrs, err := w.WalletList(ctx)
+	if err != nil {
+		return err
+	}
+	for _, addr := range addrs {
+		key, err := w.ws.Get(addr)
+		if err != nil {
+			return err
+		}
+		_, err = w.mw.Decrypt(hashPasswd, key)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 func (w *wallet) Unlock(ctx context.Context, password string) error {
 	return w.mw.Unlock(ctx, password)
@@ -95,7 +118,7 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 	if err != nil {
 		return core.NilAddress, err
 	}
-	ckey, err := w.mw.Encrypt(prv)
+	ckey, err := w.mw.Encrypt(storage.EmptyPassword, prv)
 	if err != nil {
 		return core.NilAddress, err
 	}
@@ -176,7 +199,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		if err != nil {
 			return nil, err
 		}
-		prvKey, err = w.mw.Decrypt(key)
+		prvKey, err = w.mw.Decrypt(storage.EmptyPassword, key)
 		if err != nil {
 			return nil, err
 		}
@@ -196,7 +219,7 @@ func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.Key
 	if err != nil {
 		return nil, err
 	}
-	pkey, err := w.mw.Decrypt(key)
+	pkey, err := w.mw.Decrypt(storage.EmptyPassword, key)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +249,7 @@ func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Addre
 	if exist {
 		return addr, nil
 	}
-	key, err := w.mw.Encrypt(pk)
+	key, err := w.mw.Encrypt(storage.EmptyPassword, pk)
 	if err != nil {
 		return core.NilAddress, err
 	}
