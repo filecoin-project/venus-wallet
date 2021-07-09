@@ -7,6 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/filecoin-project/venus-wallet/core"
@@ -14,9 +18,6 @@ import (
 	"github.com/howeyc/gopass"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
-	"io/ioutil"
-	"os"
-	"strings"
 )
 
 var walletSetPassword = &cli.Command{
@@ -73,7 +74,7 @@ var walletUnlock = &cli.Command{
 	},
 }
 
-var walletlock = &cli.Command{
+var walletLock = &cli.Command{
 	Name:  "lock",
 	Usage: "Restrict the use of secret keys after locking wallet",
 	Action: func(cctx *cli.Context) error {
@@ -97,9 +98,8 @@ var walletlock = &cli.Command{
 }
 
 var walletLockState = &cli.Command{
-	Name:    "lockState",
-	Aliases: []string{"lockstate"},
-	Usage:   "unlock the wallet and release private key",
+	Name:  "lock-state",
+	Usage: "unlock the wallet and release private key",
 	Action: func(cctx *cli.Context) error {
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
@@ -126,7 +126,7 @@ var walletNew = &cli.Command{
 		if t == "" {
 			t = core.KTSecp256k1
 		}
-		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -146,7 +146,7 @@ var walletList = &cli.Command{
 	Aliases: []string{"ls"},
 	Usage:   "List wallet address",
 	Action: func(cctx *cli.Context) error {
-		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -177,7 +177,7 @@ var walletExport = &cli.Command{
 			return err
 		}
 
-		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -267,7 +267,7 @@ var walletImport = &cli.Command{
 			return fmt.Errorf("unrecognized format: %s", cctx.String("format"))
 		}
 
-		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -303,7 +303,7 @@ var walletSign = &cli.Command{
 			return err
 		}
 
-		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
@@ -332,7 +332,7 @@ var walletDel = &cli.Command{
 			return err
 		}
 
-		api, closer, err := helper.GetFullAPIWithPWD(cctx)
+		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}

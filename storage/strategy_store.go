@@ -1,7 +1,8 @@
 package storage
 
 import (
-	"github.com/ahmetb/go-linq/v3"
+	linq "github.com/ahmetb/go-linq/v3"
+
 	"github.com/filecoin-project/venus-wallet/core"
 )
 

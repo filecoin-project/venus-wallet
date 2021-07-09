@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sync"
+
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/google/uuid"
-	"sync"
 )
 
 type IWalletLock interface {
@@ -34,14 +35,16 @@ var (
 	ErrAlreadyLocked   = errors.New("wallet already locked")
 )
 
+var EmptyPassword []byte
+
 type DecryptFunc func(keyJson []byte, keyType core.KeyType) (crypto.PrivateKey, error)
 
 // KeyMiddleware the middleware bridging strategy and wallet
 type KeyMiddleware interface {
 	// Encrypt aes encrypt key
-	Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error)
+	Encrypt(password []byte, key crypto.PrivateKey) (*aes.EncryptedKey, error)
 	// Decrypt decrypt aes key
-	Decrypt(key *aes.EncryptedKey) (crypto.PrivateKey, error)
+	Decrypt(password []byte, key *aes.EncryptedKey) (crypto.PrivateKey, error)
 	// Next Check the password has been set and the wallet is locked
 	Next() error
 	// EqualRootToken compare the root token
@@ -167,10 +170,13 @@ func (o *KeyMixLayer) Next() error {
 	return nil
 }
 
-func (o *KeyMixLayer) Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error) {
+func (o *KeyMixLayer) Encrypt(password []byte, key crypto.PrivateKey) (*aes.EncryptedKey, error) {
+	if len(password) == 0 {
+		password = o.password
+	}
 	// EncryptKey encrypts a key using the specified scrypt parameters into a json
 	// blob that can be decrypted later on.
-	cryptoStruct, err := o.encryptData(key.Bytes())
+	cryptoStruct, err := o.encryptData(password, key.Bytes())
 	if err != nil {
 		return nil, err
 	}
@@ -183,13 +189,16 @@ func (o *KeyMixLayer) Encrypt(key crypto.PrivateKey) (*aes.EncryptedKey, error) 
 	return encryptedKeyJSON, nil
 }
 
-func (o *KeyMixLayer) encryptData(data []byte) (*aes.CryptoJSON, error) {
-	return aes.EncryptData(o.password, data, o.scryptN, o.scryptP)
+func (o *KeyMixLayer) encryptData(password []byte, data []byte) (*aes.CryptoJSON, error) {
+	return aes.EncryptData(password, data, o.scryptN, o.scryptP)
 }
 
-func (o *KeyMixLayer) Decrypt(key *aes.EncryptedKey) (crypto.PrivateKey, error) {
+func (o *KeyMixLayer) Decrypt(password []byte, key *aes.EncryptedKey) (crypto.PrivateKey, error) {
+	if len(password) == 0 {
+		password = o.password
+	}
 	// Depending on the version try to parse one way or another
-	keyBytes, err := aes.Decrypt(key.Crypto, o.password)
+	keyBytes, err := aes.Decrypt(key.Crypto, password)
 	// Handle any decryption errors and return the key
 	if err != nil {
 		return nil, err
