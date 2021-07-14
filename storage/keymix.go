@@ -24,6 +24,8 @@ type IWalletLock interface {
 	Lock(ctx context.Context, password string) error
 	// show lock state
 	LockState(ctx context.Context) bool
+	// VerifyPassword verify that the passwords are consistent
+	VerifyPassword(ctx context.Context, password string) error
 }
 
 var (
@@ -140,6 +142,9 @@ func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 		return ErrInvalidPassword
 	}
 	o.locked = lock
+	if !o.locked {
+		o.password = hashPasswd
+	}
 	return nil
 }
 
@@ -208,4 +213,11 @@ func (o *KeyMixLayer) Decrypt(password []byte, key *aes.EncryptedKey) (crypto.Pr
 		return nil, err
 	}
 	return pkey, nil
+}
+
+func (o *KeyMixLayer) VerifyPassword(_ context.Context, password string) error {
+	if bytes.Equal(o.password, aes.Keccak256([]byte(password))) {
+		return nil
+	}
+	return ErrInvalidPassword
 }
