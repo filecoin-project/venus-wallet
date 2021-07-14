@@ -177,12 +177,20 @@ var walletExport = &cli.Command{
 			return err
 		}
 
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
 		ctx := helper.ReqContext(cctx)
+		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
+			return err
+		}
 		ki, err := api.WalletExport(ctx, addr)
 		if err != nil {
 			return err
@@ -303,12 +311,20 @@ var walletSign = &cli.Command{
 			return err
 		}
 
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
 		ctx := helper.ReqContext(cctx)
+		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
+			return err
+		}
 		sig, err := api.WalletSign(ctx, addr, msg, core.MsgMeta{})
 		if err != nil {
 			return err
@@ -332,12 +348,20 @@ var walletDel = &cli.Command{
 			return err
 		}
 
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
 		ctx := helper.ReqContext(cctx)
+		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
+			return err
+		}
 		if err = api.WalletDelete(ctx, addr); err != nil {
 			return err
 		}

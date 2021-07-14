@@ -26,13 +26,13 @@ type ILocalWallet interface {
 
 // IWallet remote wallet api
 type IWallet interface {
-	WalletNew(context.Context, core.KeyType) (core.Address, error)
+	WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error)
 	WalletHas(ctx context.Context, address core.Address) (bool, error)
 	WalletList(ctx context.Context) ([]core.Address, error)
 	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
 	WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error)
-	WalletImport(context.Context, *core.KeyInfo) (core.Address, error)
-	WalletDelete(context.Context, core.Address) error
+	WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error)
+	WalletDelete(ctx context.Context, addr core.Address) error
 }
 
 type GetPwdFunc func() string
@@ -275,6 +275,13 @@ func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
 	w.pullCache(addr)
 	w.bus.Publish("wallet:remove_address", addr)
 	return nil
+}
+
+func (w *wallet) VerifyPassword(ctx context.Context, password string) error {
+	if err := w.mw.Next(); err != nil {
+		return err
+	}
+	return w.mw.VerifyPassword(ctx, password)
 }
 
 func (w *wallet) pushCache(address core.Address, prv crypto.PrivateKey) {
