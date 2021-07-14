@@ -16,7 +16,7 @@ var log = logging.Logger("configmanager")
 func (fsr *FsRepo) defConfig() *config.Config {
 	return &config.Config{
 		API: &config.APIConfig{
-			ListenAddress: "/ip4/0.0.0.0/tcp/5678/http",
+			ListenAddress: "/ip4/127.0.0.1/tcp/5678/http",
 		},
 		DB: &config.DBConfig{
 			Conn:      filepath.Join(fsr.path, skKeyStore),

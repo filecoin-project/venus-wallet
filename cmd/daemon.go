@@ -23,8 +23,8 @@ type cmd = string
 
 const (
 	cmdNetwork cmd = "network"
-	cmdAPI     cmd = "api"
-	cmdRepo    cmd = "repo"
+	//cmdAPI     cmd = "api"
+	cmdRepo cmd = "repo"
 	//cmdKeyStore cmd = "keystore"
 	cmdPwd             cmd = "password"
 	cmdGatewayAPI      cmd = "gateway-api"
@@ -37,7 +37,7 @@ var RunCmd = &cli.Command{
 	Name:  "run",
 	Usage: "Start a venus wallet process",
 	Flags: []cli.Flag{
-		&cli.StringFlag{Name: cmdAPI, Value: "5678"},
+		//	&cli.StringFlag{Name: cmdAPI, Value: "5678"},
 		&cli.StringFlag{Name: cmdNetwork, Value: ""},
 		&cli.StringFlag{Name: cmdPwd, Value: "", Aliases: []string{"pwd"}},
 		&cli.StringSliceFlag{Name: cmdGatewayAPI},
@@ -52,12 +52,7 @@ var RunCmd = &cli.Command{
 		} else {
 			log.Infof("wallet repo: %s", dir)
 		}
-		apiListen := ""
-		if cctx.IsSet("api") {
-			apiListen = "/ip4/0.0.0.0/tcp/" + cctx.String("api")
-		}
 		op := &filemgr.OverrideParams{
-			API:             apiListen,
 			GatewayAPI:      cctx.StringSlice(cmdGatewayAPI),
 			GatewayToken:    cctx.String(cmdGatewayToken),
 			SupportAccounts: cctx.StringSlice(cmdSupportAccounts),

@@ -70,7 +70,7 @@ func main() {
 		log.Fatalf("getting api endpoint: %s", err)
 	}
 
-	log.Println(endpoint.String(), stop)
+	log.Println(endpoint, stop)
 	log.Println("Pre-preparation completed")
 	// TODO: properly parse api endpoint (or make it a URL)
 	// Use serveRPC method to perform local CLI debugging

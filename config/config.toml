@@ -1,6 +1,6 @@
 # Default config:
 [API]
-ListenAddress = "/ip4/0.0.0.0/tcp/5678/http"
+ListenAddress = "/ip4/127.0.0.1/tcp/5678/http"
 
 [DB]
 Conn = "~/.venus_wallet/keystore.sqlit"

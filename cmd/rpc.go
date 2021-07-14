@@ -41,7 +41,7 @@ func CorsMiddleWare(next http.Handler) http.Handler {
 }
 
 // Start the interface service and bind the address
-func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr multiaddr.Multiaddr) error {
+func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
 	rpcServer := jsonrpc.NewServer()
 	rpcServer.Register("Filecoin", api.PermissionedFullAPI(a))
 	ah := &Handler{
@@ -49,7 +49,11 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr multiaddr.Multiaddr) err
 		Next:   rpcServer.ServeHTTP,
 	}
 	http.Handle("/rpc/v0", CorsMiddleWare(ah))
-	lst, err := manet.Listen(addr)
+	ma, err := multiaddr.NewMultiaddr(addr)
+	if err != nil {
+		return nil
+	}
+	lst, err := manet.Listen(ma)
 	if err != nil {
 		return xerrors.Errorf("could not listen: %w", err)
 	}

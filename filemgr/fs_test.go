@@ -24,5 +24,5 @@ func TestNewFS(t *testing.T) {
 	if err != nil {
 		t.Fatal()
 	}
-	assert.Equal(t, curAPI.String(), targetAPI)
+	assert.Equal(t, curAPI, targetAPI)
 }
