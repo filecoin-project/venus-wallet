@@ -1,13 +1,18 @@
 package core
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"math"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/ipfs/go-cid"
-	"math"
+	"golang.org/x/xerrors"
 )
 
 const StringEmpty = ""
@@ -20,6 +25,16 @@ const (
 	SigTypeSecp256k1 = SigType(iota)
 	SigTypeBLS
 )
+
+var RandSignBytes []byte
+
+func init() {
+	var err error
+	RandSignBytes, err = ioutil.ReadAll(io.LimitReader(rand.Reader, 32))
+	if err != nil {
+		panic(xerrors.Errorf("rand secret failed %v", err))
+	}
+}
 
 type AddressScope struct {
 	Root      bool      // is root auth,  true : can get all addresses in the wallet

@@ -14,9 +14,9 @@ require (
 	github.com/filecoin-project/go-jsonrpc v0.1.4-0.20210217175800-45ea43ac2bec
 	github.com/filecoin-project/go-state-types v0.1.1-0.20210506134452-99b279731c48
 	github.com/filecoin-project/specs-actors v0.9.14
-	github.com/filecoin-project/specs-actors/v2 v2.3.5-0.20210114162132-5b58b773f4fb
+	github.com/filecoin-project/specs-actors/v2 v2.3.5
 	github.com/filecoin-project/specs-actors/v3 v3.1.1
-	github.com/filecoin-project/specs-actors/v4 v4.0.0
+	github.com/filecoin-project/specs-actors/v4 v4.0.1
 	github.com/filecoin-project/specs-actors/v5 v5.0.1
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fxamacker/cbor/v2 v2.3.0
@@ -24,7 +24,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/ipfs-force-community/venus-common-utils v0.0.0-20210714054928-2042a9040759
-	github.com/ipfs-force-community/venus-gateway v1.1.0
+	github.com/ipfs-force-community/venus-gateway v1.1.1-0.20210709064958-dbfcef00351f
 	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-cid v0.0.7
 	github.com/ipfs/go-ipld-cbor v0.0.5
@@ -39,7 +39,6 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20210219115102-f37d292932f2
 	go.opencensus.io v0.22.5
-	go.uber.org/dig v1.11.0 // indirect
 	go.uber.org/fx v1.9.0
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1

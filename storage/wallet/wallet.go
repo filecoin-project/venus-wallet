@@ -166,7 +166,15 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		owner core.Address
 		data  []byte
 	)
-	if meta.Type == core.MTChainMsg {
+	// Do not validate strategy
+	if meta.Type == core.MTVerifyAddress {
+		_, toSign, err := core.GetSignBytes(toSign, meta)
+		if err != nil {
+			return nil, xerrors.Errorf("get sign bytes failed: %v", err)
+		}
+		owner = signer
+		data = toSign
+	} else if meta.Type == core.MTChainMsg {
 		if len(meta.Extra) == 0 {
 			return nil, xerrors.New("msg type must contain extra data")
 		}
