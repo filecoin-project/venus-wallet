@@ -68,19 +68,16 @@ var RunCmd = &cli.Command{
 		}
 		var fullAPI api.IFullAPI
 
+		if cctx.String(cmdNetwork) == "test" {
+			address.CurrentNetwork = address.Testnet
+		} else {
+			address.CurrentNetwork = address.Mainnet
+		}
 		stop, err := build.New(ctx,
-			build.Override(build.SetNet, func() {
-				address.CurrentNetwork = address.Mainnet
-			}),
 			build.FullAPIOpt(&fullAPI),
 			build.WalletOpt(r, cctx.String(cmdPwd)),
 			build.CommonOpt(secret),
 			build.ApplyIf(func(s *build.Settings) bool { return cctx.IsSet(cmdNetwork) },
-				build.Override(build.SetNet, func() {
-					if cctx.String(cmdNetwork) == "test" {
-						address.CurrentNetwork = address.Testnet
-					}
-				}),
 				build.Override(new(build.NetworkName), build.NetworkName(cctx.String(cmdNetwork)))),
 		)
 		if err != nil {
