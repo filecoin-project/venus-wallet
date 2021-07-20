@@ -292,8 +292,17 @@ var walletImport = &cli.Command{
 }
 
 var walletSign = &cli.Command{
-	Name:      "sign",
-	Usage:     "sign a message",
+	Name:  "sign",
+	Usage: "sign a message",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "msg-type",
+			Value: string(core.MTUnknown),
+		},
+		&cli.StringFlag{
+			Name: "extra",
+		},
+	},
 	ArgsUsage: "<signing address> <hexMessage>",
 	Action: func(cctx *cli.Context) error {
 		if !cctx.Args().Present() || cctx.NArg() != 2 {
@@ -325,7 +334,13 @@ var walletSign = &cli.Command{
 		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
 			return err
 		}
-		sig, err := api.WalletSign(ctx, addr, msg, core.MsgMeta{})
+		msgMeta := core.MsgMeta{
+			Type: core.MsgType(cctx.String("msg-type")),
+		}
+		if cctx.IsSet("extra") {
+			msgMeta.Extra = []byte(cctx.String("extra"))
+		}
+		sig, err := api.WalletSign(ctx, addr, msg, msgMeta)
 		if err != nil {
 			return err
 		}
