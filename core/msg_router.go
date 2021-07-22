@@ -99,7 +99,9 @@ var SupportedMsgTypes = map[MsgType]*Types{
 			return in.([]byte), nil
 		},
 		parseObj: func(in []byte, meta MsgMeta) (interface{}, error) {
-			expected := hash256.Sum(append(meta.Extra, RandSignBytes...))
+			hasher := sha256.New()
+			_, _ = hasher.Write(append(meta.Extra, RandSignBytes...))
+			expected := hash256.Sum(nil)
 			if !bytes.Equal(in, expected) {
 				return nil, xerrors.Errorf("sign data not match, actual %v, expected %v", in, expected)
 			}
