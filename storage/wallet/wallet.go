@@ -265,6 +265,8 @@ func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Addre
 	if err != nil {
 		return core.NilAddress, err
 	}
+	//notify
+	w.bus.Publish("wallet:add_address", addr)
 	return addr, nil
 }
 
