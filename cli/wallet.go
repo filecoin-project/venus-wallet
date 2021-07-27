@@ -230,6 +230,9 @@ var walletImport = &cli.Command{
 		} else {
 			fdata, err := ioutil.ReadFile(cctx.Args().First())
 			if err != nil {
+				if strings.Contains(err.Error(), "no such file or directory") {
+					return xerrors.New("input whether it is a file, if not, exec `./venus-wallet import` and then `enter` ")
+				}
 				return err
 			}
 			inpdata = fdata

@@ -50,6 +50,8 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		lk:             sync.Mutex{},
 	}
 
+	log.Infof("api hub: urls: %v, token: %s, support account: %v", cfg.RegisterAPI, cfg.Token, cfg.SupportAccounts)
+
 	for _, apiHub := range cfg.RegisterAPI {
 		ctx, cancel := context.WithCancel(context.Background())
 		walletEventClient, closer, err := NewWalletRegisterClient(ctx, apiHub, cfg.Token)
@@ -78,7 +80,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		log.Infof("wallet add address %s", addr)
 		err := apiRegister.AddNewAddress(context.TODO(), []address.Address{addr})
 		if err != nil {
-			log.Errorf("cannot add addres %s", addr)
+			log.Errorf("cannot add address %s", addr)
 		}
 	})
 
@@ -86,7 +88,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		log.Infof("wallet remove address %s", addr)
 		err := apiRegister.RemoveAddress(context.TODO(), []address.Address{addr})
 		if err != nil {
-			log.Errorf("cannot remove addres %s", addr)
+			log.Errorf("cannot remove address %s", addr)
 		}
 	})
 	return apiRegister, nil
@@ -161,7 +163,7 @@ func (e *WalletEvent) listenWalletRequest(ctx context.Context) {
 		if err := e.listenWalletRequestOnce(ctx); err != nil {
 			e.log.Errorf("listen wallet event errored: %s", err)
 		} else {
-			e.log.Warn("listenWalletRequestOnce quit")
+			e.log.Warn("listenWalletRequestOnce quit, try again")
 		}
 		select {
 		case <-time.After(time.Second):
@@ -197,7 +199,7 @@ func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
 				e.log.Errorf("init connect error %s", err)
 			}
 			e.channel = req.ChannelId
-			e.log.Infof("connect to server %v", req.ChannelId)
+			e.log.Infof("connect to server success %v", req.ChannelId)
 			//do not response
 		case "WalletList":
 			go e.walletList(ctx, event.Id)

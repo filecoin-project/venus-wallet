@@ -2,6 +2,11 @@ package helper
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli"
@@ -13,10 +18,6 @@ import (
 	"github.com/prometheus/common/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 const (
