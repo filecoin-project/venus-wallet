@@ -18,14 +18,21 @@ type APIInfo struct {
 }
 
 func ParseApiInfo(s string) (*APIInfo, error) {
-	sep := strings.SplitN(s, ":", 2)
-	if len(sep) < 2 {
+	sep := strings.Split(s, ":")
+	if len(sep) == 3 {
+		return &APIInfo{
+			Addr:  sep[1],
+			Token: []byte(sep[0] + ":" + sep[2]),
+		}, nil
+	} else if len(sep) == 2 {
+		return &APIInfo{
+			Addr:  sep[1],
+			Token: []byte(sep[0]),
+		}, nil
+	} else {
 		return nil, xerrors.Errorf("invalidate api info string %s", s)
 	}
-	return &APIInfo{
-		Addr:  sep[0],
-		Token: []byte(sep[1]),
-	}, nil
+
 }
 
 func (a APIInfo) DialArgs() (string, error) {
