@@ -36,7 +36,7 @@ type StrategyAPIAdapter struct {
 		RemoveMsgTypeFromKeyBind func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
 		RemoveMethodFromKeyBind  func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
 
-		RemoveToken            func(ctx context.Context, token string) error                                                  `perm:"admin" local:"required"`
+		RemoveStToken          func(ctx context.Context, token string) error                                                  `perm:"admin" local:"required"`
 		RemoveKeyBind          func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
 		RemoveKeyBindByAddress func(ctx context.Context, address core.Address) (int64, error)                                 `perm:"admin" local:"required"`
 		RemoveGroup            func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
@@ -131,8 +131,8 @@ func (o *StrategyAPIAdapter) RemoveMethodTemplate(ctx context.Context, name stri
 func (o *StrategyAPIAdapter) RemoveMsgTypeTemplate(ctx context.Context, name string) error {
 	return o.Internal.RemoveMsgTypeTemplate(ctx, name)
 }
-func (o *StrategyAPIAdapter) RemoveToken(ctx context.Context, token string) error {
-	return o.Internal.RemoveToken(ctx, token)
+func (o *StrategyAPIAdapter) RemoveStToken(ctx context.Context, token string) error {
+	return o.Internal.RemoveStToken(ctx, token)
 }
 func (o *StrategyAPIAdapter) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
 	return o.Internal.ScopeWallet(ctx)

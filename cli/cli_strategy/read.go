@@ -261,7 +261,7 @@ var strategyGroupTokens = &cli.Command{
 }
 
 var strategyTokenInfo = &cli.Command{
-	Name:      "tokenInfo",
+	Name:      "stTokenInfo",
 	Aliases:   []string{"ti"},
 	Usage:     "show info about token",
 	ArgsUsage: "[token]",

@@ -115,7 +115,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk3 		addr2	kb3  x
 	// tk1		addr2	kb5  x
 	// tk1		addr2	kb6
-	cache.removeToken(tk1)
+	cache.removeStToken(tk1)
 	kb1 = cache.get(tk1, addr1)
 	kb6 = cache.get(tk1, addr2)
 	assert.DeepEqual(t, kb1, kb6)

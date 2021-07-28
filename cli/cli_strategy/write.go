@@ -340,7 +340,7 @@ var strategyRemoveGroup = &cli.Command{
 }
 
 var strategyRemoveToken = &cli.Command{
-	Name:      "removeToken",
+	Name:      "removeStToken",
 	Aliases:   []string{"rmT"},
 	Usage:     "remove token",
 	ArgsUsage: "[token]",
@@ -357,7 +357,7 @@ var strategyRemoveToken = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		err = api.RemoveToken(ctx, token)
+		err = api.RemoveStToken(ctx, token)
 		if err != nil {
 			return err
 		}

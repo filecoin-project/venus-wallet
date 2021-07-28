@@ -79,8 +79,8 @@ type IStrategy interface {
 	RemoveKeyBind(ctx context.Context, name string) error
 	// RemoveKeyBindByAddress delete some keyBinds by address
 	RemoveKeyBindByAddress(ctx context.Context, address core.Address) (int64, error)
-	// RemoveToken delete strategy token
-	RemoveToken(ctx context.Context, token string) error
+	// RemoveStToken delete strategy token
+	RemoveStToken(ctx context.Context, token string) error
 }
 type ILocalStrategy interface {
 	IStrategyVerify
@@ -402,12 +402,12 @@ func (s *strategy) RemoveGroup(ctx context.Context, name string) error {
 	return nil
 }
 
-func (s *strategy) RemoveToken(ctx context.Context, token string) error {
+func (s *strategy) RemoveStToken(ctx context.Context, token string) error {
 	s.Lock()
 	defer s.Unlock()
 	err := s.store.DeleteGroupAuth(token)
 	if err != nil {
-		s.scache.removeToken(token)
+		s.scache.removeStToken(token)
 	}
 	return err
 }
