@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/filecoin-project/venus-wallet/core"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -15,7 +16,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/api/permission"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/build"
-	"github.com/filecoin-project/venus-wallet/core"
 	"golang.org/x/xerrors"
 
 	logging "github.com/ipfs/go-log/v2"
@@ -83,9 +83,6 @@ type Handler struct {
 // JWT verify
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if r.RemoteAddr[:len("127.0.0.1")] == "127.0.0.1" {
-		ctx = permission.WithIPPerm(ctx)
-	}
 	token := r.Header.Get(httpparse.ServiceToken)
 	if token == "" {
 		token = r.FormValue("token")
@@ -101,6 +98,14 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		token = strings.TrimPrefix(token, "Bearer ")
 
+		tokenStrategy := strings.Split(token, ":")
+		if len(tokenStrategy) == 2 {
+			ctx = context.WithValue(ctx, core.CtxKeyStrategy, tokenStrategy[1])
+		} else {
+			ctx = context.WithValue(ctx, core.CtxKeyStrategy, "")
+		}
+		token = tokenStrategy[0]
+
 		allow, err := h.Verify(ctx, token)
 		if err != nil {
 			log.Warnf("JWT Verification failed: %s", err)
@@ -110,7 +115,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ctx = permission.WithPerm(ctx, allow)
 	}
-	strategyToken := r.Header.Get(httpparse.WalletStrategyToken)
-	ctx = context.WithValue(ctx, core.CtxKeyStrategy, strategyToken)
+
 	h.Next(w, r.WithContext(ctx))
 }

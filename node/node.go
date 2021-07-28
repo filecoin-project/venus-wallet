@@ -108,7 +108,7 @@ func NewNodeClient(cnf *config.StrategyConfig) (*NodeClient, error) {
 		return EmptyNodeClient, nil
 	}
 	if cnf.NodeURL == core.StringEmpty {
-		return nil, errors.New("node url can not be empty when level is SLMethod")
+		return nil, errors.New("nod/ip4e url can not be empty when level is SLMethod")
 	}
 	ai, err := httpparse.ParseApiInfo(cnf.NodeURL)
 	if err != nil {
