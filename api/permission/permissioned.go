@@ -11,8 +11,7 @@ import (
 type permKey int
 
 var (
-	permCtxKey   permKey = 1
-	permCtxLocal permKey = 2
+	permCtxKey permKey = 1
 )
 
 // nolint
