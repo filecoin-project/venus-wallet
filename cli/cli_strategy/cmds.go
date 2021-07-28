@@ -36,9 +36,9 @@ var StrategyCmd = &cli.Command{
 		strategyRemoveKeyBindByAddress,
 		strategyRemoveGroup,
 		strategyRemoveToken,
-		strategyPullMethodIntoKeyBind,
-		strategyPullMsgTypeFromKeyBind,
-		strategyPushMethodIntoKeyBind,
-		strategyPushMsgTypeIntoKeyBind,
+		strategyRemoveMethodIntoKeyBind,
+		strategyRemoveMsgTypeFromKeyBind,
+		strategyAddMethodIntoKeyBind,
+		strategyAddMsgTypeIntoKeyBind,
 	},
 }

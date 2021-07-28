@@ -374,14 +374,6 @@ func (s *strategyStore) GetGroupKeyBind(token string, address string) (*storage.
 		err = s.errorAdapter(err)
 		return nil, err
 	}
-	{
-		kb := new(KeyBind)
-		if err = s.db.Table(TBKeyBind).First(kb, "address = ?", "t3qy4l4nmrsyvv4s6gfsufyotttm4rkxtexqt6by4sbz6cj3yqdaqlwdrr3yktjdnuvrciklhleheakhrqeq6q").Error; err != nil {
-			log.Error(err)
-			err = s.errorAdapter(err)
-			return nil, err
-		}
-	}
 	kb := new(KeyBind)
 	kbIds := strings.Split(g.BindIds, ",")
 	if err = s.db.Table(TBKeyBind).First(kb, "address = ? AND id IN ?", address, kbIds).Error; err != nil {

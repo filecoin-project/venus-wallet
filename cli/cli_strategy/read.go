@@ -3,6 +3,7 @@ package cli_strategy
 import (
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
@@ -137,8 +138,12 @@ var strategyGetKeyBinds = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 
-		address := cctx.Args().First()
-		arr, err := api.GetKeyBinds(ctx, address)
+		addr, err := address.NewFromString(cctx.Args().First())
+		if err != nil {
+			return err
+		}
+
+		arr, err := api.GetKeyBinds(ctx, addr)
 		if err != nil {
 			return err
 		}
