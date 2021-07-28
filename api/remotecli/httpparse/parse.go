@@ -21,8 +21,8 @@ func ParseApiInfo(s string) (*APIInfo, error) {
 	sep := strings.Split(s, ":")
 	if len(sep) == 3 {
 		return &APIInfo{
-			Addr:  sep[1],
-			Token: []byte(sep[0] + ":" + sep[2]),
+			Addr:  sep[2],
+			Token: []byte(sep[0] + ":" + sep[1]),
 		}, nil
 	} else if len(sep) == 2 {
 		return &APIInfo{
