@@ -14,7 +14,7 @@ import (
 func main() {
 	ctx := context.Background()
 	url := "http://127.0.0.1:4678/rpc/v0"
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIl19.kJo0y8G-iTsNMY1aDNLLwwOFpCLuLmYMpnkss0uU48I:6c12e1af-7529-47b3-b0e6-1b0c42a79a37"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIl19.kJo0y8G-iTsNMY1aDNLLwwOFpCLuLmYMpnkss0uU48I_6c12e1af-7529-47b3-b0e6-1b0c42a79a37"
 	headers := http.Header{}
 	headers.Add(httpparse.ServiceToken, "Bearer "+string(token))
 	client, closer, err := remotecli.NewFullNodeRPC(ctx, url, headers)
