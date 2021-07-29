@@ -98,7 +98,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		token = strings.TrimPrefix(token, "Bearer ")
 
-		tokenStrategy := strings.Split(token, "_") //just for compatible with lotus apiinfo parser
+		tokenStrategy := strings.Split(token, "___") //just for compatible with lotus apiinfo parser
 		if len(tokenStrategy) == 2 {
 			ctx = context.WithValue(ctx, core.CtxKeyStrategy, tokenStrategy[1])
 		} else {
