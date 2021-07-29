@@ -11,34 +11,34 @@ var _ strategy.ILocalStrategy = &StrategyAPIAdapter{}
 
 type StrategyAPIAdapter struct {
 	Internal struct {
-		NewMsgTypeTemplate     func(ctx context.Context, name string, codes []int) error                                     `perm:"admin" local:"required"`
-		NewMethodTemplate      func(ctx context.Context, name string, methods []string) error                                `perm:"admin" local:"required"`
-		NewKeyBindCustom       func(ctx context.Context, name, address string, codes []int, methods []core.MethodName) error `perm:"admin" local:"required"`
-		NewKeyBindFromTemplate func(ctx context.Context, name, address, mttName, mtName string) error                        `perm:"admin" local:"required"`
-		NewGroup               func(ctx context.Context, name string, keyBindNames []string) error                           `perm:"admin" local:"required"`
-		NewWalletToken         func(ctx context.Context, groupName string) (token string, err error)                         `perm:"admin" local:"required"`
+		NewMsgTypeTemplate     func(ctx context.Context, name string, codes []int) error                                                  `perm:"admin" local:"required"`
+		NewMethodTemplate      func(ctx context.Context, name string, methods []string) error                                             `perm:"admin" local:"required"`
+		NewKeyBindCustom       func(ctx context.Context, name string, address core.Address, codes []int, methods []core.MethodName) error `perm:"admin" local:"required"`
+		NewKeyBindFromTemplate func(ctx context.Context, name string, address core.Address, mttName, mtName string) error                 `perm:"admin" local:"required"`
+		NewGroup               func(ctx context.Context, name string, keyBindNames []string) error                                        `perm:"admin" local:"required"`
+		NewStToken             func(ctx context.Context, groupName string) (token string, err error)                                      `perm:"admin" local:"required"`
 
-		GetMsgTypeTemplate      func(ctx context.Context, name string) (*storage.MsgTypeTemplate, error) `perm:"admin" local:"required"`
-		GetMethodTemplateByName func(ctx context.Context, name string) (*storage.MethodTemplate, error)  `perm:"admin" local:"required"`
-		GetKeyBindByName        func(ctx context.Context, name string) (*storage.KeyBind, error)         `perm:"admin" local:"required"`
-		GetKeyBinds             func(ctx context.Context, address string) ([]*storage.KeyBind, error)    `perm:"admin" local:"required"`
-		GetGroupByName          func(ctx context.Context, name string) (*storage.Group, error)           `perm:"admin" local:"required"`
-		GetWalletTokensByGroup  func(ctx context.Context, groupName string) ([]string, error)            `perm:"admin" local:"required"`
-		GetWalletTokenInfo      func(ctx context.Context, token string) (*storage.GroupAuth, error)      `perm:"admin" local:"required"`
+		GetMsgTypeTemplate      func(ctx context.Context, name string) (*storage.MsgTypeTemplate, error)    `perm:"admin" local:"required"`
+		GetMethodTemplateByName func(ctx context.Context, name string) (*storage.MethodTemplate, error)     `perm:"admin" local:"required"`
+		GetKeyBindByName        func(ctx context.Context, name string) (*storage.KeyBind, error)            `perm:"admin" local:"required"`
+		GetKeyBinds             func(ctx context.Context, address core.Address) ([]*storage.KeyBind, error) `perm:"admin" local:"required"`
+		GetGroupByName          func(ctx context.Context, name string) (*storage.Group, error)              `perm:"admin" local:"required"`
+		GetWalletTokensByGroup  func(ctx context.Context, groupName string) ([]string, error)               `perm:"admin" local:"required"`
+		GetWalletTokenInfo      func(ctx context.Context, token string) (*storage.GroupAuth, error)         `perm:"admin" local:"required"`
 
 		ListGroups           func(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error)           `perm:"admin" local:"required"`
 		ListKeyBinds         func(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error)         `perm:"admin" local:"required"`
 		ListMethodTemplates  func(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error)  `perm:"admin" local:"required"`
 		ListMsgTypeTemplates func(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) `perm:"admin" local:"required"`
 
-		PushMsgTypeIntoKeyBind func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
-		PushMethodIntoKeyBind  func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
-		PullMsgTypeFromKeyBind func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
-		PullMethodFromKeyBind  func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
+		AddMsgTypeIntoKeyBind    func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
+		AddMethodIntoKeyBind     func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
+		RemoveMsgTypeFromKeyBind func(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)      `perm:"admin" local:"required"`
+		RemoveMethodFromKeyBind  func(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) `perm:"admin" local:"required"`
 
-		RemoveToken            func(ctx context.Context, token string) error                                                  `perm:"admin" local:"required"`
+		RemoveStToken          func(ctx context.Context, token string) error                                                  `perm:"admin" local:"required"`
 		RemoveKeyBind          func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
-		RemoveKeyBindByAddress func(ctx context.Context, address string) (int64, error)                                       `perm:"admin" local:"required"`
+		RemoveKeyBindByAddress func(ctx context.Context, address core.Address) (int64, error)                                 `perm:"admin" local:"required"`
 		RemoveGroup            func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
 		RemoveMethodTemplate   func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
 		RemoveMsgTypeTemplate  func(ctx context.Context, name string) error                                                   `perm:"admin" local:"required"`
@@ -48,8 +48,8 @@ type StrategyAPIAdapter struct {
 	}
 }
 
-func (o *StrategyAPIAdapter) NewWalletToken(ctx context.Context, groupName string) (token string, err error) {
-	return o.Internal.NewWalletToken(ctx, groupName)
+func (o *StrategyAPIAdapter) NewStToken(ctx context.Context, groupName string) (token string, err error) {
+	return o.Internal.NewStToken(ctx, groupName)
 }
 
 func (o *StrategyAPIAdapter) GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error) {
@@ -62,10 +62,10 @@ func (o *StrategyAPIAdapter) NewMsgTypeTemplate(ctx context.Context, name string
 func (o *StrategyAPIAdapter) NewMethodTemplate(ctx context.Context, name string, methods []string) error {
 	return o.Internal.NewMethodTemplate(ctx, name, methods)
 }
-func (o *StrategyAPIAdapter) NewKeyBindCustom(ctx context.Context, name, address string, codes []int, methods []core.MethodName) error {
+func (o *StrategyAPIAdapter) NewKeyBindCustom(ctx context.Context, name string, address core.Address, codes []int, methods []core.MethodName) error {
 	return o.Internal.NewKeyBindCustom(ctx, name, address, codes, methods)
 }
-func (o *StrategyAPIAdapter) NewKeyBindFromTemplate(ctx context.Context, name, address, mttName, mtName string) error {
+func (o *StrategyAPIAdapter) NewKeyBindFromTemplate(ctx context.Context, name string, address core.Address, mttName, mtName string) error {
 	return o.Internal.NewKeyBindFromTemplate(ctx, name, address, mttName, mtName)
 }
 func (o *StrategyAPIAdapter) NewGroup(ctx context.Context, name string, keyBindNames []string) error {
@@ -81,7 +81,7 @@ func (o *StrategyAPIAdapter) GetMethodTemplateByName(ctx context.Context, name s
 func (o *StrategyAPIAdapter) GetKeyBindByName(ctx context.Context, name string) (*storage.KeyBind, error) {
 	return o.Internal.GetKeyBindByName(ctx, name)
 }
-func (o *StrategyAPIAdapter) GetKeyBinds(ctx context.Context, address string) ([]*storage.KeyBind, error) {
+func (o *StrategyAPIAdapter) GetKeyBinds(ctx context.Context, address core.Address) ([]*storage.KeyBind, error) {
 	return o.Internal.GetKeyBinds(ctx, address)
 }
 func (o *StrategyAPIAdapter) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
@@ -103,23 +103,23 @@ func (o *StrategyAPIAdapter) ListMsgTypeTemplates(ctx context.Context, fromIndex
 	return o.Internal.ListMsgTypeTemplates(ctx, fromIndex, toIndex)
 }
 
-func (o *StrategyAPIAdapter) PushMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
-	return o.Internal.PushMsgTypeIntoKeyBind(ctx, name, codes)
+func (o *StrategyAPIAdapter) AddMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	return o.Internal.AddMsgTypeIntoKeyBind(ctx, name, codes)
 }
-func (o *StrategyAPIAdapter) PushMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
-	return o.Internal.PushMethodIntoKeyBind(ctx, name, methods)
+func (o *StrategyAPIAdapter) AddMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	return o.Internal.AddMethodIntoKeyBind(ctx, name, methods)
 }
-func (o *StrategyAPIAdapter) PullMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
-	return o.Internal.PullMsgTypeFromKeyBind(ctx, name, codes)
+func (o *StrategyAPIAdapter) RemoveMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+	return o.Internal.RemoveMsgTypeFromKeyBind(ctx, name, codes)
 }
-func (o *StrategyAPIAdapter) PullMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
-	return o.Internal.PullMethodFromKeyBind(ctx, name, methods)
+func (o *StrategyAPIAdapter) RemoveMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+	return o.Internal.RemoveMethodFromKeyBind(ctx, name, methods)
 }
 
 func (o *StrategyAPIAdapter) RemoveKeyBind(ctx context.Context, name string) error {
 	return o.Internal.RemoveKeyBind(ctx, name)
 }
-func (o *StrategyAPIAdapter) RemoveKeyBindByAddress(ctx context.Context, address string) (int64, error) {
+func (o *StrategyAPIAdapter) RemoveKeyBindByAddress(ctx context.Context, address core.Address) (int64, error) {
 	return o.Internal.RemoveKeyBindByAddress(ctx, address)
 }
 func (o *StrategyAPIAdapter) RemoveGroup(ctx context.Context, name string) error {
@@ -131,8 +131,8 @@ func (o *StrategyAPIAdapter) RemoveMethodTemplate(ctx context.Context, name stri
 func (o *StrategyAPIAdapter) RemoveMsgTypeTemplate(ctx context.Context, name string) error {
 	return o.Internal.RemoveMsgTypeTemplate(ctx, name)
 }
-func (o *StrategyAPIAdapter) RemoveToken(ctx context.Context, token string) error {
-	return o.Internal.RemoveToken(ctx, token)
+func (o *StrategyAPIAdapter) RemoveStToken(ctx context.Context, token string) error {
+	return o.Internal.RemoveStToken(ctx, token)
 }
 func (o *StrategyAPIAdapter) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
 	return o.Internal.ScopeWallet(ctx)

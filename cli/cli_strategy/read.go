@@ -3,6 +3,7 @@ package cli_strategy
 import (
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
@@ -137,8 +138,12 @@ var strategyGetKeyBinds = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 
-		address := cctx.Args().First()
-		arr, err := api.GetKeyBinds(ctx, address)
+		addr, err := address.NewFromString(cctx.Args().First())
+		if err != nil {
+			return err
+		}
+
+		arr, err := api.GetKeyBinds(ctx, addr)
 		if err != nil {
 			return err
 		}
@@ -185,6 +190,7 @@ var strategyGetGroupByName = &cli.Command{
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)
 			fmt.Printf("keybind\t: %s\n", v.Name)
+			fmt.Printf("address\t: %s\n", v.Address)
 			fmt.Printf("types\t: %s\n", strings.Join(codes, ","))
 			fmt.Printf("methods\t: %s\n\n", strings.Join(v.Methods, ","))
 		}
@@ -193,14 +199,20 @@ var strategyGetGroupByName = &cli.Command{
 }
 
 var strategyListGroup = &cli.Command{
-	Name:      "listGroup",
-	Aliases:   []string{"lg"},
-	Usage:     "show a range of groups (the element of groups only contain name)",
-	ArgsUsage: "[from to]",
+	Name:    "listGroup",
+	Aliases: []string{"lg"},
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "from",
+			Value: 0,
+		},
+		&cli.IntFlag{
+			Name:  "to",
+			Value: 20,
+		},
+	},
+	Usage: "show a range of groups (the element of groups only contain name)",
 	Action: func(cctx *cli.Context) error {
-		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
-		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
@@ -208,11 +220,7 @@ var strategyListGroup = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
-		groups, err := api.ListGroups(ctx, int(from), int(to))
+		groups, err := api.ListGroups(ctx, cctx.Int("from"), cctx.Int("to"))
 		if err != nil {
 			return err
 		}
@@ -253,7 +261,7 @@ var strategyGroupTokens = &cli.Command{
 }
 
 var strategyTokenInfo = &cli.Command{
-	Name:      "tokenInfo",
+	Name:      "stTokenInfo",
 	Aliases:   []string{"ti"},
 	Usage:     "show info about token",
 	ArgsUsage: "[token]",
@@ -292,14 +300,20 @@ var strategyTokenInfo = &cli.Command{
 }
 
 var strategyListKeyBinds = &cli.Command{
-	Name:      "listKeyBinds",
-	Aliases:   []string{"lkb"},
-	Usage:     "show a range of keyBinds (the element of groups only contain name)",
-	ArgsUsage: "[from to]",
+	Name:    "listKeyBinds",
+	Aliases: []string{"lkb"},
+	Usage:   "show a range of keyBinds (the element of groups only contain name)",
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "from",
+			Value: 0,
+		},
+		&cli.IntFlag{
+			Name:  "to",
+			Value: 20,
+		},
+	},
 	Action: func(cctx *cli.Context) error {
-		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
-		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
@@ -307,11 +321,7 @@ var strategyListKeyBinds = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
-		arr, err := api.ListKeyBinds(ctx, int(from), int(to))
+		arr, err := api.ListKeyBinds(ctx, cctx.Int("from"), cctx.Int("to"))
 		if err != nil {
 			return err
 		}
@@ -331,14 +341,20 @@ var strategyListKeyBinds = &cli.Command{
 }
 
 var strategyListMethodTemplates = &cli.Command{
-	Name:      "listMethodTemplates",
-	Aliases:   []string{"lmt"},
-	Usage:     "show a range of method templates",
-	ArgsUsage: "[from to]",
+	Name:    "listMethodTemplates",
+	Aliases: []string{"lmt"},
+	Usage:   "show a range of method templates",
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "from",
+			Value: 0,
+		},
+		&cli.IntFlag{
+			Name:  "to",
+			Value: 20,
+		},
+	},
 	Action: func(cctx *cli.Context) error {
-		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
-		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
@@ -346,11 +362,7 @@ var strategyListMethodTemplates = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
-		arr, err := api.ListMethodTemplates(ctx, int(from), int(to))
+		arr, err := api.ListMethodTemplates(ctx, cctx.Int("from"), cctx.Int("to"))
 		if err != nil {
 			return err
 		}
@@ -363,14 +375,20 @@ var strategyListMethodTemplates = &cli.Command{
 	},
 }
 var strategyListMsgTypeTemplates = &cli.Command{
-	Name:      "listMsgTypeTemplates",
-	Aliases:   []string{"lmtt"},
-	Usage:     "show a range of method templates",
-	ArgsUsage: "[from to]",
+	Name:    "listMsgTypeTemplates",
+	Aliases: []string{"lmtt"},
+	Usage:   "show a range of method templates",
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "from",
+			Value: 0,
+		},
+		&cli.IntFlag{
+			Name:  "to",
+			Value: 20,
+		},
+	},
 	Action: func(cctx *cli.Context) error {
-		if cctx.Args().Len() < 2 {
-			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
-		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
@@ -378,11 +396,7 @@ var strategyListMsgTypeTemplates = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 
-		from, to, err := helper.ReqFromTo(cctx, 0)
-		if err != nil {
-			return err
-		}
-		arr, err := api.ListMsgTypeTemplates(ctx, from, to)
+		arr, err := api.ListMsgTypeTemplates(ctx, cctx.Int("from"), cctx.Int("to"))
 		if err != nil {
 			return err
 		}

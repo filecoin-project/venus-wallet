@@ -61,20 +61,6 @@ func TestCacheFlow(t *testing.T) {
 	// tk2		addr1	kb2
 	// tk3 		addr2	kb3
 
-	// check data penetration processing
-	tk4err := "tk4err"
-	addr4err := "addr4err"
-	cache.setBlank(tk4err, addr4err)
-	kb4blank := cache.through(tk4err, addr4err)
-	if !kb4blank {
-		t.Fatal("Data penetration processing failed")
-	}
-	cache.removeBlank(tk4err, addr4err)
-	kb4blank = cache.through(tk4err, addr4err)
-	if kb4blank {
-		t.Fatal("Data penetration processing failed")
-	}
-
 	kb5 := &storage.KeyBind{
 		Name:    "kb5",
 		Address: addr2,
@@ -129,7 +115,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk3 		addr2	kb3  x
 	// tk1		addr2	kb5  x
 	// tk1		addr2	kb6
-	cache.removeToken(tk1)
+	cache.removeStToken(tk1)
 	kb1 = cache.get(tk1, addr1)
 	kb6 = cache.get(tk1, addr2)
 	assert.DeepEqual(t, kb1, kb6)

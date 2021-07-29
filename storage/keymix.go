@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/filecoin-project/venus-wallet/api/permission"
 	"sync"
 
 	"github.com/filecoin-project/venus-wallet/config"
@@ -149,13 +150,16 @@ func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 }
 
 func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
-	token := core.ContextStrategyToken(ctx)
 	if len(o.password) == 0 || len(o.rootToken) == 0 {
 		return ErrPasswordEmpty
 	}
-	if core.WalletStrategyLevel == core.SLDisable {
+
+	if core.WalletStrategyLevel == core.SLDisable || permission.HasPerm(ctx, permission.PermAdmin) {
 		return nil
 	}
+
+	token := core.ContextStrategyToken(ctx)
+
 	if o.rootToken == token {
 		return nil
 	}

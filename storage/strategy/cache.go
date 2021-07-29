@@ -15,8 +15,8 @@ type StrategyCache interface {
 	set(token string, kb *storage.KeyBind)
 	// remove deletes the cache at the specified address
 	remove(token, address string)
-	// removeToken deletes the cache by strategy token
-	removeToken(token string)
+	// removeStToken deletes the cache by strategy token
+	removeStToken(token string)
 	// removeTokens deletes the caches that the key contain strategy tokens
 	removeTokens(tokens []string)
 	// get gets a keyBind by strategy token and wallet address
@@ -105,8 +105,8 @@ func (c *strategyCache) remove(token, address string) {
 	c.rmKBWithAddr(kb)
 }
 
-// removeToken deletes the cache by strategy token
-func (c *strategyCache) removeToken(token string) {
+// removeStToken deletes the cache by strategy token
+func (c *strategyCache) removeStToken(token string) {
 	c.Lock()
 	defer c.Unlock()
 	addrKB, ok := c.cache[token]

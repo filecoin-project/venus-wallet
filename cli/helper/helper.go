@@ -2,7 +2,6 @@ package helper
 
 import (
 	"context"
-	"errors"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli"
@@ -17,7 +16,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 )
 
@@ -61,19 +59,9 @@ func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 		log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 	}
 
-	strategyToken := make([]byte, 0)
-	if pwd, ok := ctx.Context.Value(ctxPWD).([]byte); ok && len(pwd) > 0 {
-		tk, err := r.APIStrategyToken(string(pwd))
-		if err != nil {
-			return httpparse.APIInfo{}, xerrors.Errorf("could not convert strategy token:%w", err)
-		}
-		strategyToken = []byte(tk)
-	}
-
 	return httpparse.APIInfo{
-		Addr:          ma,
-		Token:         token,
-		StrategyToken: strategyToken,
+		Addr:  ma,
+		Token: token,
 	}, nil
 }
 
@@ -146,20 +134,6 @@ func withPWD(cctx *cli.Context) error {
 	}
 	cctx.Context = context.WithValue(cctx.Context, ctxPWD, pwd)
 	return nil
-}
-
-func ReqFromTo(cctx *cli.Context, idx int) (from, to int, err error) {
-	fromStr := cctx.Args().Get(idx)
-	toStr := cctx.Args().Get(idx + 1)
-	f, err := strconv.ParseInt(fromStr, 10, 32)
-	if err != nil {
-		return 0, 0, errors.New("from must be an int")
-	}
-	t, err := strconv.ParseInt(toStr, 10, 32)
-	if err != nil {
-		return 0, 0, errors.New("to must be an int")
-	}
-	return int(f), int(t), nil
 }
 
 //nolint

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
@@ -13,7 +14,7 @@ import (
 )
 
 var strategyNewWalletToken = &cli.Command{
-	Name:      "newWalletToken",
+	Name:      "newStToken",
 	Aliases:   []string{"newWT"},
 	Usage:     "create a wallet token with group",
 	ArgsUsage: "[groupName]",
@@ -30,7 +31,7 @@ var strategyNewWalletToken = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		token, err := api.NewWalletToken(ctx, groupName)
+		token, err := api.NewStToken(ctx, groupName)
 		if err != nil {
 			return err
 		}
@@ -115,7 +116,10 @@ var strategyNewKeyBindCustom = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
-		address := cctx.Args().Get(1)
+		addr, err := address.NewFromString(cctx.Args().Get(1))
+		if err != nil {
+			return err
+		}
 		codesStr := cctx.Args().Get(2)
 		var codes []int
 		for _, v := range strings.Split(codesStr, ",") {
@@ -130,7 +134,7 @@ var strategyNewKeyBindCustom = &cli.Command{
 			methodsStr := cctx.Args().Get(3)
 			methods = strings.Split(methodsStr, ",")
 		}
-		err = api.NewKeyBindCustom(ctx, name, address, codes, methods)
+		err = api.NewKeyBindCustom(ctx, name, addr, codes, methods)
 		if err != nil {
 			return err
 		}
@@ -155,14 +159,17 @@ var strategyNewKeyBindFromTemplate = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 		name := cctx.Args().First()
-		address := cctx.Args().Get(1)
+		addr, err := address.NewFromString(cctx.Args().Get(1))
+		if err != nil {
+			return err
+		}
 		mttName := cctx.Args().Get(2)
 		mtName := ""
 		if cctx.NArg() == 4 {
 			mtName = cctx.Args().Get(3)
 		}
 
-		err = api.NewKeyBindFromTemplate(ctx, name, address, mttName, mtName)
+		err = api.NewKeyBindFromTemplate(ctx, name, addr, mttName, mtName)
 		if err != nil {
 			return err
 		}
@@ -279,12 +286,15 @@ var strategyRemoveKeyBindByAddress = &cli.Command{
 	Name:      "removeKeyBindByAddress",
 	Aliases:   []string{"rmKBBA"},
 	Usage:     "remove keyBinds by address ( not affect the group strategy that has been created)",
-	ArgsUsage: "[name]",
+	ArgsUsage: "[address]",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Len() < 1 {
 			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
-		name := cctx.Args().First()
+		addr, err := address.NewFromString(cctx.Args().First())
+		if err != nil {
+			return err
+		}
 
 		api, closer, err := helper.GetFullAPIWithPWD(cctx)
 		if err != nil {
@@ -293,7 +303,7 @@ var strategyRemoveKeyBindByAddress = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		num, err := api.RemoveKeyBindByAddress(ctx, name)
+		num, err := api.RemoveKeyBindByAddress(ctx, addr)
 		if err != nil {
 			return err
 		}
@@ -330,7 +340,7 @@ var strategyRemoveGroup = &cli.Command{
 }
 
 var strategyRemoveToken = &cli.Command{
-	Name:      "removeToken",
+	Name:      "removeStToken",
 	Aliases:   []string{"rmT"},
 	Usage:     "remove token",
 	ArgsUsage: "[token]",
@@ -347,7 +357,7 @@ var strategyRemoveToken = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		err = api.RemoveToken(ctx, token)
+		err = api.RemoveStToken(ctx, token)
 		if err != nil {
 			return err
 		}
@@ -356,9 +366,9 @@ var strategyRemoveToken = &cli.Command{
 	},
 }
 
-var strategyPullMsgTypeFromKeyBind = &cli.Command{
-	Name:      "pullMsgTypeFromKeyBind",
-	Aliases:   []string{"pullMT4KB"},
+var strategyRemoveMsgTypeFromKeyBind = &cli.Command{
+	Name:      "removeMsgTypeFromKeyBind",
+	Aliases:   []string{"rmMT4KB"},
 	Usage:     "remove elements of msgTypes in keyBind",
 	ArgsUsage: "[keyBindName, code1 code2 ...]",
 	Action: func(cctx *cli.Context) error {
@@ -382,7 +392,7 @@ var strategyPullMsgTypeFromKeyBind = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		kb, err := api.PullMsgTypeFromKeyBind(ctx, name, codes)
+		kb, err := api.RemoveMsgTypeFromKeyBind(ctx, name, codes)
 		if err != nil {
 			return err
 		}
@@ -397,9 +407,9 @@ var strategyPullMsgTypeFromKeyBind = &cli.Command{
 	},
 }
 
-var strategyPullMethodIntoKeyBind = &cli.Command{
-	Name:      "pullMethodFromKeyBind",
-	Aliases:   []string{"pullM4KB"},
+var strategyRemoveMethodIntoKeyBind = &cli.Command{
+	Name:      "removeMethodFromKeyBind",
+	Aliases:   []string{"rmM4KB"},
 	Usage:     "remove elements of methods in keyBind",
 	ArgsUsage: "[keyBindName, method1 method2 ...]",
 	Action: func(cctx *cli.Context) error {
@@ -417,7 +427,7 @@ var strategyPullMethodIntoKeyBind = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		kb, err := api.PullMethodFromKeyBind(ctx, name, methods)
+		kb, err := api.RemoveMethodFromKeyBind(ctx, name, methods)
 		if err != nil {
 			return err
 		}
@@ -432,9 +442,9 @@ var strategyPullMethodIntoKeyBind = &cli.Command{
 	},
 }
 
-var strategyPushMsgTypeIntoKeyBind = &cli.Command{
-	Name:      "pushMsgTypeIntoKeyBind",
-	Aliases:   []string{"pushMT2KB"},
+var strategyAddMsgTypeIntoKeyBind = &cli.Command{
+	Name:      "addMsgTypeIntoKeyBind",
+	Aliases:   []string{"addMT2KB"},
 	Usage:     "append msgTypes into keyBind",
 	ArgsUsage: "[keyBindName, code1 code2 ...]",
 	Action: func(cctx *cli.Context) error {
@@ -458,7 +468,7 @@ var strategyPushMsgTypeIntoKeyBind = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		kb, err := api.PushMsgTypeIntoKeyBind(ctx, name, codes)
+		kb, err := api.AddMsgTypeIntoKeyBind(ctx, name, codes)
 		if err != nil {
 			return err
 		}
@@ -473,9 +483,9 @@ var strategyPushMsgTypeIntoKeyBind = &cli.Command{
 	},
 }
 
-var strategyPushMethodIntoKeyBind = &cli.Command{
-	Name:      "pushMethodIntoKeyBind",
-	Aliases:   []string{"pushM2KB"},
+var strategyAddMethodIntoKeyBind = &cli.Command{
+	Name:      "addMethodIntoKeyBind",
+	Aliases:   []string{"addM2KB"},
 	Usage:     "append methods into keyBind",
 	ArgsUsage: "[keyBindName, method1 method2 ...]",
 	Action: func(cctx *cli.Context) error {
@@ -493,7 +503,7 @@ var strategyPushMethodIntoKeyBind = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 		defer closer()
 
-		kb, err := api.PushMethodIntoKeyBind(ctx, name, methods)
+		kb, err := api.AddMethodIntoKeyBind(ctx, name, methods)
 		if err != nil {
 			return err
 		}
