@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/urfave/cli/v2"
+	"go.opencensus.io/trace"
+	"golang.org/x/xerrors"
+
 	localCli "github.com/filecoin-project/venus-wallet/cli"
-	"github.com/filecoin-project/venus-wallet/cli/helper"
 	main2 "github.com/filecoin-project/venus-wallet/cmd"
 	loclog "github.com/filecoin-project/venus-wallet/log"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
-	"github.com/prometheus/common/log"
-	"github.com/urfave/cli/v2"
-	"go.opencensus.io/trace"
-	"os"
 )
+
+var errConnectRefused = xerrors.New("connection refused")
 
 func main() {
 	loclog.SetupLogLevels()
@@ -64,11 +69,10 @@ func main() {
 			Code:    trace.StatusCodeFailedPrecondition,
 			Message: err.Error(),
 		})
-		_, ok := err.(*helper.ErrCmdFailed)
-		if ok {
-			log.Debugf("%+v", err)
+		if strings.Contains(err.Error(), errConnectRefused.Error()) {
+			fmt.Printf("%v. %s\n", err, "Is the wallet running?")
 		} else {
-			log.Warnf("%+v", err)
+			fmt.Println(err)
 		}
 		os.Exit(1)
 	}
