@@ -117,7 +117,11 @@ func (o *KeyMixLayer) EqualRootToken(token string) error {
 	return errcode.ErrWithoutPermission
 }
 func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
-	return o.changeLock(password, false)
+	err := o.changeLock(password, false)
+	if err != nil && err == ErrPasswordEmpty {
+		return o.SetPassword(ctx, password)
+	}
+	return err
 }
 func (o *KeyMixLayer) Lock(ctx context.Context, password string) error {
 	return o.changeLock(password, true)
