@@ -83,7 +83,7 @@ func main() {
 			Message: err.Error(),
 		})
 		if strings.Contains(err.Error(), errConnectRefused.Error()) {
-			fmt.Printf("%v. %s\n", err, "Is the wallet running?")
+			fmt.Printf("%v. %s\n", err, "Is the venus-wallet running?")
 		} else {
 			fmt.Println(err)
 		}

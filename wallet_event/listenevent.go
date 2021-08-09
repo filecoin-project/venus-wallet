@@ -50,7 +50,11 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		lk:             sync.Mutex{},
 	}
 
-	log.Infof("api hub: urls: %v, token: %s, support account: %v", cfg.RegisterAPI, cfg.Token, cfg.SupportAccounts)
+	if len(cfg.RegisterAPI) == 0 {
+		log.Warnf("api hub: urls: %v, token: %s, support account: %v", cfg.RegisterAPI, cfg.Token, cfg.SupportAccounts)
+	} else {
+		log.Infof("api hub: urls: %v, token: %s, support account: %v", cfg.RegisterAPI, cfg.Token, cfg.SupportAccounts)
+	}
 
 	for _, apiHub := range cfg.RegisterAPI {
 		ctx, cancel := context.WithCancel(context.Background())
