@@ -25,6 +25,12 @@ var walletSetPassword = &cli.Command{
 	Aliases: []string{"setpwd"},
 	Usage:   "Store a credential for a keystore file",
 	Action: func(cctx *cli.Context) error {
+		api, closer, err := helper.GetFullAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+
 		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
 		if err != nil {
 			return err
@@ -36,11 +42,7 @@ var walletSetPassword = &cli.Command{
 		if !bytes.Equal(pw, pw2) {
 			return errors.New("the input passwords are inconsistent")
 		}
-		api, closer, err := helper.GetFullAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
+
 		ctx := helper.ReqContext(cctx)
 		err = api.SetPassword(ctx, string(pw2))
 		if err != nil {
@@ -55,15 +57,17 @@ var walletUnlock = &cli.Command{
 	Name:  "unlock",
 	Usage: "unlock the wallet and release private key",
 	Action: func(cctx *cli.Context) error {
-		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
-		if err != nil {
-			return err
-		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
+
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+
 		ctx := helper.ReqContext(cctx)
 		err = api.Unlock(ctx, string(pw))
 		if err != nil {
@@ -78,15 +82,17 @@ var walletLock = &cli.Command{
 	Name:  "lock",
 	Usage: "Restrict the use of secret keys after locking wallet",
 	Action: func(cctx *cli.Context) error {
-		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
-		if err != nil {
-			return err
-		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
+
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+
 		ctx := helper.ReqContext(cctx)
 		err = api.Lock(ctx, string(pw))
 		if err != nil {
@@ -176,17 +182,17 @@ var walletExport = &cli.Command{
 		if err != nil {
 			return err
 		}
+		api, closer, err := helper.GetFullAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
 
 		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
 		if err != nil {
 			return err
 		}
 
-		api, closer, err := helper.GetFullAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
 		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
 			return err
@@ -366,16 +372,17 @@ var walletDel = &cli.Command{
 			return err
 		}
 
-		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
-		if err != nil {
-			return err
-		}
-
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
 			return err
 		}
 		defer closer()
+
+		pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+		if err != nil {
+			return err
+		}
+
 		ctx := helper.ReqContext(cctx)
 		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
 			return err

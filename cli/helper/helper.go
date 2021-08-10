@@ -2,10 +2,12 @@ package helper
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/venus-wallet/api"
@@ -15,6 +17,8 @@ import (
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/howeyc/gopass"
 	"github.com/mitchellh/go-homedir"
+	"github.com/multiformats/go-multiaddr"
+	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/prometheus/common/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -72,12 +76,33 @@ func GetRawAPI(ctx *cli.Context) (string, http.Header, error) {
 		return "", nil, xerrors.Errorf("could not get API info: %w", err)
 	}
 
+	if err := dial(ainfo.Addr); err != nil {
+		return "", nil, err
+	}
+
 	addr, err := ainfo.DialArgs()
 	if err != nil {
 		return "", nil, xerrors.Errorf("could not get DialArgs: %w", err)
 	}
 
 	return addr, ainfo.AuthHeader(), nil
+}
+
+func dial(addr string) error {
+	ma, err := multiaddr.NewMultiaddr(addr)
+	if err == nil {
+		_, addr, err := manet.DialArgs(ma)
+		if err != nil {
+			return err
+		}
+		dialer := net.Dialer{
+			Timeout: time.Second * 2,
+		}
+		_, err = dialer.Dial("tcp", addr)
+		return err
+	}
+
+	return nil
 }
 
 func GetAPI(ctx *cli.Context) (common.ICommon, jsonrpc.ClientCloser, error) {
@@ -97,11 +122,15 @@ func GetFullAPI(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
 }
 
 func GetFullAPIWithPWD(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
-	err := withPWD(ctx)
+	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	return GetFullAPI(ctx)
+	err = withPWD(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return remotecli.NewFullNodeRPC(ctx.Context, addr, headers)
 }
 
 func DaemonContext(cctx *cli.Context) context.Context {
