@@ -127,7 +127,7 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 	if err != nil {
 		return core.NilAddress, err
 	}
-	//notify
+	// notify
 	w.bus.Publish("wallet:add_address", addr)
 	return addr, nil
 
@@ -267,7 +267,7 @@ func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Addre
 	if err != nil {
 		return core.NilAddress, err
 	}
-	//notify
+	// notify
 	w.bus.Publish("wallet:add_address", addr)
 	return addr, nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/filecoin-project/go-address"
 	"os"
 	"strings"
 
@@ -57,6 +58,19 @@ func main() {
 				Hidden:  true,
 				Value:   "~/.venus_wallet",
 			},
+			&cli.StringFlag{Name: "network",
+				EnvVars: []string{"VENUS_ADDRESS_TYPE", "VENUS_WALLET_NETWORK"},
+				Hidden:  true,
+				Value:   "_testnet_",
+			},
+		},
+		Before: func(c *cli.Context) error {
+			if c.String("network") == "_mainnet_" {
+				address.CurrentNetwork = address.Mainnet
+			} else {
+				address.CurrentNetwork = address.Testnet
+			}
+			return nil
 		},
 
 		Commands: append(local, localCli.Commands...),
