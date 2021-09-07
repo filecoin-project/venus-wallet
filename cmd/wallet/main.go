@@ -61,13 +61,12 @@ func main() {
 			&cli.StringFlag{Name: "network",
 				EnvVars: []string{"VENUS_ADDRESS_TYPE", "VENUS_WALLET_NETWORK"},
 				Hidden:  true,
-				Value:   "_testnet_",
+				Value:   "_mainnet_",
 			},
 		},
 		Before: func(c *cli.Context) error {
-			if c.String("network") == "_mainnet_" {
-				address.CurrentNetwork = address.Mainnet
-			} else {
+			address.CurrentNetwork = address.Mainnet
+			if c.String("network") == "_testnet_" {
 				address.CurrentNetwork = address.Testnet
 			}
 			return nil
