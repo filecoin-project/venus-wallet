@@ -23,9 +23,9 @@ type cmd = string
 
 const (
 	cmdNetwork cmd = "network"
-	//cmdAPI     cmd = "api"
+	// cmdAPI     cmd = "api"
 	cmdRepo cmd = "repo"
-	//cmdKeyStore cmd = "keystore"
+	// cmdKeyStore cmd = "keystore"
 	cmdPwd             cmd = "password"
 	cmdGatewayAPI      cmd = "gateway-api"
 	cmdGatewayToken    cmd = "gateway-token"
@@ -68,10 +68,9 @@ var RunCmd = &cli.Command{
 		}
 		var fullAPI api.IFullAPI
 
+		address.CurrentNetwork = address.Mainnet
 		if cctx.String(cmdNetwork) == "test" {
 			address.CurrentNetwork = address.Testnet
-		} else {
-			address.CurrentNetwork = address.Mainnet
 		}
 		stop, err := build.New(ctx,
 			build.FullAPIOpt(&fullAPI),
