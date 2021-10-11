@@ -85,7 +85,7 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 		if op.API != core.StringEmpty {
 			cnf.API.ListenAddress = op.API
 		}
-		if len(cnf.APIRegisterHub.RegisterAPI) == 0 && len(op.GatewayAPI) != 0 {
+		if len(op.GatewayAPI) != 0 {
 			cnf.APIRegisterHub.RegisterAPI = op.GatewayAPI
 			if len(op.GatewayToken) == 0 {
 				return xerrors.New("gateway token not set")
