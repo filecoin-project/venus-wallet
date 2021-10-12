@@ -5,7 +5,7 @@ import "fmt"
 var CurrentCommit string
 
 // BuildVersion is the local build version, set by build system
-const BuildVersion = "1.2.1"
+const BuildVersion = "1.3.0"
 
 var UserVersion = BuildVersion + CurrentCommit
 
