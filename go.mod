@@ -22,6 +22,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fxamacker/cbor/v2 v2.3.0
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
+	github.com/gin-gonic/gin v1.7.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/ipfs-force-community/venus-common-utils v0.0.0-20210714054928-2042a9040759
