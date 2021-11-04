@@ -10,7 +10,7 @@ require (
 	github.com/filecoin-project/go-address v0.0.5
 	github.com/filecoin-project/go-cbor-util v0.0.0-20201016124514-d0bbec7bfcc4
 	github.com/filecoin-project/go-crypto v0.0.0-20191218222705-effae4ea9f03
-	github.com/filecoin-project/go-fil-markets v1.1.9
+	github.com/filecoin-project/go-fil-markets v1.13.3
 	github.com/filecoin-project/go-jsonrpc v0.1.4-0.20210217175800-45ea43ac2bec
 	github.com/filecoin-project/go-state-types v0.1.1-0.20210915140513-d354ccf10379
 	github.com/filecoin-project/specs-actors v0.9.14
@@ -28,7 +28,7 @@ require (
 	github.com/ipfs-force-community/venus-common-utils v0.0.0-20210714054928-2042a9040759
 	github.com/ipfs-force-community/venus-gateway v1.1.2-0.20210731031356-770f19abfbcb
 	github.com/ipfs/go-block-format v0.0.3
-	github.com/ipfs/go-cid v0.0.7
+	github.com/ipfs/go-cid v0.0.8-0.20210716091050-de6c03deae1c
 	github.com/ipfs/go-ipld-cbor v0.0.5
 	github.com/ipfs/go-log/v2 v2.3.0
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
@@ -39,10 +39,10 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/supranational/blst v0.3.4
 	github.com/urfave/cli/v2 v2.3.0
-	github.com/whyrusleeping/cbor-gen v0.0.0-20210219115102-f37d292932f2
+	github.com/whyrusleeping/cbor-gen v0.0.0-20210713220151-be142a5ae1a8
 	go.opencensus.io v0.23.0
 	go.uber.org/fx v1.9.0
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.12
