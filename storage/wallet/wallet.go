@@ -93,12 +93,18 @@ func (w *wallet) checkPassword(ctx context.Context, password string) error {
 
 	return nil
 }
+
 func (w *wallet) Unlock(ctx context.Context, password string) error {
+	if err := w.checkPassword(ctx, password); err != nil {
+		return err
+	}
 	return w.mw.Unlock(ctx, password)
 }
+
 func (w *wallet) Lock(ctx context.Context, password string) error {
 	return w.mw.Lock(ctx, password)
 }
+
 func (w *wallet) LockState(ctx context.Context) bool {
 	return w.mw.LockState(ctx)
 }

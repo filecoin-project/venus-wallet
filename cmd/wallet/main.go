@@ -49,7 +49,7 @@ func main() {
 
 	app := &cli.App{
 		Name:    "venus remote-wallet",
-		Usage:   "",
+		Usage:   "./venus-wallet ",
 		Version: version.UserVersion,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -58,16 +58,20 @@ func main() {
 				Hidden:  true,
 				Value:   "~/.venus_wallet",
 			},
-			&cli.StringFlag{Name: "network",
-				EnvVars: []string{"VENUS_ADDRESS_TYPE", "VENUS_WALLET_NETWORK"},
-				Hidden:  true,
-				Value:   "_mainnet_",
+			&cli.StringFlag{Name: "nettype",
+				EnvVars: []string{"VENUS_ADDRESS_TYPE"},
+				Value:   "calibnet",
+				Usage:   "should be mainnet/calibnet",
 			},
 		},
 		Before: func(c *cli.Context) error {
 			address.CurrentNetwork = address.Mainnet
-			if c.String("network") == "_testnet_" {
+			if c.String("nettype") == "mainnet" {
+				address.CurrentNetwork = address.Mainnet
+			} else if c.String("nettype") == "calibnet" {
 				address.CurrentNetwork = address.Testnet
+			} else {
+				return fmt.Errorf("nettype should be 'mainnet' or 'calibnet'")
 			}
 			return nil
 		},
