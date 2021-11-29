@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 
-	address "github.com/filecoin-project/go-address"
 	homedir "github.com/mitchellh/go-homedir"
 	cli "github.com/urfave/cli/v2"
 	"go.opencensus.io/stats"
@@ -22,7 +21,7 @@ import (
 type cmd = string
 
 const (
-	cmdNetwork cmd = "network"
+	cmdNetType cmd = "nettype"
 	// cmdAPI     cmd = "api"
 	cmdRepo cmd = "repo"
 	// cmdKeyStore cmd = "keystore"
@@ -38,7 +37,6 @@ var RunCmd = &cli.Command{
 	Usage: "Start a venus wallet process",
 	Flags: []cli.Flag{
 		//	&cli.StringFlag{Name: cmdAPI, Value: "5678"},
-		&cli.StringFlag{Name: cmdNetwork, Value: ""},
 		&cli.StringFlag{Name: cmdPwd, Value: "", Aliases: []string{"pwd"}},
 		&cli.StringSliceFlag{Name: cmdGatewayAPI},
 		&cli.StringFlag{Name: cmdGatewayToken, Value: ""},
@@ -68,16 +66,12 @@ var RunCmd = &cli.Command{
 		}
 		var fullAPI api.IFullAPI
 
-		address.CurrentNetwork = address.Mainnet
-		if cctx.String(cmdNetwork) == "test" {
-			address.CurrentNetwork = address.Testnet
-		}
 		stop, err := build.New(ctx,
 			build.FullAPIOpt(&fullAPI),
 			build.WalletOpt(r, cctx.String(cmdPwd)),
 			build.CommonOpt(secret),
-			build.ApplyIf(func(s *build.Settings) bool { return cctx.IsSet(cmdNetwork) },
-				build.Override(new(build.NetworkName), build.NetworkName(cctx.String(cmdNetwork)))),
+			build.ApplyIf(func(s *build.Settings) bool { return cctx.IsSet(cmdNetType) },
+				build.Override(new(build.NetworkName), build.NetworkName(cctx.String(cmdNetType)))),
 		)
 		if err != nil {
 			return xerrors.Errorf("initializing node: %w", err)

@@ -6,9 +6,12 @@ import (
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/storage"
+	logging "github.com/ipfs/go-log/v2"
 	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
+
+var ksLog = logging.Logger("main")
 
 // keystore sqlite implementation
 type sqliteStorage struct {
@@ -17,7 +20,9 @@ type sqliteStorage struct {
 }
 
 func NewKeyStore(conn *Conn) storage.KeyStore {
-	return &sqliteStorage{db: conn.DB, walletTB: TBWallet}
+	store := &sqliteStorage{db: conn.DB, walletTB: TBWallet}
+	_ = store.migrateCompatibleAddress()
+	return store
 }
 
 func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
@@ -33,9 +38,15 @@ func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 		Address: key.Address,
 		KeyInfo: &ki,
 	}
-	if err = s.db.Table(s.walletTB).First(wallet, "address=?", wallet.Address).Error; err != nil && err != gorm.ErrRecordNotFound {
+	var sqlAddr shortAddress
+	if sqlAddr, err = shortAddressFromString(key.Address); err != nil {
+		return xerrors.Errorf("%s is not an address:%w", key.Address, err)
+	}
+	if err = s.db.Table(s.walletTB).First(wallet, "address=?",
+		sqlAddr).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return err
 	} else if err == gorm.ErrRecordNotFound {
+		wallet.Address = sqlAddr.String()
 		return s.db.Table(s.walletTB).Create(wallet).Error
 	}
 	return err
@@ -43,7 +54,7 @@ func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 
 func (s *sqliteStorage) Has(addr core.Address) (bool, error) {
 	var counts int64 = 0
-	err := s.db.Table(s.walletTB).Where("address=?", addr.String()).Count(&counts).Error
+	err := s.db.Table(s.walletTB).Where("address=?", shortAddress(addr)).Count(&counts).Error
 	if err != nil {
 		return false, err
 	}
@@ -56,16 +67,21 @@ func (s *sqliteStorage) List() ([]core.Address, error) {
 	if err != nil {
 		return nil, err
 	}
-	addresses := make([]core.Address, len(ws))
-	for idx, val := range ws {
-		addresses[idx], _ = address.NewFromString(val.Address)
+	addresses := make([]core.Address, 0, len(ws))
+	for _, val := range ws {
+		addr, err := shortAddressFromString(val.Address)
+		if err != nil {
+			ksLog.Error("can't decode:%s to address:%s", val.Address, err.Error())
+			continue
+		}
+		addresses = append(addresses, addr.Address())
 	}
 	return addresses, err
 }
 
 func (s *sqliteStorage) Get(addr core.Address) (*aes.EncryptedKey, error) {
 	res := &Wallet{}
-	if err := s.db.Table(s.walletTB).Where("address=?", addr.String()).First(res).Error; err != nil {
+	if err := s.db.Table(s.walletTB).Where("address=?", shortAddress(addr)).First(res).Error; err != nil {
 		return nil, err
 	}
 	cj := new(aes.CryptoJSON)
@@ -82,11 +98,29 @@ func (s *sqliteStorage) Get(addr core.Address) (*aes.EncryptedKey, error) {
 
 func (s *sqliteStorage) Delete(addr core.Address) error {
 	var err error
-	tmpDb := s.db.Table(s.walletTB).Delete(nil, "address = ?", addr.String())
+	tmpDb := s.db.Table(s.walletTB).Delete(nil, "address = ?", shortAddress(addr))
 	if err = tmpDb.Error; err != nil {
 		// may be it isn't explicit, but acceptable
 		return xerrors.Errorf("delete wallet(%s) failed:%w",
 			addr.String(), err)
+	}
+	return nil
+}
+
+func (s *sqliteStorage) migrateCompatibleAddress() error {
+	var ws []Wallet
+	err := s.db.Table(s.walletTB).Scan(&ws).Error
+	if err != nil {
+		return err
+	}
+
+	for _, w := range ws {
+		if addr, err := address.NewFromString(w.Address); err == nil {
+			if err = s.db.Table(s.walletTB).Where("address = ?", w.Address).
+				Update("address", shortAddress(addr)).Error; err != nil {
+				return xerrors.Errorf("migrate address:%s failed:%w", addr.String(), err)
+			}
+		}
 	}
 	return nil
 }

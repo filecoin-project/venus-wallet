@@ -84,7 +84,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		log.Infof("wallet add address %s", addr)
 		err := apiRegister.AddNewAddress(context.TODO(), []address.Address{addr})
 		if err != nil {
-			log.Errorf("cannot add address %s", addr)
+			log.Errorf("cannot add address %s, %s", addr, err.Error())
 		}
 	})
 
