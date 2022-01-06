@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
@@ -53,6 +54,7 @@ func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 }
 
 func (s *sqliteStorage) Has(addr core.Address) (bool, error) {
+	fmt.Println(addr.String())
 	var counts int64 = 0
 	err := s.db.Table(s.walletTB).Where("address=?", shortAddress(addr)).Count(&counts).Error
 	if err != nil {
