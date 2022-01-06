@@ -2,6 +2,7 @@ package helper
 
 import (
 	"context"
+	logging "github.com/ipfs/go-log/v2"
 	"net"
 	"net/http"
 	"os"
@@ -19,10 +20,11 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
-	"github.com/prometheus/common/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 )
+
+var log = logging.Logger("cli")
 
 const (
 	metadataTraceContext = "traceContext"
