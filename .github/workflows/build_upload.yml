@@ -38,7 +38,7 @@ jobs:
           export job_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
           export oss_exists=0
           export ftp_exists=0
-          if [[ "${{github.event_name}}" == "create" ]] && ([[ "$github_tag" =~ "v1." ]] || [[ "$github_tag" =~ "v2." ]]); then
+          if [[ "${{github.ref_type}}" == "tag" ]] && [[ "${{github.event_name}}" == "create" ]] && ([[ "$github_tag" =~ "v1." ]] || [[ "$github_tag" =~ "v2." ]]); then
             export pub_method=pushRelease
           fi
           if [[ "$branch" == "" ]]; then
@@ -89,6 +89,7 @@ jobs:
           echo vars.ftp_exists = ${{steps.vars.outputs.ftp_exists}}
           echo github.ref = ${{github.ref}}
           echo github.ref_name = ${{github.ref_name}}
+          echo github.ref_type = ${{github.ref_type}}
           echo vars.job_url = ${{steps.vars.outputs.job_url}}
           echo ftp_url = ftp://${{secrets.FTP_HOST}}/${{steps.vars.outputs.repo_name}}/${{steps.vars.outputs.artifact_name}}
       - name: Set up Go
