@@ -223,6 +223,12 @@ var walletImport = &cli.Command{
 		},
 	},
 	Action: func(cctx *cli.Context) error {
+		api, closer, err := helper.GetFullAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+
 		var inpdata []byte
 		if !cctx.Args().Present() || cctx.Args().First() == "-" {
 			reader := bufio.NewReader(os.Stdin)
@@ -284,11 +290,6 @@ var walletImport = &cli.Command{
 			return fmt.Errorf("unrecognized format: %s", cctx.String("format"))
 		}
 
-		api, closer, err := helper.GetFullAPI(cctx)
-		if err != nil {
-			return err
-		}
-		defer closer()
 		ctx := helper.ReqContext(cctx)
 		addr, err := api.WalletImport(ctx, &ki)
 		if err != nil {
