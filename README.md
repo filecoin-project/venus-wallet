@@ -6,6 +6,9 @@
 - The project is decoupled from Lotus and Venus independently, and can be called by different implementations of Filecoin.
 - It can dynamically configure strategy to limit the signature rules of the Wallet group.
 - Through the configuration of signature strategy, it can achieve environmental isolation of different wallet groups
+
+Use [Venus Issues](https://github.com/filecoin-project/venus/issues) for reporting issues about this repository.
+
 ---
 ### Get Started
 #### 1. Build
