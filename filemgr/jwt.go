@@ -6,8 +6,8 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/filecoin-project/venus-wallet/api/permission"
 	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	jwt "github.com/gbrlsnchs/jwt/v3"
 )
 

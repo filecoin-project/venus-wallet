@@ -2,16 +2,15 @@ package wallet_event
 
 import (
 	"context"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/filemgr"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"golang.org/x/xerrors"
 )
 
-type IWalletEventAPI interface {
-	AddSupportAccount(ctx context.Context, supportAccount string) error
-	AddNewAddress(ctx context.Context, newAddrs []address.Address) error
-}
+type IWalletEvent = api.IWalletEvent
 
 type WalletEventAPI struct {
 	cfg            *config.APIRegisterHubConfig
@@ -19,7 +18,7 @@ type WalletEventAPI struct {
 	fsr            filemgr.Repo
 }
 
-func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRegisterHub IAPIRegisterHub) IWalletEventAPI {
+func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRegisterHub IAPIRegisterHub) IWalletEvent {
 	return &WalletEventAPI{
 		fsr:            fsr,
 		cfg:            cfg,

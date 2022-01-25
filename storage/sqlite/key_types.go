@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+
 	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
@@ -15,7 +17,7 @@ type SqlScannerValuer interface {
 }
 
 type Key struct {
-	core.KeyInfo
+	types.KeyInfo
 	PublicKey []byte
 	Address   core.Address
 }
@@ -31,12 +33,12 @@ func (w *Wallet) TableName() string {
 	return TBWallet
 }
 
-type SqlKeyInfo core.KeyInfo
+type SqlKeyInfo types.KeyInfo
 
 func (mki *SqlKeyInfo) IsValid() bool {
 	return mki != nil &&
-		(mki.Type == core.KTBLS ||
-			mki.Type == core.KTSecp256k1) &&
+		(mki.Type == types.KTBLS ||
+			mki.Type == types.KTSecp256k1) &&
 		len(mki.PrivateKey) != 0
 }
 
