@@ -14,6 +14,7 @@ import (
 	"github.com/filecoin-project/specs-actors/v2/actors/builtin/market"
 	"github.com/filecoin-project/specs-actors/v2/actors/builtin/paych"
 	"github.com/filecoin-project/venus/venus-shared/types"
+	types2 "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"golang.org/x/xerrors"
 )
 
@@ -48,8 +49,8 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 		}
 		return ni.Cid().Bytes(), nil
 	}, nil},
-	types.MTDrawRandomParam: {reflect.TypeOf(types.DrawRandomParams{}), func(in interface{}) ([]byte, error) {
-		param := in.(*types.DrawRandomParams)
+	types.MTDrawRandomParam: {reflect.TypeOf(types2.DrawRandomParams{}), func(in interface{}) ([]byte, error) {
+		param := in.(*types2.DrawRandomParams)
 		return param.SignBytes()
 	}, nil},
 	types.MTSignedVoucher: {reflect.TypeOf(paych.SignedVoucher{}), func(in interface{}) ([]byte, error) {

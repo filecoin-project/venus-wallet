@@ -14,7 +14,7 @@ require (
 	github.com/filecoin-project/go-jsonrpc v0.1.4-0.20210217175800-45ea43ac2bec
 	github.com/filecoin-project/go-state-types v0.1.3
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/venus v1.2.0-rc4.0.20220125024905-1006801b9b40
+	github.com/filecoin-project/venus v1.2.0-rc4.0.20220125060951-3914774e311e
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
 	github.com/gin-gonic/gin v1.7.0 // indirect
