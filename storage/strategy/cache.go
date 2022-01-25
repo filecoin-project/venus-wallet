@@ -1,9 +1,10 @@
 package strategy
 
 import (
-	"github.com/ahmetb/go-linq/v3"
-	"github.com/filecoin-project/venus-wallet/storage"
 	"sync"
+
+	"github.com/ahmetb/go-linq/v3"
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 )
 
 // StrategyCache memory based wallet policy cache
@@ -12,7 +13,7 @@ type StrategyCache interface {
 	// remove all cache to prevent data correctly
 	refresh()
 	// set cache a single keyBind with token index
-	set(token string, kb *storage.KeyBind)
+	set(token string, kb *types.KeyBind)
 	// remove deletes the cache at the specified address
 	remove(token, address string)
 	// removeStToken deletes the cache by strategy token
@@ -20,7 +21,7 @@ type StrategyCache interface {
 	// removeTokens deletes the caches that the key contain strategy tokens
 	removeTokens(tokens []string)
 	// get gets a keyBind by strategy token and wallet address
-	get(token, address string) *storage.KeyBind
+	get(token, address string) *types.KeyBind
 	// setBlank cache penetration data that does not exist
 	setBlank(token, address string)
 	// through check the token exists
@@ -28,7 +29,7 @@ type StrategyCache interface {
 	// removeBlank delete  penetration data
 	removeBlank(token, address string)
 	// removeKeyBind delete keyBind from the cache
-	removeKeyBind(kb *storage.KeyBind)
+	removeKeyBind(kb *types.KeyBind)
 	// removeAddress deletes the cache by address
 	removeAddress(address string)
 }
@@ -37,7 +38,7 @@ type tokenKey = string
 type addressKey = string
 type keyBindKey = string
 
-func genKeyBindKey(kb *storage.KeyBind) keyBindKey {
+func genKeyBindKey(kb *types.KeyBind) keyBindKey {
 	return kb.Address + "|" + kb.Name
 }
 
@@ -45,7 +46,7 @@ func genKeyBindKey(kb *storage.KeyBind) keyBindKey {
 type strategyCache struct {
 	sync.RWMutex
 	blank map[string]struct{} //prevent data penetration
-	cache map[tokenKey]map[addressKey]*storage.KeyBind
+	cache map[tokenKey]map[addressKey]*types.KeyBind
 	// keyBind index, for remove keyBind or token
 	kbCache map[keyBindKey][]tokenKey
 	// wallet address index, for remove keyBind or token
@@ -55,7 +56,7 @@ type strategyCache struct {
 func newStrategyCache() StrategyCache {
 	return &strategyCache{
 		blank:     make(map[string]struct{}),
-		cache:     make(map[tokenKey]map[addressKey]*storage.KeyBind),
+		cache:     make(map[tokenKey]map[addressKey]*types.KeyBind),
 		addrCache: make(map[addressKey][]tokenKey),
 		kbCache:   make(map[keyBindKey][]tokenKey),
 	}
@@ -66,15 +67,15 @@ func (c *strategyCache) refresh() {
 	c.Lock()
 	defer c.Unlock()
 	c.blank = make(map[string]struct{})
-	c.cache = make(map[tokenKey]map[addressKey]*storage.KeyBind)
+	c.cache = make(map[tokenKey]map[addressKey]*types.KeyBind)
 }
 
 // set cache a single keyBind with token index
-func (c *strategyCache) set(token string, kb *storage.KeyBind) {
+func (c *strategyCache) set(token string, kb *types.KeyBind) {
 	c.Lock()
 	defer c.Unlock()
 	if c.cache[token] == nil {
-		c.cache[token] = make(map[addressKey]*storage.KeyBind)
+		c.cache[token] = make(map[addressKey]*types.KeyBind)
 	}
 	c.cache[token][kb.Address] = kb
 
@@ -136,7 +137,7 @@ func (c *strategyCache) removeTokens(tokens []string) {
 }
 
 // get gets a keyBind by strategy token and wallet address
-func (c *strategyCache) get(token, address string) *storage.KeyBind {
+func (c *strategyCache) get(token, address string) *types.KeyBind {
 	c.RLock()
 	defer c.RUnlock()
 	mp, exist := c.cache[token]
@@ -169,7 +170,7 @@ func (c *strategyCache) through(token, address string) bool {
 }
 
 // rmKBWithAddr deletes keyBind from the cache
-func (c *strategyCache) rmKBWithAddr(kb *storage.KeyBind) {
+func (c *strategyCache) rmKBWithAddr(kb *types.KeyBind) {
 	key := genKeyBindKey(kb)
 	tokens, ok := c.kbCache[key]
 	if !ok {
@@ -182,13 +183,13 @@ func (c *strategyCache) rmKBWithAddr(kb *storage.KeyBind) {
 }
 
 // rmKBOnly just delete keyBind in the kbCache
-func (c *strategyCache) rmKBOnly(kb *storage.KeyBind) {
+func (c *strategyCache) rmKBOnly(kb *types.KeyBind) {
 	key := genKeyBindKey(kb)
 	delete(c.kbCache, key)
 }
 
 // removeKeyBind delete keyBind from the cache
-func (c *strategyCache) removeKeyBind(kb *storage.KeyBind) {
+func (c *strategyCache) removeKeyBind(kb *types.KeyBind) {
 	c.Lock()
 	defer c.Unlock()
 	key := genKeyBindKey(kb)

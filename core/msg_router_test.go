@@ -3,6 +3,8 @@ package core
 import (
 	"encoding/hex"
 	"testing"
+
+	"github.com/filecoin-project/venus/venus-shared/types"
 )
 
 func TestGetSignBytes(t *testing.T) {
@@ -24,7 +26,7 @@ func TestGetSignBytes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("block meta decode err:%s", err)
 	}
-	_, _, err = GetSignBytes(mtblockBytes, MsgMeta{Type: MTBlock})
+	_, _, err = GetSignBytes(mtblockBytes, types.MsgMeta{Type: types.MTBlock})
 	if err != nil {
 		t.Fatal(err)
 	}

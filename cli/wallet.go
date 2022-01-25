@@ -13,8 +13,8 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/howeyc/gopass"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -128,9 +128,9 @@ var walletNew = &cli.Command{
 	Usage:     "Generate a new key of the given type",
 	ArgsUsage: "[bls|secp256k1 (default secp256k1)]",
 	Action: func(cctx *cli.Context) error {
-		t := core.KeyType(cctx.Args().First())
+		t := types.KeyType(cctx.Args().First())
 		if t == "" {
-			t = core.KTSecp256k1
+			t = types.KTSecp256k1
 		}
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
@@ -244,7 +244,7 @@ var walletImport = &cli.Command{
 			inpdata = fdata
 		}
 
-		var ki core.KeyInfo
+		var ki types.KeyInfo
 		switch cctx.String("format") {
 		case "hex-venus":
 			data, err := hex.DecodeString(strings.TrimSpace(string(inpdata)))
@@ -274,9 +274,9 @@ var walletImport = &cli.Command{
 			ki.PrivateKey = gk.PrivateKey
 			switch gk.SigType {
 			case 1:
-				ki.Type = core.KTSecp256k1
+				ki.Type = types.KTSecp256k1
 			case 2:
-				ki.Type = core.KTBLS
+				ki.Type = types.KTBLS
 			default:
 				return fmt.Errorf("unrecognized key type: %d", gk.SigType)
 			}
@@ -306,7 +306,7 @@ var walletSign = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "msg-type",
-			Value: string(core.MTUnknown),
+			Value: string(types.MTUnknown),
 		},
 		&cli.StringFlag{
 			Name: "extra",
@@ -343,8 +343,8 @@ var walletSign = &cli.Command{
 		if err := api.VerifyPassword(ctx, string(pw)); err != nil {
 			return err
 		}
-		msgMeta := core.MsgMeta{
-			Type: core.MsgType(cctx.String("msg-type")),
+		msgMeta := types.MsgMeta{
+			Type: types.MsgType(cctx.String("msg-type")),
 		}
 		if cctx.IsSet("extra") {
 			msgMeta.Extra = []byte(cctx.String("extra"))

@@ -5,29 +5,21 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/filecoin-project/venus-wallet/api/permission"
 	"sync"
 
+	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
+	"github.com/filecoin-project/venus/venus-shared/api/permission"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/google/uuid"
 )
 
-type IWalletLock interface {
-	// SetPassword do it first after program setup
-	SetPassword(ctx context.Context, password string) error
-	// unlock the wallet and enable IWallet logic
-	Unlock(ctx context.Context, password string) error
-	// lock the wallet and disable IWallet logic
-	Lock(ctx context.Context, password string) error
-	// show lock state
-	LockState(ctx context.Context) bool
-	// VerifyPassword verify that the passwords are consistent
-	VerifyPassword(ctx context.Context, password string) error
-}
+type IWalletLock = api.IWalletLock
 
 var (
 	ErrLocked          = errors.New("wallet locked")
@@ -40,7 +32,7 @@ var (
 
 var EmptyPassword []byte
 
-type DecryptFunc func(keyJson []byte, keyType core.KeyType) (crypto.PrivateKey, error)
+type DecryptFunc func(keyJson []byte, keyType types.KeyType) (crypto.PrivateKey, error)
 
 // KeyMiddleware the middleware bridging strategy and wallet
 type KeyMiddleware interface {
@@ -158,7 +150,7 @@ func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
 		return ErrPasswordEmpty
 	}
 
-	if core.WalletStrategyLevel == core.SLDisable || permission.HasPerm(ctx, permission.PermAdmin) {
+	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.AllPermissions, permission.PermAdmin) {
 		return nil
 	}
 

@@ -2,8 +2,10 @@ package crypto
 
 import (
 	"fmt"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"golang.org/x/xerrors"
 )
 
@@ -18,11 +20,11 @@ type PrivateKey interface {
 	// key address, depends on network changes
 	Address() (core.Address, error)
 	// key sign type
-	Type() core.SigType
+	Type() types.SigType
 	// key type
-	KeyType() core.KeyType
+	KeyType() types.KeyType
 	// map to keyInfo
-	ToKeyInfo() *core.KeyInfo
+	ToKeyInfo() *types.KeyInfo
 }
 
 func Verify(sig *core.Signature, addr core.Address, msg []byte) error {
@@ -33,52 +35,52 @@ func Verify(sig *core.Signature, addr core.Address, msg []byte) error {
 		return xerrors.Errorf("must resolve ID addresses before using them to verify a signature")
 	}
 	switch sig.Type {
-	case core.SigTypeSecp256k1:
+	case types.SigTypeSecp256k1:
 		return secpVerify(sig.Data, addr, msg)
-	case core.SigTypeBLS:
+	case types.SigTypeBLS:
 		return blsVerify(sig.Data, addr, msg)
 	default:
 		return xerrors.Errorf("cannot verify signature of unsupported type: %v", sig.Type)
 	}
 }
 
-func GeneratePrivateKey(st core.SigType) (PrivateKey, error) {
+func GeneratePrivateKey(st types.SigType) (PrivateKey, error) {
 	switch st {
-	case core.SigTypeSecp256k1:
+	case types.SigTypeSecp256k1:
 		return genSecpPrivateKey()
-	case core.SigTypeBLS:
+	case types.SigTypeBLS:
 		return genBlsPrivate()
 	default:
 		return nil, fmt.Errorf("invalid signature type: %d", st)
 	}
 }
-func NewKeyFromKeyInfo(ki *core.KeyInfo) (PrivateKey, error) {
+func NewKeyFromKeyInfo(ki *types.KeyInfo) (PrivateKey, error) {
 	switch ki.Type {
-	case core.KTBLS:
+	case types.KTBLS:
 		return newBlsKeyFromData(ki.PrivateKey)
-	case core.KTSecp256k1:
+	case types.KTSecp256k1:
 		return newSecpKeyFromData(ki.PrivateKey), nil
 	default:
 		return nil, fmt.Errorf("invalid key type: %s", ki.Type)
 	}
 }
 
-func NewKeyFromData2(kt core.KeyType, prv []byte) (PrivateKey, error) {
+func NewKeyFromData2(kt types.KeyType, prv []byte) (PrivateKey, error) {
 	switch kt {
-	case core.KTBLS:
+	case types.KTBLS:
 		return newBlsKeyFromData(prv)
-	case core.KTSecp256k1:
+	case types.KTSecp256k1:
 		return newSecpKeyFromData(prv), nil
 	default:
 		return nil, fmt.Errorf("invalid key type: %s", kt)
 	}
 }
 
-func NewKeyFromData(st core.SigType, prv []byte) (PrivateKey, error) {
+func NewKeyFromData(st types.SigType, prv []byte) (PrivateKey, error) {
 	switch st {
-	case core.SigTypeSecp256k1:
+	case types.SigTypeSecp256k1:
 		return newSecpKeyFromData(prv), nil
-	case core.SigTypeBLS:
+	case types.SigTypeBLS:
 		return newBlsKeyFromData(prv)
 	default:
 		return nil, fmt.Errorf("invalid signature type: %d", st)

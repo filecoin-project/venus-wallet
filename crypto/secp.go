@@ -2,9 +2,11 @@ package crypto
 
 import (
 	"fmt"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/minio/blake2b-simd"
 	"golang.org/x/xerrors"
 )
@@ -55,16 +57,16 @@ func (p *secpPrivateKey) Address() (core.Address, error) {
 	}
 	return addr, nil
 }
-func (p *secpPrivateKey) Type() core.SigType {
-	return core.SigTypeSecp256k1
+func (p *secpPrivateKey) Type() types.SigType {
+	return types.SigTypeSecp256k1
 }
-func (p *secpPrivateKey) KeyType() core.KeyType {
-	return core.KTSecp256k1
+func (p *secpPrivateKey) KeyType() types.KeyType {
+	return types.KTSecp256k1
 }
-func (p *secpPrivateKey) ToKeyInfo() *core.KeyInfo {
-	return &core.KeyInfo{
+func (p *secpPrivateKey) ToKeyInfo() *types.KeyInfo {
+	return &types.KeyInfo{
 		PrivateKey: p.Bytes(),
-		Type:       core.KTSecp256k1,
+		Type:       types.KTSecp256k1,
 	}
 }
 func secpVerify(sig []byte, a core.Address, msg []byte) error {

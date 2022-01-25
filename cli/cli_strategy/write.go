@@ -3,14 +3,15 @@ package cli_strategy
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"github.com/urfave/cli/v2"
-	"strconv"
-	"strings"
 )
 
 var strategyNewWalletToken = &cli.Command{
@@ -397,7 +398,7 @@ var strategyRemoveMsgTypeFromKeyBind = &cli.Command{
 			return err
 		}
 		var codesOut []string
-		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+		linq.From(types.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codesOut)
 		fmt.Printf("address\t: %s\n", kb.Address)
@@ -432,7 +433,7 @@ var strategyRemoveMethodIntoKeyBind = &cli.Command{
 			return err
 		}
 		var codesOut []string
-		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+		linq.From(types.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codesOut)
 		fmt.Printf("address\t: %s\n", kb.Address)
@@ -473,7 +474,7 @@ var strategyAddMsgTypeIntoKeyBind = &cli.Command{
 			return err
 		}
 		var codesOut []string
-		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+		linq.From(types.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codesOut)
 		fmt.Printf("address\t: %s\n", kb.Address)
@@ -508,7 +509,7 @@ var strategyAddMethodIntoKeyBind = &cli.Command{
 			return err
 		}
 		var codesOut []string
-		linq.From(core.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
+		linq.From(types.FindCode(kb.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codesOut)
 		fmt.Printf("address\t: %s\n", kb.Address)

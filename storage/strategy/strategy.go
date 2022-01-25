@@ -5,15 +5,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
+
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/venus-wallet/api/permission"
+	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus-wallet/node"
 	"github.com/filecoin-project/venus-wallet/storage"
+	"github.com/filecoin-project/venus/venus-shared/api/permission"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+	"github.com/filecoin-project/venus/venus-shared/types"
+	types2 "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"github.com/google/uuid"
-	"sync"
 )
 
 var (
@@ -22,81 +27,19 @@ var (
 	ErrGenerateTokenFailed = errors.New("generate token failed")
 )
 
-var _ ILocalStrategy = &strategy{}
+// NOTE: for wallet
+type IStrategyVerify = api.IStrategyVerify
 
-type IStrategy interface {
-	// NewMsgTypeTemplate create a msgType template
-	NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error
-	// NewMethodTemplate create a method template
-	NewMethodTemplate(ctx context.Context, name string, methods []string) error
-	// NewKeyBindCustom create a keyBind with custom msyTypes and methods
-	NewKeyBindCustom(ctx context.Context, name string, address core.Address, codes []int, methods []core.MethodName) error
-	// NewKeyBindFromTemplate create a keyBind form msgType template and method template
-	NewKeyBindFromTemplate(ctx context.Context, name string, address core.Address, mttName, mtName string) error
-	// NewGroup create a group to group multiple keyBinds together
-	NewGroup(ctx context.Context, name string, keyBindNames []string) error
-	// NewStToken generate a random token from group
-	NewStToken(ctx context.Context, groupName string) (token string, err error)
-	// GetMsgTypeTemplate get a msgType template by name
-	GetMsgTypeTemplate(ctx context.Context, name string) (*storage.MsgTypeTemplate, error)
-	// GetMethodTemplateByName get a method template by name
-	GetMethodTemplateByName(ctx context.Context, name string) (*storage.MethodTemplate, error)
-	// GetKeyBindByName get a keyBind by name
-	GetKeyBindByName(ctx context.Context, name string) (*storage.KeyBind, error)
-	// GetKeyBinds list keyBinds by address
-	GetKeyBinds(ctx context.Context, address core.Address) ([]*storage.KeyBind, error)
-	// GetGroupByName get a group by name
-	GetGroupByName(ctx context.Context, name string) (*storage.Group, error)
-	// GetWalletTokensByGroup list strategy tokens under the group
-	GetWalletTokensByGroup(ctx context.Context, groupName string) ([]string, error)
-	// GetWalletTokenInfo get group details by token
-	GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error)
-	// ListGroups list groups' simple information
-	ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error)
-	// ListKeyBinds list keyBinds' details
-	ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error)
-	// ListMethodTemplates list method templates' details
-	ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error)
-	// ListMsgTypeTemplates list msgType templates' details
-	ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error)
+type IStrategy = api.IStrategy
 
-	// AddMsgTypeIntoKeyBind append msgTypes into keyBind
-	AddMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)
-	// AddMethodIntoKeyBind append methods into keyBind
-	AddMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error)
-	// RemoveMsgTypeFromKeyBind remove msgTypes form keyBind
-	RemoveMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error)
-	// RemoveMethodFromKeyBind remove methods from keyBind
-	RemoveMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error)
-
-	// RemoveMsgTypeTemplate delete msgType template by name
-	RemoveMsgTypeTemplate(ctx context.Context, name string) error
-	// RemoveGroup delete group by name
-	RemoveGroup(ctx context.Context, name string) error
-	// RemoveMethodTemplate delete method template by name
-	RemoveMethodTemplate(ctx context.Context, name string) error
-	// RemoveKeyBind delete keyBind by name
-	RemoveKeyBind(ctx context.Context, name string) error
-	// RemoveKeyBindByAddress delete some keyBinds by address
-	RemoveKeyBindByAddress(ctx context.Context, address core.Address) (int64, error)
-	// RemoveStToken delete strategy token
-	RemoveStToken(ctx context.Context, token string) error
-}
 type ILocalStrategy interface {
 	IStrategyVerify
 	IStrategy
 }
-type VerifyFunc func(token string, address core.Address, enum core.MsgEnum, method core.MethodName) error
 
-// NOTE: for wallet
-type IStrategyVerify interface {
-	// Verify verify the address strategy permissions
-	Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error
-	// ScopeWallet get the wallet scope
-	ScopeWallet(ctx context.Context) (*core.AddressScope, error)
-	// ContainWallet Check if it is visible to the wallet
-	ContainWallet(ctx context.Context, address core.Address) bool
-}
+var _ ILocalStrategy = &strategy{}
+
+type VerifyFunc func(token string, address core.Address, enum types2.MsgEnum, method types2.MethodName) error
 
 // TODO: add Cache
 type strategy struct {
@@ -107,7 +50,7 @@ type strategy struct {
 	sync.RWMutex
 }
 
-func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient, mw storage.KeyMiddleware) ILocalStrategy {
+func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient, mw storage.KeyMiddleware) api.ILocalStrategy {
 	return &strategy{
 		store:   store,
 		nodeCli: nodeCli,
@@ -116,21 +59,21 @@ func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient, mw stora
 	}
 }
 func (s *strategy) NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error {
-	enum, err := core.AggregateMsgEnumCode(codes)
+	enum, err := types2.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return err
 	}
-	return s.store.PutMsgTypeTemplate(&storage.MsgTypeTemplate{
+	return s.store.PutMsgTypeTemplate(&types2.MsgTypeTemplate{
 		Name:      name,
 		MetaTypes: enum,
 	})
 }
 
-func (s *strategy) GetMsgTypeTemplate(ctx context.Context, name string) (*storage.MsgTypeTemplate, error) {
+func (s *strategy) GetMsgTypeTemplate(ctx context.Context, name string) (*types2.MsgTypeTemplate, error) {
 	return s.store.GetMsgTypeTemplateByName(name)
 }
 
-func (s *strategy) ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) {
+func (s *strategy) ListMsgTypeTemplates(ctx context.Context, fromIndex, toIndex int) ([]*types2.MsgTypeTemplate, error) {
 	return s.store.ListMsgTypeTemplates(fromIndex, toIndex)
 }
 
@@ -143,17 +86,17 @@ func (s *strategy) RemoveMsgTypeTemplate(ctx context.Context, name string) error
 }
 
 func (s *strategy) NewMethodTemplate(ctx context.Context, name string, methods []string) error {
-	return s.store.PutMethodTemplate(&storage.MethodTemplate{
+	return s.store.PutMethodTemplate(&types2.MethodTemplate{
 		Name:    name,
 		Methods: methods,
 	})
 }
 
-func (s *strategy) GetMethodTemplateByName(ctx context.Context, name string) (*storage.MethodTemplate, error) {
+func (s *strategy) GetMethodTemplateByName(ctx context.Context, name string) (*types2.MethodTemplate, error) {
 	return s.store.GetMethodTemplateByName(name)
 }
 
-func (s *strategy) ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*storage.MethodTemplate, error) {
+func (s *strategy) ListMethodTemplates(ctx context.Context, fromIndex, toIndex int) ([]*types2.MethodTemplate, error) {
 	return s.store.ListMethodTemplates(fromIndex, toIndex)
 }
 
@@ -165,8 +108,8 @@ func (s *strategy) RemoveMethodTemplate(ctx context.Context, name string) error 
 	return s.store.DeleteMethodTemplate(m.MTId)
 }
 
-func (s *strategy) NewKeyBindCustom(ctx context.Context, name string, address core.Address, codes []int, methods []core.MethodName) error {
-	em, err := core.AggregateMsgEnumCode(codes)
+func (s *strategy) NewKeyBindCustom(ctx context.Context, name string, address core.Address, codes []int, methods []types2.MethodName) error {
+	em, err := types2.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return err
 	}
@@ -174,7 +117,7 @@ func (s *strategy) NewKeyBindCustom(ctx context.Context, name string, address co
 	if err != nil {
 		return err
 	}
-	kb := &storage.KeyBind{
+	kb := &types2.KeyBind{
 		Name:      name,
 		Address:   address.String(),
 		MetaTypes: em,
@@ -196,7 +139,7 @@ func (s *strategy) NewKeyBindFromTemplate(ctx context.Context, name string, addr
 	if err != nil {
 		return fmt.Errorf("find msg method template failed:%s", err)
 	}
-	kb := &storage.KeyBind{
+	kb := &types2.KeyBind{
 		Name:      name,
 		Address:   address.String(),
 		MetaTypes: mtt.MetaTypes,
@@ -208,15 +151,15 @@ func (s *strategy) NewKeyBindFromTemplate(ctx context.Context, name string, addr
 	}
 	return nil
 }
-func (s *strategy) GetKeyBindByName(ctx context.Context, name string) (*storage.KeyBind, error) {
+func (s *strategy) GetKeyBindByName(ctx context.Context, name string) (*types2.KeyBind, error) {
 	return s.store.GetKeyBindByName(name)
 }
 
-func (s *strategy) GetKeyBinds(ctx context.Context, address core.Address) ([]*storage.KeyBind, error) {
+func (s *strategy) GetKeyBinds(ctx context.Context, address core.Address) ([]*types2.KeyBind, error) {
 	return s.store.GetKeyBinds(address.String())
 }
 
-func (s *strategy) ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*storage.KeyBind, error) {
+func (s *strategy) ListKeyBinds(ctx context.Context, fromIndex, toIndex int) ([]*types2.KeyBind, error) {
 	return s.store.ListKeyBinds(fromIndex, toIndex)
 }
 
@@ -227,7 +170,7 @@ func (s *strategy) RemoveKeyBind(ctx context.Context, name string) error {
 	if err != nil {
 		return err
 	}
-	err = s.store.DeleteKeyBind(kb.BindId)
+	err = s.store.DeleteKeyBind(kb.BindID)
 	if err != nil {
 		s.scache.removeKeyBind(kb)
 	}
@@ -244,10 +187,10 @@ func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, addr core.Address
 	return num, nil
 }
 
-func (s *strategy) AddMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+func (s *strategy) AddMsgTypeIntoKeyBind(ctx context.Context, name string, codes []int) (*types2.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
-	em, err := core.AggregateMsgEnumCode(codes)
+	em, err := types2.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +211,7 @@ func (s *strategy) AddMsgTypeIntoKeyBind(ctx context.Context, name string, codes
 	return kb, nil
 }
 
-func (s *strategy) AddMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+func (s *strategy) AddMethodIntoKeyBind(ctx context.Context, name string, methods []string) (*types2.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
 	em, err := core.AggregateMethodNames(methods)
@@ -292,10 +235,10 @@ func (s *strategy) AddMethodIntoKeyBind(ctx context.Context, name string, method
 	return kb, nil
 }
 
-func (s *strategy) RemoveMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*storage.KeyBind, error) {
+func (s *strategy) RemoveMsgTypeFromKeyBind(ctx context.Context, name string, codes []int) (*types2.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
-	em, err := core.AggregateMsgEnumCode(codes)
+	em, err := types2.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +259,7 @@ func (s *strategy) RemoveMsgTypeFromKeyBind(ctx context.Context, name string, co
 	return kb, nil
 }
 
-func (s *strategy) RemoveMethodFromKeyBind(ctx context.Context, name string, methods []string) (*storage.KeyBind, error) {
+func (s *strategy) RemoveMethodFromKeyBind(ctx context.Context, name string, methods []string) (*types2.KeyBind, error) {
 	s.Lock()
 	defer s.Unlock()
 	em, err := core.AggregateMethodNames(methods)
@@ -352,7 +295,7 @@ func (s *strategy) NewGroup(ctx context.Context, name string, keyBindNames []str
 	if len(kbs) < len(keyBindNames) {
 		var names []string
 		linq.From(keyBindNames).Except(
-			linq.From(kbs).SelectT(func(o *storage.KeyBind) string {
+			linq.From(kbs).SelectT(func(o *types2.KeyBind) string {
 				return o.Name
 			})).ToSlice(&names)
 		buf := new(bytes.Buffer)
@@ -363,18 +306,18 @@ func (s *strategy) NewGroup(ctx context.Context, name string, keyBindNames []str
 		return fmt.Errorf("keybind name not exists:%s", buf.String())
 	}
 	var kbIds []uint
-	linq.From(kbs).SelectT(func(o *storage.KeyBind) uint {
-		return o.BindId
+	linq.From(kbs).SelectT(func(o *types2.KeyBind) uint {
+		return o.BindID
 	}).ToSlice(&kbIds)
 
 	return s.store.PutGroup(name, kbIds)
 }
 
-func (s *strategy) GetGroupByName(ctx context.Context, name string) (*storage.Group, error) {
+func (s *strategy) GetGroupByName(ctx context.Context, name string) (*types2.Group, error) {
 	return s.store.GetGroupByName(name)
 }
 
-func (s *strategy) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*storage.Group, error) {
+func (s *strategy) ListGroups(ctx context.Context, fromIndex, toIndex int) ([]*types2.Group, error) {
 	return s.store.ListGroups(fromIndex, toIndex)
 }
 
@@ -385,9 +328,9 @@ func (s *strategy) RemoveGroup(ctx context.Context, name string) error {
 	if err != nil {
 		return err
 	}
-	err = s.store.DeleteGroup(g.GroupId)
+	err = s.store.DeleteGroup(g.GroupID)
 	if err != nil {
-		tokens, err := s.store.GetTokensByGroupId(g.GroupId)
+		tokens, err := s.store.GetTokensByGroupId(g.GroupID)
 		if err == nil {
 			s.scache.removeTokens(tokens)
 		}
@@ -422,7 +365,7 @@ func (s *strategy) NewStToken(ctx context.Context, groupName string) (token stri
 		return core.StringEmpty, ErrGenToken
 	}
 	token = tk.String()
-	err = s.store.PutGroupAuth(token, g.GroupId)
+	err = s.store.PutGroupAuth(token, g.GroupID)
 	if err != nil {
 		return core.StringEmpty, err
 	}
@@ -437,28 +380,28 @@ func (s *strategy) GetWalletTokensByGroup(ctx context.Context, groupName string)
 	if err != nil {
 		return nil, err
 	}
-	tokens, err := s.store.GetTokensByGroupId(g.GroupId)
+	tokens, err := s.store.GetTokensByGroupId(g.GroupID)
 	if err != nil {
 		return nil, err
 	}
 	return tokens, nil
 }
 
-func (s *strategy) GetWalletTokenInfo(ctx context.Context, token string) (*storage.GroupAuth, error) {
+func (s *strategy) GetWalletTokenInfo(ctx context.Context, token string) (*types2.GroupAuth, error) {
 	return s.store.GetGroupAuth(token)
 }
 
 // NOTE: for wallet
-func (s *strategy) Verify(ctx context.Context, address core.Address, msgType core.MsgType, msg *core.Message) error {
+func (s *strategy) Verify(ctx context.Context, address core.Address, msgType types.MsgType, msg *types.Message) error {
 	s.RLock()
 	defer s.RUnlock()
-	if core.WalletStrategyLevel == core.SLDisable || permission.HasPerm(ctx, permission.PermAdmin) {
+	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.DefaultPerms, permission.PermAdmin) {
 		return nil
 	}
 	token := core.ContextStrategyToken(ctx)
 	var (
 		err error
-		kb  *storage.KeyBind
+		kb  *types2.KeyBind
 	)
 	addrStr := address.String()
 	// cache
@@ -480,7 +423,7 @@ Verify:
 	if !kb.ContainMsgType(msgType) {
 		return fmt.Errorf("%s: msgType %s", ErrIllegalMetaType, msgType)
 	}
-	if core.WalletStrategyLevel == core.SLMethod && msgType == core.MTChainMsg {
+	if core.WalletStrategyLevel == core.SLMethod && msgType == types.MTChainMsg {
 		if msg.Method == 0 {
 			if !linq.From(kb.Methods).Contains("Send") {
 				return fmt.Errorf("%s: method %s", ErrIllegalMetaType, "Send")
@@ -507,28 +450,28 @@ Verify:
 // level: 0  all pass
 // level: 1  check token
 // level: 2  check token
-func (s *strategy) ScopeWallet(ctx context.Context) (*core.AddressScope, error) {
+func (s *strategy) ScopeWallet(ctx context.Context) (*types2.AddressScope, error) {
 	// strategy disable or admin token, root view
-	if core.WalletStrategyLevel == core.SLDisable || permission.HasPerm(ctx, permission.PermAdmin) {
-		return &core.AddressScope{Root: true}, nil
+	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.DefaultPerms, permission.PermAdmin) {
+		return &types2.AddressScope{Root: true}, nil
 	}
 	stToken := core.ContextStrategyToken(ctx)
 	err := s.mw.EqualRootToken(stToken)
 	if err == nil {
-		return &core.AddressScope{Root: true}, nil
+		return &types2.AddressScope{Root: true}, nil
 	}
 	//TODO: Rich Domain Mode, need replace
 
 	kb, err := s.store.GetGroupAuth(stToken)
 	if err != nil {
-		return &core.AddressScope{Root: false}, err
+		return &types2.AddressScope{Root: false}, err
 	}
 	var addresses []core.Address
-	linq.From(kb.KeyBinds).SelectT(func(i *storage.KeyBind) core.Address {
+	linq.From(kb.KeyBinds).SelectT(func(i *types2.KeyBind) core.Address {
 		addr, _ := address.NewFromString(i.Address)
 		return addr
 	}).ToSlice(&addresses)
-	return &core.AddressScope{Root: false, Addresses: addresses}, nil
+	return &types2.AddressScope{Root: false, Addresses: addresses}, nil
 }
 
 // level: 0  all pass
@@ -536,7 +479,7 @@ func (s *strategy) ScopeWallet(ctx context.Context) (*core.AddressScope, error) 
 // level: 2  check token
 func (s *strategy) ContainWallet(ctx context.Context, address core.Address) bool {
 	// strategy disable, root view
-	if core.WalletStrategyLevel == core.SLDisable || permission.HasPerm(ctx, permission.PermAdmin) {
+	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.DefaultPerms, permission.PermAdmin) {
 		return true
 	}
 	token := core.ContextStrategyToken(ctx)
