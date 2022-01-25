@@ -7,6 +7,8 @@ import (
 
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/asaskevich/EventBus"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	logging "github.com/ipfs/go-log/v2"
 	"golang.org/x/xerrors"
 
@@ -25,16 +27,7 @@ type ILocalWallet interface {
 	storage.IWalletLock
 }
 
-// IWallet remote wallet api
-type IWallet interface {
-	WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error)
-	WalletHas(ctx context.Context, address core.Address) (bool, error)
-	WalletList(ctx context.Context) ([]core.Address, error)
-	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
-	WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error)
-	WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error)
-	WalletDelete(ctx context.Context, addr core.Address) error
-}
+type IWallet = api.IWallet
 
 type GetPwdFunc func() string
 
@@ -109,7 +102,7 @@ func (w *wallet) LockState(ctx context.Context) bool {
 	return w.mw.LockState(ctx)
 }
 
-func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, error) {
+func (w *wallet) WalletNew(ctx context.Context, kt types.KeyType) (core.Address, error) {
 	if err := w.mw.Next(); err != nil {
 		return core.NilAddress, err
 	}
@@ -117,7 +110,7 @@ func (w *wallet) WalletNew(ctx context.Context, kt core.KeyType) (core.Address, 
 	if err != nil {
 		return core.NilAddress, err
 	}
-	prv, err := crypto.GeneratePrivateKey(core.KeyType2Sign(kt))
+	prv, err := crypto.GeneratePrivateKey(types.KeyType2Sign(kt))
 	if err != nil {
 		return core.NilAddress, err
 	}
@@ -165,7 +158,7 @@ func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
 	return addrs, nil
 }
 
-func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error) {
+func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types.MsgMeta) (*core.Signature, error) {
 	fmt.Println(signer.String())
 	if err := w.mw.Next(); err != nil {
 		return nil, err
@@ -175,18 +168,18 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		data  []byte
 	)
 	// Do not validate strategy
-	if meta.Type == core.MTVerifyAddress {
+	if meta.Type == types.MTVerifyAddress {
 		_, toSign, err := core.GetSignBytes(toSign, meta)
 		if err != nil {
 			return nil, xerrors.Errorf("get sign bytes failed: %v", err)
 		}
 		owner = signer
 		data = toSign
-	} else if meta.Type == core.MTChainMsg {
+	} else if meta.Type == types.MTChainMsg {
 		if len(meta.Extra) == 0 {
 			return nil, xerrors.New("msg type must contain extra data")
 		}
-		msg, err := core.DecodeMessage(meta.Extra)
+		msg, err := types.DecodeMessage(meta.Extra)
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +217,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 	return prvKey.Sign(data)
 }
 
-func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.KeyInfo, error) {
+func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*types.KeyInfo, error) {
 	if err := w.mw.Next(); err != nil {
 		return nil, err
 	}
@@ -242,7 +235,7 @@ func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*core.Key
 	return pkey.ToKeyInfo(), nil
 }
 
-func (w *wallet) WalletImport(ctx context.Context, ki *core.KeyInfo) (core.Address, error) {
+func (w *wallet) WalletImport(ctx context.Context, ki *types.KeyInfo) (core.Address, error) {
 	if err := w.mw.Next(); err != nil {
 		return core.NilAddress, err
 	}

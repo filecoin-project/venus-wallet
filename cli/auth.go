@@ -2,8 +2,9 @@ package cli
 
 import (
 	"fmt"
-	"github.com/filecoin-project/venus-wallet/api/permission"
+
 	"github.com/filecoin-project/venus-wallet/cli/helper"
+	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 )

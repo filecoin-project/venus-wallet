@@ -15,13 +15,14 @@ import (
 
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
+	types2 "github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/ipfs-force-community/venus-gateway/types"
 	"github.com/ipfs-force-community/venus-gateway/walletevent"
 )
 
 type ShimWallet interface {
 	WalletList(ctx context.Context) ([]core.Address, error)
-	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
+	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types2.MsgMeta) (*core.Signature, error)
 }
 
 var log = logging.Logger("wallet_event")
@@ -34,7 +35,7 @@ type IAPIRegisterHub interface {
 
 type IWalletProcess interface {
 	WalletList(ctx context.Context) ([]core.Address, error)
-	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta core.MsgMeta) (*core.Signature, error)
+	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types2.MsgMeta) (*core.Signature, error)
 }
 
 type APIRegisterHub struct {
@@ -237,7 +238,7 @@ func (e *WalletEvent) walletSign(ctx context.Context, event *types.RequestEvent)
 		return
 	}
 	log.Debug("start WalletSign")
-	sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, core.MsgMeta{Type: core.MsgType(req.Meta.Type), Extra: req.Meta.Extra})
+	sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, types2.MsgMeta{Type: req.Meta.Type, Extra: req.Meta.Extra})
 	if err != nil {
 		e.log.Errorf("WalletSign error %s", err)
 		e.error(ctx, event.Id, err)

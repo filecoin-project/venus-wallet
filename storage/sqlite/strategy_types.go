@@ -2,8 +2,9 @@ package sqlite
 
 import (
 	"database/sql"
-	"github.com/filecoin-project/venus-wallet/core"
 	"time"
+
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 )
 
 // GroupAuth relation with Group and generate a token for external invocation
@@ -26,7 +27,7 @@ type KeyBind struct {
 	Name    string `gorm:"unique;type:varchar(32);column:name;not null"`
 	Address string `gorm:"index;type:varchar(255);column:address;not null"`
 	// source from MsgTypeTemplate or temporary create
-	MetaTypes core.MsgEnum `gorm:"type:int;column:meta_types;not null"`
+	MetaTypes types.MsgEnum `gorm:"type:int;column:meta_types;not null"`
 	// source from MethodTemplate
 	MethodNames string `gorm:"type:text;column:methods;not null"`
 	CreatedAt   time.Time
@@ -61,9 +62,9 @@ type MethodTemplate struct {
 // MsgTypeTemplate to quickly create a private key usage strategy
 // NOTE: routeType 5
 type MsgTypeTemplate struct {
-	MTTId     uint         `gorm:"primaryKey;type:int;column:id;not null"`
-	Name      string       `gorm:"unique;type:varchar(36);column:name;not null"`
-	MetaTypes core.MsgEnum `gorm:"type:int;column:meta_types;not null"`
+	MTTId     uint          `gorm:"primaryKey;type:int;column:id;not null"`
+	Name      string        `gorm:"unique;type:varchar(36);column:name;not null"`
+	MetaTypes types.MsgEnum `gorm:"type:int;column:meta_types;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt sql.NullTime `gorm:"index"`

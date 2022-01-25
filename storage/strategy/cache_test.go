@@ -1,9 +1,10 @@
 package strategy
 
 import (
-	"github.com/filecoin-project/venus-wallet/storage"
-	"gotest.tools/assert"
 	"testing"
+
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
+	"gotest.tools/assert"
 )
 
 func TestCacheFlow(t *testing.T) {
@@ -13,7 +14,7 @@ func TestCacheFlow(t *testing.T) {
 
 	addr2 := "address2"
 
-	kb1 := &storage.KeyBind{
+	kb1 := &types.KeyBind{
 		Name:    "kb1",
 		Address: addr1,
 	}
@@ -26,7 +27,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk1   	addr1  	kb1
 
 	tk2 := "token2"
-	kb2 := &storage.KeyBind{
+	kb2 := &types.KeyBind{
 		Name:    "kb2",
 		Address: addr1,
 	}
@@ -40,7 +41,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk2		addr1	kb2
 
 	tk3 := "token3"
-	kb3 := &storage.KeyBind{
+	kb3 := &types.KeyBind{
 		Name:    "kb3",
 		Address: addr2,
 	}
@@ -61,7 +62,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk2		addr1	kb2
 	// tk3 		addr2	kb3
 
-	kb5 := &storage.KeyBind{
+	kb5 := &types.KeyBind{
 		Name:    "kb5",
 		Address: addr2,
 	}
@@ -102,7 +103,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk3 		addr2	kb3  x
 	// tk1		addr2	kb5  x
 
-	kb6 := &storage.KeyBind{
+	kb6 := &types.KeyBind{
 		Name:    "kb6",
 		Address: addr2,
 	}
@@ -133,7 +134,7 @@ func TestCacheFlow(t *testing.T) {
 
 func KeyBinds(cache StrategyCache, t *testing.T) {
 	addr := "addra"
-	kbA := &storage.KeyBind{
+	kbA := &types.KeyBind{
 		Name:    "kb5",
 		Address: addr,
 	}

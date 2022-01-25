@@ -1,19 +1,20 @@
 package sqlite
 
 import (
-	"github.com/filecoin-project/venus-wallet/core"
-	"github.com/filecoin-project/venus-wallet/storage"
-	"github.com/google/uuid"
-	"gotest.tools/assert"
 	"math/rand"
 	"strconv"
 	"testing"
+
+	"github.com/filecoin-project/venus-wallet/core"
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
+	"github.com/google/uuid"
+	"gotest.tools/assert"
 )
 
 func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	mockName := "mockTest"
 	// MsgTypeTemplate test
-	mtt := &storage.MsgTypeTemplate{
+	mtt := &types.MsgTypeTemplate{
 		Name:      mockName,
 		MetaTypes: 127,
 	}
@@ -41,7 +42,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	// MethodTemplate test
 	mtCount := 10
 	source := core.MethodNameList
-	mtArrByName := make([]*storage.MethodTemplate, 0)
+	mtArrByName := make([]*types.MethodTemplate, 0)
 	//random name
 	for i := 0; i < mtCount; i++ {
 		var methodNames []string
@@ -51,7 +52,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		}
 		methodNames = Unique(methodNames)
 		mockNameI := mockName + strconv.Itoa(i)
-		mt := &storage.MethodTemplate{
+		mt := &types.MethodTemplate{
 			Name:    mockNameI,
 			Methods: methodNames,
 		}
@@ -78,7 +79,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	assert.DeepEqual(t, mtArr, mtArrByName)
 
 	// keyBind test
-	kbArrByName := make([]*storage.KeyBind, 0)
+	kbArrByName := make([]*types.KeyBind, 0)
 	mockAddress := "f3vnzhpj6xftqubkp2klnce37jpyndwurj4eyoqs7sx3weegth5joxmphtos4ni6tuxmidc2nj55ygag33qesq"
 	for i := 0; i < mtCount; i++ {
 		var methodNames []string
@@ -88,8 +89,8 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		}
 		methodNames = Unique(methodNames)
 		mockNameI := mockName + strconv.Itoa(i)
-		metaTypes := core.MsgEnum(rand.Intn(30))
-		kb := &storage.KeyBind{
+		metaTypes := types.MsgEnum(rand.Intn(30))
+		kb := &types.KeyBind{
 			Name:      mockNameI,
 			MetaTypes: metaTypes,
 			Address:   mockAddress,
@@ -110,7 +111,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		t.Fatalf("GetKeyBinds err:%s", err)
 	}
 	assert.Equal(t, len(kbArrByAddress), mtCount)
-	kbById, err := mockRouterStore.GetKeyBindById(kbArrByAddress[0].BindId)
+	kbById, err := mockRouterStore.GetKeyBindById(kbArrByAddress[0].BindID)
 	if err != nil {
 		t.Fatalf("GetKeyBindById err:%s", err)
 	}
@@ -124,7 +125,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 
 	// Group Test
 	mockGroupName := "mockGroup"
-	err = mockRouterStore.PutGroup(mockGroupName, []uint{kbById.BindId})
+	err = mockRouterStore.PutGroup(mockGroupName, []uint{kbById.BindID})
 	if err != nil {
 		t.Fatalf("PutGroup err:%s", err)
 	}
@@ -132,7 +133,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetGroupByName err:%s", err)
 	}
-	groupById, err := mockRouterStore.GetGroup(groupByName.GroupId)
+	groupById, err := mockRouterStore.GetGroup(groupByName.GroupID)
 	if err != nil {
 		t.Fatalf("GetGroup err:%s", err)
 	}
@@ -140,7 +141,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 
 	// groupAuth
 	token := uuid.New().String()
-	err = mockRouterStore.PutGroupAuth(token, groupById.GroupId)
+	err = mockRouterStore.PutGroupAuth(token, groupById.GroupID)
 	if err != nil {
 		t.Fatalf("PutGroupAuth err:%s", err)
 	}
@@ -168,7 +169,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 		if k*2 >= mtCount {
 			break
 		}
-		err = mockRouterStore.DeleteKeyBind(v.BindId)
+		err = mockRouterStore.DeleteKeyBind(v.BindID)
 		if err != nil {
 			t.Fatalf("The serial number：%d DeleteKeyBind err:%s", k, err)
 		}
@@ -179,7 +180,7 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	}
 	assert.Equal(t, delCount, int64(mtCount/2))
 
-	err = mockRouterStore.DeleteGroup(groupById.GroupId)
+	err = mockRouterStore.DeleteGroup(groupById.GroupID)
 	if err != nil {
 		t.Fatalf("DeleteKeyBindsByAddress err:%s", err)
 	}

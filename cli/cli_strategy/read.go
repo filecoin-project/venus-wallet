@@ -2,14 +2,16 @@ package cli_strategy
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/errcode"
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"github.com/urfave/cli/v2"
-	"strconv"
-	"strings"
 )
 
 var strategyTypeList = &cli.Command{
@@ -17,7 +19,7 @@ var strategyTypeList = &cli.Command{
 	Usage: "show all msgTypes",
 	Action: func(cctx *cli.Context) error {
 		fmt.Println("code\ttype")
-		for _, v := range core.MsgEnumPool {
+		for _, v := range types.MsgEnumPool {
 			fmt.Printf("%d\t%s\n", v.Code, v.Name)
 		}
 		return nil
@@ -56,7 +58,7 @@ var strategyGetMsgTypeTemplate = &cli.Command{
 			return err
 		}
 		var codes []string
-		linq.From(core.FindCode(tmp.MetaTypes)).SelectT(func(i int) string {
+		linq.From(types.FindCode(tmp.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codes)
 		fmt.Println(strings.Join(codes, ","))
@@ -112,7 +114,7 @@ var strategyGetKeyBindByName = &cli.Command{
 			return err
 		}
 		var codes []string
-		linq.From(core.FindCode(tmp.MetaTypes)).SelectT(func(i int) string {
+		linq.From(types.FindCode(tmp.MetaTypes)).SelectT(func(i int) string {
 			return strconv.FormatInt(int64(i), 10)
 		}).ToSlice(&codes)
 		fmt.Printf("address\t: %s\n", tmp.Address)
@@ -149,7 +151,7 @@ var strategyGetKeyBinds = &cli.Command{
 		}
 		for k, v := range arr {
 			var codes []string
-			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
+			linq.From(types.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)
@@ -185,7 +187,7 @@ var strategyGetGroupByName = &cli.Command{
 		}
 		for k, v := range group.KeyBinds {
 			var codes []string
-			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
+			linq.From(types.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)
@@ -286,7 +288,7 @@ var strategyTokenInfo = &cli.Command{
 		fmt.Println("keyBinds:")
 		for k, v := range ti.KeyBinds {
 			var codes []string
-			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
+			linq.From(types.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
 			fmt.Printf("\tnum\t: %d\n", k+1)
@@ -327,7 +329,7 @@ var strategyListKeyBinds = &cli.Command{
 		}
 		for k, v := range arr {
 			var codes []string
-			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
+			linq.From(types.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)
@@ -402,7 +404,7 @@ var strategyListMsgTypeTemplates = &cli.Command{
 		}
 		for k, v := range arr {
 			var codes []string
-			linq.From(core.FindCode(v.MetaTypes)).SelectT(func(i int) string {
+			linq.From(types.FindCode(v.MetaTypes)).SelectT(func(i int) string {
 				return strconv.FormatInt(int64(i), 10)
 			}).ToSlice(&codes)
 			fmt.Printf("num\t: %d\n", k+1)

@@ -1,26 +1,27 @@
 package sqlite
 
 import (
-	"github.com/filecoin-project/venus-wallet/storage"
 	"strings"
+
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 )
 
 type iStrategyMapper interface {
-	toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) *MsgTypeTemplate
-	toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage.MsgTypeTemplate
-	toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*storage.MsgTypeTemplate
+	toInnerMsgTypeTemplate(outer *types.MsgTypeTemplate) *MsgTypeTemplate
+	toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *types.MsgTypeTemplate
+	toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*types.MsgTypeTemplate
 
-	toInnerMethodTemplate(outer *storage.MethodTemplate) *MethodTemplate
-	toInnerMethodTemplates(outers []*storage.MethodTemplate) []*MethodTemplate
-	toOuterMethodTemplate(inner *MethodTemplate) *storage.MethodTemplate
-	toOuterMethodTemplates(inner []*MethodTemplate) []*storage.MethodTemplate
+	toInnerMethodTemplate(outer *types.MethodTemplate) *MethodTemplate
+	toInnerMethodTemplates(outers []*types.MethodTemplate) []*MethodTemplate
+	toOuterMethodTemplate(inner *MethodTemplate) *types.MethodTemplate
+	toOuterMethodTemplates(inner []*MethodTemplate) []*types.MethodTemplate
 
-	toInnerKeyBind(outer *storage.KeyBind) *KeyBind
-	toOuterKeyBind(inner *KeyBind) *storage.KeyBind
-	toOuterKeyBinds(inner []*KeyBind) []*storage.KeyBind
+	toInnerKeyBind(outer *types.KeyBind) *KeyBind
+	toOuterKeyBind(inner *KeyBind) *types.KeyBind
+	toOuterKeyBinds(inner []*KeyBind) []*types.KeyBind
 
-	toOuterGroup(inner *Group, kbs []*KeyBind) *storage.Group
-	toOuterGroups(inner []*Group) []*storage.Group
+	toOuterGroup(inner *Group, kbs []*KeyBind) *types.Group
+	toOuterGroups(inner []*Group) []*types.Group
 }
 
 const splitChar = ","
@@ -32,7 +33,7 @@ func newRouterMapper() iStrategyMapper {
 	return &strategyMapper{}
 }
 
-func (m *strategyMapper) toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) *MsgTypeTemplate {
+func (m *strategyMapper) toInnerMsgTypeTemplate(outer *types.MsgTypeTemplate) *MsgTypeTemplate {
 	if outer == nil {
 		return nil
 	}
@@ -44,11 +45,11 @@ func (m *strategyMapper) toInnerMsgTypeTemplate(outer *storage.MsgTypeTemplate) 
 	return res
 }
 
-func (m *strategyMapper) toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage.MsgTypeTemplate {
+func (m *strategyMapper) toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *types.MsgTypeTemplate {
 	if inner == nil {
 		return nil
 	}
-	res := &storage.MsgTypeTemplate{
+	res := &types.MsgTypeTemplate{
 		MTTId:     inner.MTTId,
 		Name:      inner.Name,
 		MetaTypes: inner.MetaTypes,
@@ -56,15 +57,15 @@ func (m *strategyMapper) toOuterMsgTypeTemplate(inner *MsgTypeTemplate) *storage
 	return res
 }
 
-func (m *strategyMapper) toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*storage.MsgTypeTemplate {
-	res := make([]*storage.MsgTypeTemplate, 0, len(inners))
+func (m *strategyMapper) toOuterMsgTypeTemplates(inners []*MsgTypeTemplate) []*types.MsgTypeTemplate {
+	res := make([]*types.MsgTypeTemplate, 0, len(inners))
 	for _, v := range inners {
 		res = append(res, m.toOuterMsgTypeTemplate(v))
 	}
 	return res
 }
 
-func (m *strategyMapper) toInnerMethodTemplate(outer *storage.MethodTemplate) *MethodTemplate {
+func (m *strategyMapper) toInnerMethodTemplate(outer *types.MethodTemplate) *MethodTemplate {
 	if outer == nil {
 		return nil
 	}
@@ -76,7 +77,7 @@ func (m *strategyMapper) toInnerMethodTemplate(outer *storage.MethodTemplate) *M
 	}
 }
 
-func (m *strategyMapper) toInnerMethodTemplates(outers []*storage.MethodTemplate) []*MethodTemplate {
+func (m *strategyMapper) toInnerMethodTemplates(outers []*types.MethodTemplate) []*MethodTemplate {
 	res := make([]*MethodTemplate, 0, len(outers))
 	for _, v := range outers {
 		res = append(res, m.toInnerMethodTemplate(v))
@@ -84,30 +85,31 @@ func (m *strategyMapper) toInnerMethodTemplates(outers []*storage.MethodTemplate
 	return res
 }
 
-func (m *strategyMapper) toOuterMethodTemplate(inner *MethodTemplate) *storage.MethodTemplate {
+func (m *strategyMapper) toOuterMethodTemplate(inner *MethodTemplate) *types.MethodTemplate {
 	if inner == nil {
 		return nil
 	}
-	return &storage.MethodTemplate{
+	return &types.MethodTemplate{
 		MTId:    inner.MTId,
 		Name:    inner.Name,
 		Methods: strings.Split(inner.Methods, splitChar),
 	}
 }
-func (m *strategyMapper) toOuterMethodTemplates(inner []*MethodTemplate) []*storage.MethodTemplate {
-	res := make([]*storage.MethodTemplate, 0, len(inner))
+func (m *strategyMapper) toOuterMethodTemplates(inner []*MethodTemplate) []*types.MethodTemplate {
+	res := make([]*types.MethodTemplate, 0, len(inner))
 	for _, v := range inner {
 		res = append(res, m.toOuterMethodTemplate(v))
 	}
 	return res
 }
 
-func (m *strategyMapper) toInnerKeyBind(outer *storage.KeyBind) *KeyBind {
+func (m *strategyMapper) toInnerKeyBind(outer *types.KeyBind) *KeyBind {
 	if outer == nil {
 		return nil
 	}
+
 	return &KeyBind{
-		BindId:    outer.BindId,
+		BindId:    outer.BindID,
 		Name:      outer.Name,
 		Address:   outer.Address,
 		MetaTypes: outer.MetaTypes,
@@ -116,12 +118,12 @@ func (m *strategyMapper) toInnerKeyBind(outer *storage.KeyBind) *KeyBind {
 	}
 }
 
-func (m *strategyMapper) toOuterKeyBind(inner *KeyBind) *storage.KeyBind {
+func (m *strategyMapper) toOuterKeyBind(inner *KeyBind) *types.KeyBind {
 	if inner == nil {
 		return nil
 	}
-	return &storage.KeyBind{
-		BindId:    inner.BindId,
+	return &types.KeyBind{
+		BindID:    inner.BindId,
 		Name:      inner.Name,
 		Address:   inner.Address,
 		MetaTypes: inner.MetaTypes,
@@ -130,27 +132,27 @@ func (m *strategyMapper) toOuterKeyBind(inner *KeyBind) *storage.KeyBind {
 	}
 }
 
-func (m *strategyMapper) toOuterKeyBinds(inner []*KeyBind) []*storage.KeyBind {
-	res := make([]*storage.KeyBind, 0, len(inner))
+func (m *strategyMapper) toOuterKeyBinds(inner []*KeyBind) []*types.KeyBind {
+	res := make([]*types.KeyBind, 0, len(inner))
 	for _, v := range inner {
 		res = append(res, m.toOuterKeyBind(v))
 	}
 	return res
 }
 
-func (m *strategyMapper) toOuterGroup(inner *Group, kbs []*KeyBind) *storage.Group {
+func (m *strategyMapper) toOuterGroup(inner *Group, kbs []*KeyBind) *types.Group {
 	if inner == nil {
 		return nil
 	}
-	return &storage.Group{
-		GroupId:  inner.GroupId,
+	return &types.Group{
+		GroupID:  inner.GroupId,
 		Name:     inner.Name,
 		KeyBinds: m.toOuterKeyBinds(kbs),
 	}
 }
 
-func (m *strategyMapper) toOuterGroups(inner []*Group) []*storage.Group {
-	res := make([]*storage.Group, 0, len(inner))
+func (m *strategyMapper) toOuterGroups(inner []*Group) []*types.Group {
+	res := make([]*types.Group, 0, len(inner))
 	for _, v := range inner {
 		res = append(res, m.toOuterGroup(v, nil))
 	}
