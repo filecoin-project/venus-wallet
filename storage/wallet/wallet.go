@@ -2,7 +2,6 @@ package wallet
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -159,7 +158,6 @@ func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
 }
 
 func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types.MsgMeta) (*core.Signature, error) {
-	fmt.Println(signer.String())
 	if err := w.mw.Next(); err != nil {
 		return nil, err
 	}
