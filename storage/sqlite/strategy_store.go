@@ -2,12 +2,14 @@ package sqlite
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus-wallet/storage"
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
 type strategyStore struct {
@@ -26,7 +28,7 @@ func NewRouterStore(conn *Conn) storage.StrategyStore {
 	}
 }
 
-func (s *strategyStore) PutMsgTypeTemplate(mtt *storage.MsgTypeTemplate) error {
+func (s *strategyStore) PutMsgTypeTemplate(mtt *types.MsgTypeTemplate) error {
 	err := s.hasName(mtt.Name, TBMsgTypeTemplate)
 	if err != nil {
 		return err
@@ -40,7 +42,7 @@ func (s *strategyStore) PutMsgTypeTemplate(mtt *storage.MsgTypeTemplate) error {
 	}
 	return nil
 }
-func (s *strategyStore) GetMsgTypeTemplateByName(name string) (*storage.MsgTypeTemplate, error) {
+func (s *strategyStore) GetMsgTypeTemplateByName(name string) (*types.MsgTypeTemplate, error) {
 	m := new(MsgTypeTemplate)
 	err := s.db.Table(TBMsgTypeTemplate).First(m, "name=?", name).Error
 	if err != nil {
@@ -51,7 +53,7 @@ func (s *strategyStore) GetMsgTypeTemplateByName(name string) (*storage.MsgTypeT
 	res := s.mapper.toOuterMsgTypeTemplate(m)
 	return res, nil
 }
-func (s *strategyStore) GetMsgTypeTemplate(mttId uint) (*storage.MsgTypeTemplate, error) {
+func (s *strategyStore) GetMsgTypeTemplate(mttId uint) (*types.MsgTypeTemplate, error) {
 	m := new(MsgTypeTemplate)
 	err := s.db.Table(TBMsgTypeTemplate).First(m, mttId).Error
 	if err != nil {
@@ -62,7 +64,7 @@ func (s *strategyStore) GetMsgTypeTemplate(mttId uint) (*storage.MsgTypeTemplate
 	res := s.mapper.toOuterMsgTypeTemplate(m)
 	return res, nil
 }
-func (s *strategyStore) ListMsgTypeTemplates(fromIndex, toIndex int) ([]*storage.MsgTypeTemplate, error) {
+func (s *strategyStore) ListMsgTypeTemplates(fromIndex, toIndex int) ([]*types.MsgTypeTemplate, error) {
 	var arr []*MsgTypeTemplate
 	err := s.db.Table(TBMsgTypeTemplate).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
 	if err != nil {
@@ -83,7 +85,7 @@ func (s *strategyStore) DeleteMsgTypeTemplate(mttId uint) error {
 	return nil
 }
 
-func (s *strategyStore) PutMethodTemplate(mt *storage.MethodTemplate) error {
+func (s *strategyStore) PutMethodTemplate(mt *types.MethodTemplate) error {
 	err := s.hasName(mt.Name, TBMethodTemplate)
 	if err != nil {
 		return err
@@ -97,7 +99,7 @@ func (s *strategyStore) PutMethodTemplate(mt *storage.MethodTemplate) error {
 	}
 	return nil
 }
-func (s *strategyStore) GetMethodTemplate(mtId uint) (*storage.MethodTemplate, error) {
+func (s *strategyStore) GetMethodTemplate(mtId uint) (*types.MethodTemplate, error) {
 	m := new(MethodTemplate)
 	err := s.db.Table(TBMethodTemplate).First(m, mtId).Error
 	if err != nil {
@@ -108,7 +110,7 @@ func (s *strategyStore) GetMethodTemplate(mtId uint) (*storage.MethodTemplate, e
 	res := s.mapper.toOuterMethodTemplate(m)
 	return res, nil
 }
-func (s *strategyStore) GetMethodTemplateByName(name string) (*storage.MethodTemplate, error) {
+func (s *strategyStore) GetMethodTemplateByName(name string) (*types.MethodTemplate, error) {
 	m := new(MethodTemplate)
 	err := s.db.Table(TBMethodTemplate).First(m, "name=?", name).Error
 	if err != nil {
@@ -120,7 +122,7 @@ func (s *strategyStore) GetMethodTemplateByName(name string) (*storage.MethodTem
 	return res, nil
 }
 
-func (s *strategyStore) ListMethodTemplates(fromIndex, toIndex int) ([]*storage.MethodTemplate, error) {
+func (s *strategyStore) ListMethodTemplates(fromIndex, toIndex int) ([]*types.MethodTemplate, error) {
 	var arr []*MethodTemplate
 	err := s.db.Table(TBMethodTemplate).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
 	if err != nil {
@@ -141,7 +143,7 @@ func (s *strategyStore) DeleteMethodTemplate(mtId uint) error {
 	return nil
 }
 
-func (s *strategyStore) PutKeyBind(kb *storage.KeyBind) error {
+func (s *strategyStore) PutKeyBind(kb *types.KeyBind) error {
 	err := s.hasName(kb.Name, TBKeyBind)
 	if err != nil {
 		return err
@@ -155,7 +157,7 @@ func (s *strategyStore) PutKeyBind(kb *storage.KeyBind) error {
 	}
 	return nil
 }
-func (s *strategyStore) GetKeyBinds(address string) ([]*storage.KeyBind, error) {
+func (s *strategyStore) GetKeyBinds(address string) ([]*types.KeyBind, error) {
 	var arr []*KeyBind
 	err := s.db.Table(TBKeyBind).Where("address=?", address).Limit(maxLimit).Find(&arr).Error
 	if err != nil {
@@ -167,7 +169,7 @@ func (s *strategyStore) GetKeyBinds(address string) ([]*storage.KeyBind, error) 
 	return res, nil
 }
 
-func (s *strategyStore) GetKeyBindByName(name string) (*storage.KeyBind, error) {
+func (s *strategyStore) GetKeyBindByName(name string) (*types.KeyBind, error) {
 	m := new(KeyBind)
 	err := s.db.Table(TBKeyBind).First(m, "name=?", name).Error
 	if err != nil {
@@ -179,7 +181,7 @@ func (s *strategyStore) GetKeyBindByName(name string) (*storage.KeyBind, error) 
 	return res, nil
 }
 
-func (s *strategyStore) GetKeyBindByNames(names []string) ([]*storage.KeyBind, error) {
+func (s *strategyStore) GetKeyBindByNames(names []string) ([]*types.KeyBind, error) {
 	var arr []*KeyBind
 	err := s.db.Table(TBKeyBind).Find(&arr, "name IN ?", names).Error
 	if err != nil {
@@ -190,7 +192,7 @@ func (s *strategyStore) GetKeyBindByNames(names []string) ([]*storage.KeyBind, e
 	res := s.mapper.toOuterKeyBinds(arr)
 	return res, nil
 }
-func (s *strategyStore) UpdateKeyBindMetaTypes(kb *storage.KeyBind) error {
+func (s *strategyStore) UpdateKeyBindMetaTypes(kb *types.KeyBind) error {
 	kbInner := s.mapper.toInnerKeyBind(kb)
 	err := s.db.Table(TBKeyBind).
 		Where("id=?", kbInner.BindId).
@@ -207,7 +209,7 @@ func (s *strategyStore) UpdateKeyBindMetaTypes(kb *storage.KeyBind) error {
 	}
 	return nil
 }
-func (s *strategyStore) GetKeyBindById(kbId uint) (*storage.KeyBind, error) {
+func (s *strategyStore) GetKeyBindById(kbId uint) (*types.KeyBind, error) {
 	m := new(KeyBind)
 	err := s.db.Table(TBKeyBind).First(m, kbId).Error
 	if err != nil {
@@ -218,7 +220,7 @@ func (s *strategyStore) GetKeyBindById(kbId uint) (*storage.KeyBind, error) {
 	res := s.mapper.toOuterKeyBind(m)
 	return res, nil
 }
-func (s *strategyStore) ListKeyBinds(fromIndex, toIndex int) ([]*storage.KeyBind, error) {
+func (s *strategyStore) ListKeyBinds(fromIndex, toIndex int) ([]*types.KeyBind, error) {
 	var arr []*KeyBind
 	err := s.db.Table(TBKeyBind).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
 	if err != nil {
@@ -266,7 +268,7 @@ func (s *strategyStore) PutGroup(name string, keyBindIds []uint) error {
 	return nil
 }
 
-func (s *strategyStore) GetGroupByName(name string) (*storage.Group, error) {
+func (s *strategyStore) GetGroupByName(name string) (*types.Group, error) {
 	m := new(Group)
 	err := s.db.Table(TBGroup).First(m, "name=?", name).Error
 	if err != nil {
@@ -286,7 +288,7 @@ func (s *strategyStore) GetGroupByName(name string) (*storage.Group, error) {
 	return res, nil
 }
 
-func (s *strategyStore) GetGroup(gId uint) (*storage.Group, error) {
+func (s *strategyStore) GetGroup(gId uint) (*types.Group, error) {
 	m := new(Group)
 	err := s.db.Table(TBGroup).First(m, gId).Error
 	if err != nil {
@@ -306,7 +308,7 @@ func (s *strategyStore) GetGroup(gId uint) (*storage.Group, error) {
 	return res, nil
 }
 
-func (s *strategyStore) ListGroups(fromIndex, toIndex int) ([]*storage.Group, error) {
+func (s *strategyStore) ListGroups(fromIndex, toIndex int) ([]*types.Group, error) {
 	var arr []*Group
 	err := s.db.Table(TBGroup).Order("id").Offset(fromIndex).Limit(toIndex).Scan(&arr).Error
 	if err != nil {
@@ -341,7 +343,7 @@ func (s *strategyStore) PutGroupAuth(token string, groupId uint) error {
 	}
 	return nil
 }
-func (s *strategyStore) GetGroupAuth(token string) (*storage.GroupAuth, error) {
+func (s *strategyStore) GetGroupAuth(token string) (*types.GroupAuth, error) {
 	m := new(GroupAuth)
 	err := s.db.Table(TBGroupAuth).First(m, "token=?", token).Error
 	if err != nil {
@@ -353,14 +355,14 @@ func (s *strategyStore) GetGroupAuth(token string) (*storage.GroupAuth, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &storage.GroupAuth{
+	return &types.GroupAuth{
 		Token:    m.Token,
-		GroupId:  m.GroupId,
+		GroupID:  m.GroupId,
 		Name:     g.Name,
 		KeyBinds: g.KeyBinds,
 	}, nil
 }
-func (s *strategyStore) GetGroupKeyBind(token string, address string) (*storage.KeyBind, error) {
+func (s *strategyStore) GetGroupKeyBind(token string, address string) (*types.KeyBind, error) {
 	m := new(GroupAuth)
 	err := s.db.Table(TBGroupAuth).First(m, "token=?", token).Error
 	if err != nil {

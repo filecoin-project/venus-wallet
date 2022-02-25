@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/filecoin-project/venus-wallet/core"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -12,10 +11,13 @@ import (
 	"syscall"
 
 	jsonrpc "github.com/filecoin-project/go-jsonrpc"
+	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/api"
-	"github.com/filecoin-project/venus-wallet/api/permission"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/build"
+	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus/venus-shared/api/permission"
+	shared "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"golang.org/x/xerrors"
 
 	logging "github.com/ipfs/go-log/v2"
@@ -43,7 +45,7 @@ func CorsMiddleWare(next http.Handler) http.Handler {
 // Start the interface service and bind the address
 func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
 	rpcServer := jsonrpc.NewServer()
-	rpcServer.Register("Filecoin", api.PermissionedFullAPI(a))
+	rpcServer.Register("Filecoin", permissionedFullAPI(a))
 	ah := &Handler{
 		Verify: a.AuthVerify,
 		Next:   rpcServer.ServeHTTP,
@@ -74,9 +76,15 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
 	return srv.Serve(manet.NetListener(lst))
 }
 
+func permissionedFullAPI(a api.IFullAPI) api.IFullAPI {
+	var out shared.IFullAPIStruct
+	permission.PermissionProxy(a, &out)
+	return &out
+}
+
 // JWT verify
 type Handler struct {
-	Verify func(ctx context.Context, token string) ([]permission.Permission, error)
+	Verify func(ctx context.Context, token string) ([]auth.Permission, error)
 	Next   http.HandlerFunc
 }
 
@@ -113,7 +121,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		ctx = permission.WithPerm(ctx, allow)
+		ctx = auth.WithPerm(ctx, allow)
 	}
 
 	h.Next(w, r.WithContext(ctx))

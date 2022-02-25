@@ -3,90 +3,29 @@ package core
 import (
 	"bytes"
 	"fmt"
-	"reflect"
-	"runtime"
 	"sort"
-	"strings"
 
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/filecoin-project/go-state-types/rt"
-
-	exported0 "github.com/filecoin-project/specs-actors/actors/builtin/exported"
-	exported2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/exported"
-	exported3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/exported"
-	exported4 "github.com/filecoin-project/specs-actors/v4/actors/builtin/exported"
-	exported5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/exported"
-	exported6 "github.com/filecoin-project/specs-actors/v6/actors/builtin/exported"
-
-	"github.com/filecoin-project/specs-actors/v3/actors/builtin"
-
 	"github.com/filecoin-project/venus-wallet/errcode"
+	"github.com/filecoin-project/venus/pkg/chain"
+	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 )
 
-var MethodsMap = map[Cid]map[MethodNum]MethodMeta{}
+var MethodsMap = chain.MethodsMap
 
 var MethodNamesMap = make(map[string]struct{})
-var MethodNameList []MethodName
+var MethodNameList []types.MethodName
 
-type MethodName = string
 type EmptyValue struct{}
 
 func init() {
-	// TODO: combine with the runtime actor registry.
-	var actors []rt.VMActor
-	actors = append(actors, exported0.BuiltinActors()...)
-	actors = append(actors, exported2.BuiltinActors()...)
-	actors = append(actors, exported3.BuiltinActors()...)
-	actors = append(actors, exported4.BuiltinActors()...)
-	actors = append(actors, exported5.BuiltinActors()...)
-	actors = append(actors, exported6.BuiltinActors()...)
-
-	MethodNamesMap["Send"] = struct{}{}
-	for _, actor := range actors {
-		exports := actor.Exports()
-		methods := make(map[MethodNum]MethodMeta, len(exports))
-
-		// Explicitly add send, it's special.
-		methods[builtin.MethodSend] = MethodMeta{
-			Name:   "Send",
-			Params: reflect.TypeOf(new(EmptyValue)),
-			Ret:    reflect.TypeOf(new(EmptyValue)),
+	for _, methods := range chain.MethodsMap {
+		for _, mm := range methods {
+			MethodNamesMap[mm.Name] = struct{}{}
 		}
-
-		// Iterate over exported methods. Some of these _may_ be nil and
-		// must be skipped.
-		for number, export := range exports {
-			if export == nil {
-				continue
-			}
-
-			ev := reflect.ValueOf(export)
-			et := ev.Type()
-
-			// Extract the method names using reflection. These
-			// method names always match the field names in the
-			// `builtin.Method*` structs (tested in the specs-actors
-			// tests).
-			fnName := runtime.FuncForPC(ev.Pointer()).Name()
-			fnName = strings.TrimSuffix(fnName[strings.LastIndexByte(fnName, '.')+1:], "-fm")
-			switch MethodNum(number) {
-			case MethodSend:
-				panic("method 0 is reserved for Send")
-			case MethodConstructor:
-				if fnName != "Constructor" {
-					panic("method 1 is reserved for Constructor")
-				}
-			}
-			methods[MethodNum(number)] = MethodMeta{
-				Name:   fnName,
-				Params: et.In(1),
-				Ret:    et.Out(0),
-			}
-			MethodNamesMap[fnName] = struct{}{}
-		}
-		MethodsMap[actor.Code()] = methods
 	}
-	MethodNameList = make([]MethodName, 0, len(MethodNamesMap))
+
+	MethodNameList = make([]types.MethodName, 0, len(MethodNamesMap))
 	for k := range MethodNamesMap {
 		MethodNameList = append(MethodNameList, k)
 	}
@@ -103,12 +42,12 @@ func GetMethodName(actCode Cid, method MethodNum) (string, error) {
 	return m.Name, nil
 }
 
-func AggregateMethodNames(methods []MethodName) ([]MethodName, error) {
+func AggregateMethodNames(methods []types.MethodName) ([]types.MethodName, error) {
 	if len(methods) == 0 {
 		return nil, errcode.ErrNilReference
 	}
 	linq.From(methods).Distinct().ToSlice(&methods)
-	var illegal []MethodName
+	var illegal []types.MethodName
 	linq.From(methods).Except(linq.From(MethodNameList)).ToSlice(&illegal)
 	buf := new(bytes.Buffer)
 	if len(illegal) > 0 {

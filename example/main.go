@@ -12,12 +12,12 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/filecoin-project/venus-wallet/crypto"
-
 	"github.com/filecoin-project/venus-wallet/api/remotecli"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"golang.org/x/xerrors"
 )
 
@@ -99,7 +99,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	addr, err := remoteWallet.WalletNew(context.Background(), core.KTSecp256k1)
+	addr, err := remoteWallet.WalletNew(context.Background(), types.KTSecp256k1)
 	if err != nil {
 		log.Fatalf("remote wallet new address error:%s", err)
 	}
@@ -118,7 +118,7 @@ func main() {
 	log.Printf("addr:%s exist:%v", addr.String(), exist)
 	sh := sha256.New()
 	signData := sh.Sum(core.RandSignBytes)
-	sig, err := remoteWallet.WalletSign(context.Background(), addr, signData, core.MsgMeta{Type: core.MTVerifyAddress})
+	sig, err := remoteWallet.WalletSign(context.Background(), addr, signData, types.MsgMeta{Type: types.MTVerifyAddress})
 	if err != nil {
 		log.Fatalf("wallet sign: %v", err)
 	}

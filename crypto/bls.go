@@ -3,8 +3,10 @@ package crypto
 import (
 	"crypto/rand"
 	"fmt"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	blst "github.com/supranational/blst/bindings/go"
 	"golang.org/x/xerrors"
 )
@@ -70,16 +72,16 @@ func (p *blsPrivate) Address() (core.Address, error) {
 	return addr, nil
 }
 
-func (p *blsPrivate) Type() core.SigType {
-	return core.SigTypeBLS
+func (p *blsPrivate) Type() types.SigType {
+	return types.SigTypeBLS
 }
-func (p *blsPrivate) KeyType() core.KeyType {
-	return core.KTBLS
+func (p *blsPrivate) KeyType() types.KeyType {
+	return types.KTBLS
 }
-func (p *blsPrivate) ToKeyInfo() *core.KeyInfo {
-	return &core.KeyInfo{
+func (p *blsPrivate) ToKeyInfo() *types.KeyInfo {
+	return &types.KeyInfo{
 		PrivateKey: p.Bytes(),
-		Type:       core.KTBLS,
+		Type:       types.KTBLS,
 	}
 }
 

@@ -2,8 +2,8 @@ package build
 
 import (
 	"context"
-	"github.com/asaskevich/EventBus"
 
+	"github.com/asaskevich/EventBus"
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
@@ -77,7 +77,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		Override(new(wallet_event.ShimWallet), From(new(wallet.ILocalWallet))),
 		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
 		Override(new(wallet_event.IAPIRegisterHub), wallet_event.NewAPIRegisterHub),
-		Override(new(wallet_event.IWalletEventAPI), wallet_event.NewWalletEventAPI),
+		Override(new(wallet_event.IWalletEvent), wallet_event.NewWalletEventAPI),
 	)
 }
 
