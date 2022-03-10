@@ -92,13 +92,6 @@ jobs:
         with:
           go-version: 1.17
 
-      - name: Deps
-        env:
-          GOPROXY: "https://proxy.golang.org,direct"
-          GO111MODULE: "on"
-        run: |
-          sudo apt-get install ncftp ocl-icd-opencl-dev libhwloc-dev
-
       - name: Build
         run: |
           sudo make
