@@ -8,7 +8,7 @@ import (
 
 type shortAddress address.Address
 
-// nolint
+//lint:ignore U1000 unused
 type netWork address.Network
 
 var networkPrefix = map[address.Network]string{
