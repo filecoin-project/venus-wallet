@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/filecoin-project/go-jsonrpc"
+	jsonrpc "github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
@@ -168,11 +168,12 @@ func withPWD(cctx *cli.Context) error {
 	return nil
 }
 
-//nolint
+//lint:ignore U1000 third used
 func withCategory(cat string, cmd *cli.Command) *cli.Command {
 	cmd.Category = cat
 	return cmd
 }
+
 func ShowHelp(cctx *cli.Context, err error) error {
 	return &PrintHelpErr{Err: err, Ctx: cctx}
 }

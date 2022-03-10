@@ -21,7 +21,7 @@ import (
 // special is a type used to give keys to modules which
 //  can't really be identified by the returned type
 type special struct {
-	id int // nolint
+	id int //lint:ignore U1000 unused
 }
 
 type invoke int

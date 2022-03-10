@@ -65,24 +65,6 @@ func Override(typ, constructor interface{}) Option {
 	}
 }
 
-func Unset(typ interface{}) Option {
-	return func(s *Settings) error {
-		if i, ok := typ.(invoke); ok {
-			s.invokes[i] = nil
-			return nil
-		}
-
-		if c, ok := typ.(special); ok {
-			delete(s.modules, c)
-			return nil
-		}
-		rt := reflect.TypeOf(typ).Elem()
-
-		delete(s.modules, rt)
-		return nil
-	}
-}
-
 // From(*T) -> func(t T) T {return t}
 func From(typ interface{}) interface{} {
 	rt := []reflect.Type{reflect.TypeOf(typ).Elem()}
