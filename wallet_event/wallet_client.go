@@ -7,7 +7,8 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 	types2 "github.com/filecoin-project/venus/venus-shared/types"
 	types "github.com/filecoin-project/venus/venus-shared/types/gateway"
-	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
+
+	"github.com/filecoin-project/venus/venus-shared/api"
 )
 
 type WalletRegisterClient struct {
@@ -19,7 +20,7 @@ type WalletRegisterClient struct {
 }
 
 func NewWalletRegisterClient(ctx context.Context, url, token string) (*WalletRegisterClient, jsonrpc.ClientCloser, error) {
-	apiInfo := apiinfo.NewAPIInfo(url, token)
+	apiInfo := api.NewAPIInfo(url, token)
 	addr, err := apiInfo.DialArgs("v0")
 	if err != nil {
 		return nil, nil, err

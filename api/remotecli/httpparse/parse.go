@@ -1,10 +1,11 @@
 package httpparse
 
 import (
-	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
-	"golang.org/x/xerrors"
 	"net/http"
 	"strings"
+
+	"github.com/filecoin-project/venus/venus-shared/api"
+	"golang.org/x/xerrors"
 )
 
 const (
@@ -29,7 +30,7 @@ func ParseApiInfo(s string) (*APIInfo, error) {
 }
 
 func (a APIInfo) DialArgs() (string, error) {
-	return apiinfo.DialArgs(a.Addr, "v0")
+	return api.DialArgs(a.Addr, "v0")
 }
 
 func (a APIInfo) AuthHeader() http.Header {
