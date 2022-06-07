@@ -46,7 +46,7 @@ func (mki *SqlKeyInfo) IsValid() bool {
 func (mki *SqlKeyInfo) Scan(value interface{}) error {
 	data, ok := value.([]byte)
 	if !ok {
-		return fmt.Errorf("Failed to unmarshal JSONB value:%v", value)
+		return fmt.Errorf("failed to unmarshal JSONB: %v", value)
 	}
 	err := json.Unmarshal(data, mki)
 	return err
