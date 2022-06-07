@@ -2,12 +2,13 @@ package sqlite
 
 import (
 	"encoding/json"
+	"fmt"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/storage"
 	logging "github.com/ipfs/go-log/v2"
-	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
 
@@ -40,7 +41,7 @@ func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 	}
 	var sqlAddr shortAddress
 	if sqlAddr, err = shortAddressFromString(key.Address); err != nil {
-		return xerrors.Errorf("%s is not an address:%w", key.Address, err)
+		return fmt.Errorf("%s is not an address:%w", key.Address, err)
 	}
 	if err = s.db.Table(s.walletTB).First(wallet, "address=?",
 		sqlAddr).Error; err != nil && err != gorm.ErrRecordNotFound {
@@ -101,7 +102,7 @@ func (s *sqliteStorage) Delete(addr core.Address) error {
 	tmpDb := s.db.Table(s.walletTB).Delete(nil, "address = ?", shortAddress(addr))
 	if err = tmpDb.Error; err != nil {
 		// may be it isn't explicit, but acceptable
-		return xerrors.Errorf("delete wallet(%s) failed:%w",
+		return fmt.Errorf("delete wallet(%s) failed:%w",
 			addr.String(), err)
 	}
 	return nil
@@ -118,7 +119,7 @@ func (s *sqliteStorage) migrateCompatibleAddress() error {
 		if addr, err := address.NewFromString(w.Address); err == nil {
 			if err = s.db.Table(s.walletTB).Where("address = ?", w.Address).
 				Update("address", shortAddress(addr)).Error; err != nil {
-				return xerrors.Errorf("migrate address:%s failed:%w", addr.String(), err)
+				return fmt.Errorf("migrate address:%s failed:%w", addr.String(), err)
 			}
 		}
 	}

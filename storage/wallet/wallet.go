@@ -2,6 +2,8 @@ package wallet
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -9,7 +11,6 @@ import (
 	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	logging "github.com/ipfs/go-log/v2"
-	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
@@ -169,13 +170,13 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 	if meta.Type == types.MTVerifyAddress {
 		_, toSign, err := core.GetSignBytes(toSign, meta)
 		if err != nil {
-			return nil, xerrors.Errorf("get sign bytes failed: %v", err)
+			return nil, fmt.Errorf("get sign bytes failed: %v", err)
 		}
 		owner = signer
 		data = toSign
 	} else if meta.Type == types.MTChainMsg {
 		if len(meta.Extra) == 0 {
-			return nil, xerrors.New("msg type must contain extra data")
+			return nil, errors.New("msg type must contain extra data")
 		}
 		msg, err := types.DecodeMessage(meta.Extra)
 		if err != nil {
@@ -183,7 +184,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 		}
 		owner = msg.From
 		if signer.String() != owner.String() {
-			return nil, xerrors.New("singer does not match from in MSG")
+			return nil, errors.New("singer does not match from in MSG")
 		}
 		data = msg.Cid().Bytes()
 		if err = w.verify.Verify(ctx, signer, meta.Type, msg); err != nil {
@@ -192,7 +193,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 	} else {
 		_, toSign, err := core.GetSignBytes(toSign, meta)
 		if err != nil {
-			return nil, xerrors.Errorf("get sign bytes failed: %w", err)
+			return nil, fmt.Errorf("get sign bytes failed: %w", err)
 		}
 		owner = signer
 		data = toSign

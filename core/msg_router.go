@@ -15,7 +15,6 @@ import (
 	"github.com/filecoin-project/specs-actors/v2/actors/builtin/paych"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	types2 "github.com/filecoin-project/venus/venus-shared/types/wallet"
-	"golang.org/x/xerrors"
 )
 
 var hash256 = sha256.New()
@@ -105,7 +104,7 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 			_, _ = hasher.Write(append(meta.Extra, RandSignBytes...))
 			expected := hash256.Sum(nil)
 			if !bytes.Equal(in, expected) {
-				return nil, xerrors.Errorf("sign data not match, actual %v, expected %v", in, expected)
+				return nil, fmt.Errorf("sign data not match, actual %v, expected %v", in, expected)
 			}
 
 			return in, nil
@@ -123,7 +122,7 @@ func GetSignBytes(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error
 	var err error
 	if t.parseObj != nil {
 		if in, err = t.parseObj(toSign, meta); err != nil {
-			return nil, nil, xerrors.Errorf("parseObj failed:%w", err)
+			return nil, nil, fmt.Errorf("parseObj failed:%w", err)
 		}
 	} else { // treat as cbor unmarshal-able object by default
 		in = reflect.New(t.Type).Interface()
@@ -132,7 +131,7 @@ func GetSignBytes(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error
 			return nil, nil, fmt.Errorf("type:%s is is not an 'unmarhsaler'", t.Type.Name())
 		}
 		if err := unmarshaler.UnmarshalCBOR(bytes.NewReader(toSign)); err != nil {
-			return nil, nil, xerrors.Errorf("cborunmarshal to %s failed:%w", t.Type.Name(), err)
+			return nil, nil, fmt.Errorf("cborunmarshal to %s failed:%w", t.Type.Name(), err)
 		}
 	}
 	var data []byte

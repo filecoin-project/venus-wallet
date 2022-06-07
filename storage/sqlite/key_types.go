@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +46,7 @@ func (mki *SqlKeyInfo) IsValid() bool {
 func (mki *SqlKeyInfo) Scan(value interface{}) error {
 	data, ok := value.([]byte)
 	if !ok {
-		return xerrors.Errorf("Failed to unmarshal JSONB value:%v", value)
+		return fmt.Errorf("Failed to unmarshal JSONB value:%v", value)
 	}
 	err := json.Unmarshal(data, mki)
 	return err
@@ -55,7 +55,7 @@ func (mki *SqlKeyInfo) Scan(value interface{}) error {
 // Value return json value, implement driver.Valuer interface
 func (mki SqlKeyInfo) Value() (driver.Value, error) {
 	if !mki.IsValid() {
-		return nil, xerrors.Errorf("invalid key-info: (type:%s, value:0x%x)", mki.Type, mki.PrivateKey)
+		return nil, fmt.Errorf("invalid key-info: (type:%s, value:0x%x)", mki.Type, mki.PrivateKey)
 	}
 	return json.Marshal(mki)
 }

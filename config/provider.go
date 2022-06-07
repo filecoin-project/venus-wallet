@@ -2,12 +2,13 @@ package config
 
 import (
 	"bytes"
+	"fmt"
+	"os"
+
 	"github.com/BurntSushi/toml"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"golang.org/x/xerrors"
-	"os"
 )
 
 // DecodeConfig
@@ -30,7 +31,7 @@ func ConfigComment(t interface{}) ([]byte, error) {
 	_, _ = buf.WriteString("# Default config:\n")
 	e := toml.NewEncoder(buf)
 	if err := e.Encode(t); err != nil {
-		return nil, xerrors.Errorf("encoding config: %w", err)
+		return nil, fmt.Errorf("encoding config: %w", err)
 	}
 	b := buf.Bytes()
 	//b = bytes.ReplaceAll(b, []byte("\n"), []byte("\n#"))
@@ -50,10 +51,10 @@ func CoverConfig(path string, config *Config) error {
 	}
 	_, err = c.Write(barr)
 	if err != nil {
-		return xerrors.Errorf("write config: %w", err)
+		return fmt.Errorf("write config: %w", err)
 	}
 	if err := c.Close(); err != nil {
-		return xerrors.Errorf("close config: %w", err)
+		return fmt.Errorf("close config: %w", err)
 	}
 	return nil
 }

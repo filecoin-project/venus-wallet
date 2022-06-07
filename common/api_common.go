@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/version"
@@ -10,7 +11,6 @@ import (
 	"github.com/gbrlsnchs/jwt/v3"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
-	"golang.org/x/xerrors"
 )
 
 type ICommon = api.ICommon
@@ -31,7 +31,7 @@ type jwtPayload struct {
 func (a *Common) AuthVerify(ctx context.Context, token string) ([]auth.Permission, error) {
 	var payload jwtPayload
 	if _, err := jwt.Verify([]byte(token), (*jwt.HMACSHA)(a.APISecret), &payload); err != nil {
-		return nil, xerrors.Errorf("JWT Verification failed: %w", err)
+		return nil, fmt.Errorf("JWT Verification failed: %w", err)
 	}
 	return payload.Allow, nil
 }

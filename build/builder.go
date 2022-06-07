@@ -2,6 +2,7 @@ package build
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/asaskevich/EventBus"
 	"github.com/filecoin-project/venus-wallet/api"
@@ -15,7 +16,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
 	"go.uber.org/fx"
-	"golang.org/x/xerrors"
 )
 
 // special is a type used to give keys to modules which
@@ -110,7 +110,7 @@ func New(ctx context.Context, opts ...Option) (StopFunc, error) {
 		Options(defaults()...),
 		Options(opts...),
 	)(&settings); err != nil {
-		return nil, xerrors.Errorf("applying node options failed: %w", err)
+		return nil, fmt.Errorf("applying node options failed: %w", err)
 	}
 	// gather constructors for fx.Options
 	ctors := make([]fx.Option, 0, len(settings.modules))
@@ -132,7 +132,7 @@ func New(ctx context.Context, opts ...Option) (StopFunc, error) {
 
 	if err := app.Start(ctx); err != nil {
 		// comment fx.NopLogger few lines above for easier debugging
-		return nil, xerrors.Errorf("starting node: %w", err)
+		return nil, fmt.Errorf("starting node: %w", err)
 	}
 	return app.Stop, nil
 }

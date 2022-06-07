@@ -1,9 +1,10 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
 )
 
 var supportCmds = &cli.Command{
@@ -19,7 +20,7 @@ var supportCmds = &cli.Command{
 		defer closer()
 		ctx := helper.ReqContext(cctx)
 		if cctx.NArg() != 1 {
-			return xerrors.Errorf("must specify account to support")
+			return fmt.Errorf("must specify account to support")
 		}
 		return api.AddSupportAccount(ctx, cctx.Args().Get(0))
 	},

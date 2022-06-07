@@ -2,6 +2,7 @@ package helper
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -21,7 +22,6 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
 )
 
 var log = logging.Logger("cli")
@@ -49,16 +49,16 @@ func (e *ErrCmdFailed) Error() string {
 func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 	p, err := homedir.Expand(ctx.String("repo"))
 	if err != nil {
-		return httpparse.APIInfo{}, xerrors.Errorf("could not expand home dir (repo): %w", err)
+		return httpparse.APIInfo{}, fmt.Errorf("could not expand home dir (repo): %w", err)
 	}
 	r, err := filemgr.NewFS(p, nil)
 	if err != nil {
-		return httpparse.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
+		return httpparse.APIInfo{}, fmt.Errorf("could not open repo at path: %s; %w", p, err)
 	}
 
 	ma, err := r.APIEndpoint()
 	if err != nil {
-		return httpparse.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
+		return httpparse.APIInfo{}, fmt.Errorf("could not get api endpoint: %w", err)
 	}
 
 	token, err := r.APIToken()
@@ -75,7 +75,7 @@ func GetAPIInfo(ctx *cli.Context) (httpparse.APIInfo, error) {
 func GetRawAPI(ctx *cli.Context) (string, http.Header, error) {
 	ainfo, err := GetAPIInfo(ctx)
 	if err != nil {
-		return "", nil, xerrors.Errorf("could not get API info: %w", err)
+		return "", nil, fmt.Errorf("could not get API info: %w", err)
 	}
 
 	if err := dial(ainfo.Addr); err != nil {
@@ -84,7 +84,7 @@ func GetRawAPI(ctx *cli.Context) (string, http.Header, error) {
 
 	addr, err := ainfo.DialArgs()
 	if err != nil {
-		return "", nil, xerrors.Errorf("could not get DialArgs: %w", err)
+		return "", nil, fmt.Errorf("could not get DialArgs: %w", err)
 	}
 
 	return addr, ainfo.AuthHeader(), nil

@@ -2,13 +2,13 @@ package crypto
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	blst "github.com/supranational/blst/bindings/go"
-	"golang.org/x/xerrors"
 )
 
 const DST = string("BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_")
@@ -26,7 +26,7 @@ type blsPrivate struct {
 func newBlsKeyFromData(data []byte) (PrivateKey, error) {
 	pk := new(SecretKey).FromLEndian(data)
 	if pk == nil || !pk.Valid() {
-		return nil, xerrors.New("bls signature invalid private key")
+		return nil, errors.New("bls signature invalid private key")
 	}
 	return &blsPrivate{
 		key:    pk,
@@ -67,7 +67,7 @@ func (p *blsPrivate) Bytes() []byte {
 func (p *blsPrivate) Address() (core.Address, error) {
 	addr, err := address.NewBLSAddress(p.public)
 	if err != nil {
-		return core.NilAddress, xerrors.Errorf("converting BLS to address: %w", err)
+		return core.NilAddress, fmt.Errorf("converting BLS to address: %w", err)
 	}
 	return addr, nil
 }
@@ -88,7 +88,7 @@ func (p *blsPrivate) ToKeyInfo() *types.KeyInfo {
 // sig []byte, sigGroupcheck bool, pk []byte, pkValidate bool, msg Message, dst []byte,
 func blsVerify(sig []byte, a core.Address, msg []byte) error {
 	if !new(Signature).VerifyCompressed(sig, false, a.Payload()[:], false, msg, []byte(DST)) {
-		return xerrors.New("bls signature failed to verify")
+		return errors.New("bls signature failed to verify")
 	}
 	return nil
 }

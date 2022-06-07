@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/filecoin-project/go-address"
 	"os"
 	"strings"
 
 	"github.com/urfave/cli/v2"
 	"go.opencensus.io/trace"
-	"golang.org/x/xerrors"
 
+	"github.com/filecoin-project/go-address"
 	localCli "github.com/filecoin-project/venus-wallet/cli"
 	main2 "github.com/filecoin-project/venus-wallet/cmd"
 	loclog "github.com/filecoin-project/venus-wallet/log"
@@ -18,7 +18,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/version"
 )
 
-var errConnectRefused = xerrors.New("connection refused")
+var errConnectRefused = errors.New("connection refused")
 
 func main() {
 	loclog.SetupLogLevels()

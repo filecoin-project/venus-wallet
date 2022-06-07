@@ -1,11 +1,11 @@
 package httpparse
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/filecoin-project/venus/venus-shared/api"
-	"golang.org/x/xerrors"
 )
 
 const (
@@ -21,7 +21,7 @@ type APIInfo struct {
 func ParseApiInfo(s string) (*APIInfo, error) {
 	sep := strings.Split(s, ":")
 	if len(sep) != 2 {
-		return nil, xerrors.Errorf("invalidate api info string %s", s)
+		return nil, fmt.Errorf("invalidate api info string %s", s)
 	}
 	return &APIInfo{
 		Addr:  sep[1],
