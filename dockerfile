@@ -30,11 +30,7 @@ COPY --from=buildenv   /usr/lib/x86_64-linux-gnu/libhwloc.so.5  \
                         /lib/
 
 
-
-
-
-# 暴露端口
 EXPOSE 5680
 
-# 运行golang程序的命令
+# run wallet app
 ENTRYPOINT ["/app/venus-wallet","run"]
