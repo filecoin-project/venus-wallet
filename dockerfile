@@ -38,5 +38,3 @@ EXPOSE 5680
 
 # 运行golang程序的命令
 ENTRYPOINT ["/app/venus-wallet","run"]
-
-
