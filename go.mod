@@ -12,9 +12,9 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1
 	github.com/filecoin-project/go-fil-markets v1.20.1-v16-1
 	github.com/filecoin-project/go-jsonrpc v0.1.5
-	github.com/filecoin-project/go-state-types v0.1.7
+	github.com/filecoin-project/go-state-types v0.1.8
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/venus v1.6.0-pre-rc1
+	github.com/filecoin-project/venus v1.6.0-rc1
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
@@ -31,7 +31,6 @@ require (
 	go.opencensus.io v0.23.0
 	go.uber.org/fx v1.15.0
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
-	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.12
 	gotest.tools v2.2.0+incompatible
@@ -66,13 +65,13 @@ require (
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-padreader v0.0.1 // indirect
 	github.com/filecoin-project/pubsub v1.0.0 // indirect
-	github.com/filecoin-project/specs-actors v0.9.15-0.20220514164640-94e0d5e123bd // indirect
+	github.com/filecoin-project/specs-actors v0.9.15 // indirect
 	github.com/filecoin-project/specs-actors/v3 v3.1.2 // indirect
 	github.com/filecoin-project/specs-actors/v4 v4.0.2 // indirect
-	github.com/filecoin-project/specs-actors/v5 v5.0.6-0.20220514165557-0b29a778685b // indirect
-	github.com/filecoin-project/specs-actors/v6 v6.0.2-0.20220511204807-569c6d12432b // indirect
-	github.com/filecoin-project/specs-actors/v7 v7.0.1-0.20220511223846-637436c27154 // indirect
-	github.com/filecoin-project/specs-actors/v8 v8.0.0-20220422153930-0afe155bfffa // indirect
+	github.com/filecoin-project/specs-actors/v5 v5.0.6 // indirect
+	github.com/filecoin-project/specs-actors/v6 v6.0.2 // indirect
+	github.com/filecoin-project/specs-actors/v7 v7.0.1 // indirect
+	github.com/filecoin-project/specs-actors/v8 v8.0.0 // indirect
 	github.com/filecoin-project/specs-storage v0.4.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
@@ -193,6 +192,7 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.10 // indirect
+	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/api v0.43.0 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
 	google.golang.org/grpc v1.45.0 // indirect
