@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/sha256"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"golang.org/x/xerrors"
 )
 
 type RemoteWallet struct {
@@ -37,7 +37,7 @@ func SetupRemoteWallet(info string) (*RemoteWallet, error) {
 	}
 	wapi, closer, err := remotecli.NewWalletRPC(context.Background(), url, ai.AuthHeader())
 	if err != nil {
-		return nil, xerrors.Errorf("creating jsonrpc client: %w", err)
+		return nil, fmt.Errorf("creating jsonrpc client: %w", err)
 	}
 	return &RemoteWallet{
 		IWallet: wapi,

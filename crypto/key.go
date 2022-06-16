@@ -2,11 +2,9 @@ package crypto
 
 import (
 	"fmt"
-
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"golang.org/x/xerrors"
 )
 
 // private key constraints in wallet
@@ -29,10 +27,10 @@ type PrivateKey interface {
 
 func Verify(sig *core.Signature, addr core.Address, msg []byte) error {
 	if sig == nil {
-		return xerrors.Errorf("signature is nil")
+		return fmt.Errorf("signature is nil")
 	}
 	if addr.Protocol() == address.ID {
-		return xerrors.Errorf("must resolve ID addresses before using them to verify a signature")
+		return fmt.Errorf("must resolve ID addresses before using them to verify a signature")
 	}
 	switch sig.Type {
 	case types.SigTypeSecp256k1:
@@ -40,7 +38,7 @@ func Verify(sig *core.Signature, addr core.Address, msg []byte) error {
 	case types.SigTypeBLS:
 		return blsVerify(sig.Data, addr, msg)
 	default:
-		return xerrors.Errorf("cannot verify signature of unsupported type: %v", sig.Type)
+		return fmt.Errorf("cannot verify signature of unsupported type: %v", sig.Type)
 	}
 }
 

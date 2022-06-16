@@ -2,12 +2,12 @@ package wallet_event
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
-	"golang.org/x/xerrors"
 )
 
 type IWalletEvent = api.IWalletEvent
@@ -29,7 +29,7 @@ func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRe
 func (walletEventAPI *WalletEventAPI) AddSupportAccount(ctx context.Context, supportAccount string) error {
 	for _, account := range walletEventAPI.cfg.SupportAccounts {
 		if account == supportAccount {
-			return xerrors.Errorf("account %s has exit", supportAccount)
+			return fmt.Errorf("account %s has exit", supportAccount)
 		}
 	}
 

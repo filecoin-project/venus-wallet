@@ -2,9 +2,9 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
 )
 
 var logCmd = &cli.Command{
@@ -93,7 +93,7 @@ var logSetLevel = &cli.Command{
 
 		for _, system := range systems {
 			if err := api.LogSetLevel(ctx, system, cctx.Args().First()); err != nil {
-				return xerrors.Errorf("setting log level on %s: %w", system, err)
+				return fmt.Errorf("setting log level on %s: %w", system, err)
 			}
 		}
 

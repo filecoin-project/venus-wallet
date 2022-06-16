@@ -1,12 +1,12 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
 )
 
 var authCmd = &cli.Command{
@@ -38,7 +38,7 @@ var authCreateAdminToken = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 
 		if !cctx.IsSet("perm") {
-			return xerrors.New("--perm flag not set")
+			return errors.New("--perm flag not set")
 		}
 
 		perm := cctx.String("perm")
@@ -86,7 +86,7 @@ var authApiInfoToken = &cli.Command{
 		ctx := helper.ReqContext(cctx)
 
 		if !cctx.IsSet("perm") {
-			return xerrors.New("--perm flag not set")
+			return errors.New("--perm flag not set")
 		}
 
 		perm := cctx.String("perm")
@@ -109,7 +109,7 @@ var authApiInfoToken = &cli.Command{
 
 		ainfo, err := helper.GetAPIInfo(cctx)
 		if err != nil {
-			return xerrors.Errorf("could not get API info: %w", err)
+			return fmt.Errorf("could not get API info: %w", err)
 		}
 		fmt.Printf("%s:%s\n", string(token), ainfo.Addr)
 		return nil

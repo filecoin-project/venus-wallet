@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	jsonrpc "github.com/filecoin-project/go-jsonrpc"
+	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
@@ -18,10 +18,8 @@ import (
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	shared "github.com/filecoin-project/venus/venus-shared/api/wallet"
-	"golang.org/x/xerrors"
-
 	logging "github.com/ipfs/go-log/v2"
-	multiaddr "github.com/multiformats/go-multiaddr"
+	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 )
 
@@ -57,7 +55,7 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
 	}
 	lst, err := manet.Listen(ma)
 	if err != nil {
-		return xerrors.Errorf("could not listen: %w", err)
+		return fmt.Errorf("could not listen: %w", err)
 	}
 	srv := &http.Server{Handler: http.DefaultServeMux}
 	sigChan := make(chan os.Signal, 2)

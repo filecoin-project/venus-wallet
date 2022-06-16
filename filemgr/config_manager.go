@@ -1,11 +1,11 @@
 package filemgr
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
 	logging "github.com/ipfs/go-log/v2"
-	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/core"
@@ -88,7 +88,7 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 		if len(op.GatewayAPI) != 0 {
 			cnf.APIRegisterHub.RegisterAPI = op.GatewayAPI
 			if len(op.GatewayToken) == 0 {
-				return xerrors.New("gateway token not set")
+				return errors.New("gateway token not set")
 			}
 			if len(op.SupportAccounts) == 0 {
 				log.Warn("no support accounts")

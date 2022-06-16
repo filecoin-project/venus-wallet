@@ -2,8 +2,9 @@ package sqlite
 
 import (
 	"database/sql/driver"
+	"errors"
+
 	"github.com/filecoin-project/go-address"
-	"golang.org/x/xerrors"
 )
 
 type shortAddress address.Address
@@ -19,7 +20,7 @@ var networkPrefix = map[address.Network]string{
 func shortAddressFromString(s string) (shortAddress, error) {
 	addr, err := address.NewFromString(s)
 	if err != nil {
-		if xerrors.Is(err, address.ErrUnknownNetwork) {
+		if errors.Is(err, address.ErrUnknownNetwork) {
 			addr, err = address.NewFromString(networkPrefix[address.CurrentNetwork] + s)
 		}
 	}
@@ -34,7 +35,7 @@ func (n netWork) prefix() string {
 func (sa *shortAddress) Scan(value interface{}) error {
 	var a, ok = value.([]byte)
 	if !ok {
-		return xerrors.New("address should be a string")
+		return errors.New("address should be a string")
 	}
 	id, err := address.NewFromBytes(append([]byte{address.CurrentNetwork}, a...))
 	if err != nil {

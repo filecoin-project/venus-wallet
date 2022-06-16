@@ -17,7 +17,6 @@ import (
 	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/howeyc/gopass"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
 )
 
 var walletSetPassword = &cli.Command{
@@ -237,7 +236,7 @@ var walletImport = &cli.Command{
 			fdata, err := ioutil.ReadFile(cctx.Args().First())
 			if err != nil {
 				if strings.Contains(err.Error(), "no such file or directory") {
-					return xerrors.New("input whether it is a file, if not, exec `./venus-wallet import` and then `enter` ")
+					return errors.New("input whether it is a file, if not, exec `./venus-wallet import` and then `enter` ")
 				}
 				return err
 			}
@@ -267,7 +266,7 @@ var walletImport = &cli.Command{
 				}
 			}
 			if err := json.Unmarshal(inpdata, &f); err != nil {
-				return xerrors.Errorf("failed to parse go-filecoin key: %s", err)
+				return fmt.Errorf("failed to parse go-filecoin key: %s", err)
 			}
 
 			gk := f.KeyInfo[0]

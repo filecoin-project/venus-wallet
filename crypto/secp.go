@@ -8,7 +8,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/minio/blake2b-simd"
-	"golang.org/x/xerrors"
 )
 
 type secpPrivateKey struct {
@@ -53,7 +52,7 @@ func (p *secpPrivateKey) Bytes() []byte {
 func (p *secpPrivateKey) Address() (core.Address, error) {
 	addr, err := address.NewSecp256k1Address(p.Public())
 	if err != nil {
-		return core.NilAddress, xerrors.Errorf("converting Secp256k1 to address: %w", err)
+		return core.NilAddress, fmt.Errorf("converting Secp256k1 to address: %w", err)
 	}
 	return addr, nil
 }

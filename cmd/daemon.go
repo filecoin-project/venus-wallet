@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 
 	homedir "github.com/mitchellh/go-homedir"
 	cli "github.com/urfave/cli/v2"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
-	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/build"
@@ -57,12 +57,12 @@ var RunCmd = &cli.Command{
 		}
 		r, err := filemgr.NewFS(cctx.String(cmdRepo), op)
 		if err != nil {
-			return xerrors.Errorf("opening fs repo: %w", err)
+			return fmt.Errorf("opening fs repo: %w", err)
 		}
 		core.WalletStrategyLevel = r.Config().Strategy.Level
 		secret, err := r.APISecret()
 		if err != nil {
-			return xerrors.Errorf("read secret failed: %w", err)
+			return fmt.Errorf("read secret failed: %w", err)
 		}
 		var fullAPI api.IFullAPI
 
@@ -74,7 +74,7 @@ var RunCmd = &cli.Command{
 				build.Override(new(build.NetworkName), build.NetworkName(cctx.String(cmdNetType)))),
 		)
 		if err != nil {
-			return xerrors.Errorf("initializing node: %w", err)
+			return fmt.Errorf("initializing node: %w", err)
 		}
 
 		// Register all metric views
@@ -89,7 +89,7 @@ var RunCmd = &cli.Command{
 
 		endpoint, err := r.APIEndpoint()
 		if err != nil {
-			return xerrors.Errorf("getting api endpoint: %w", err)
+			return fmt.Errorf("getting api endpoint: %w", err)
 		}
 
 		// TODO: properly parse api endpoint (or make it a URL)
