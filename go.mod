@@ -10,11 +10,11 @@ require (
 	github.com/filecoin-project/go-address v0.0.6
 	github.com/filecoin-project/go-cbor-util v0.0.1
 	github.com/filecoin-project/go-crypto v0.0.1
-	github.com/filecoin-project/go-fil-markets v1.20.1-v16-1
+	github.com/filecoin-project/go-fil-markets v1.20.1-v16-2
 	github.com/filecoin-project/go-jsonrpc v0.1.5
-	github.com/filecoin-project/go-state-types v0.1.9
+	github.com/filecoin-project/go-state-types v0.1.10
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/venus v1.6.0-rc1.0.20220620100130-df17120d5f49
+	github.com/filecoin-project/venus v1.6.0-rc2
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
@@ -101,6 +101,7 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.12 // indirect
 	github.com/libp2p/go-buffer-pool v0.0.2 // indirect
+	github.com/libp2p/go-flow-metrics v0.0.3 // indirect
 	github.com/libp2p/go-libp2p-core v0.15.1 // indirect
 	github.com/libp2p/go-openssl v0.0.7 // indirect
 	github.com/magefile/mage v1.11.0 // indirect

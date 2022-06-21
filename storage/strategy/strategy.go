@@ -429,7 +429,7 @@ Verify:
 				return fmt.Errorf("%s: method %s", ErrIllegalMetaType, "Send")
 			}
 		} else {
-			actor, err := s.nodeCli.StateGetActor(ctx, msg.To, types.TipSetKey{})
+			actor, err := s.nodeCli.Full.StateGetActor(ctx, msg.To, types.TipSetKey{})
 			if err != nil {
 				return err
 			}
