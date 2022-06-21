@@ -19,7 +19,11 @@ var MethodNameList []types.MethodName
 type EmptyValue struct{}
 
 func init() {
-	for _, methods := range utils.MethodsMap {
+	loadMethodNames()
+}
+
+func loadMethodNames() {
+	for _, methods := range MethodsMap {
 		for _, mm := range methods {
 			MethodNamesMap[mm.Name] = struct{}{}
 		}
@@ -32,6 +36,11 @@ func init() {
 	sort.Slice(MethodNameList, func(i, j int) bool {
 		return MethodNameList[i] < MethodNameList[j]
 	})
+}
+
+func ReloadMethodNames() {
+	MethodsMap = utils.MethodsMap
+	loadMethodNames()
 }
 
 func GetMethodName(actCode Cid, method MethodNum) (string, error) {
