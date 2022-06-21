@@ -1,10 +1,11 @@
 package sqlite
 
 import (
-	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus-wallet/storage"
 	"os"
 	"testing"
+
+	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/filecoin-project/venus-wallet/storage"
 )
 
 var mockRouterStore storage.StrategyStore

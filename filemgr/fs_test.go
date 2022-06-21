@@ -1,10 +1,11 @@
 package filemgr
 
 import (
-	"gotest.tools/assert"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"gotest.tools/assert"
 )
 
 func TestNewFS(t *testing.T) {
