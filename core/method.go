@@ -7,11 +7,11 @@ import (
 
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/filecoin-project/venus-wallet/errcode"
-	"github.com/filecoin-project/venus/pkg/chain"
 	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
+	"github.com/filecoin-project/venus/venus-shared/utils"
 )
 
-var MethodsMap = chain.MethodsMap
+var MethodsMap = utils.MethodsMap
 
 var MethodNamesMap = make(map[string]struct{})
 var MethodNameList []types.MethodName
@@ -19,7 +19,11 @@ var MethodNameList []types.MethodName
 type EmptyValue struct{}
 
 func init() {
-	for _, methods := range chain.MethodsMap {
+	loadMethodNames()
+}
+
+func loadMethodNames() {
+	for _, methods := range MethodsMap {
 		for _, mm := range methods {
 			MethodNamesMap[mm.Name] = struct{}{}
 		}
@@ -32,6 +36,11 @@ func init() {
 	sort.Slice(MethodNameList, func(i, j int) bool {
 		return MethodNameList[i] < MethodNameList[j]
 	})
+}
+
+func ReloadMethodNames() {
+	MethodsMap = utils.MethodsMap
+	loadMethodNames()
 }
 
 func GetMethodName(actCode Cid, method MethodNum) (string, error) {
