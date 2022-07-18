@@ -30,15 +30,17 @@ jobs:
           install-go: false
           version: "2021.1.1"
 
-      - name: Test
-        run: go test -v ./...
-
       - name: Build
         env:
           GOPROXY: "https://proxy.golang.org,direct"
           GO111MODULE: "on"
         run: |
           make
+
+      - name: Detect changes
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"
 
       - name: Run coverage
         run:  go test -coverpkg=./... -race -coverprofile=coverage.txt -covermode=atomic ./...
