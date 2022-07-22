@@ -60,18 +60,20 @@ func main() {
 			},
 			&cli.StringFlag{Name: "nettype",
 				EnvVars: []string{"VENUS_ADDRESS_TYPE"},
-				Value:   "calibnet",
-				Usage:   "should be mainnet/calibnet",
+				Value:   "mainnet",
+				Usage:   "should be one of mainnet, integrationnet,2k,cali,interop,force,butterfly",
 			},
 		},
 		Before: func(c *cli.Context) error {
 			address.CurrentNetwork = address.Mainnet
-			if c.String("nettype") == "mainnet" {
-				address.CurrentNetwork = address.Mainnet
-			} else if c.String("nettype") == "calibnet" {
-				address.CurrentNetwork = address.Testnet
-			} else {
-				return fmt.Errorf("nettype should be 'mainnet' or 'calibnet'")
+			if c.IsSet("nettype") {
+				switch c.String("nettype") {
+				case "mainnet":
+				case "integrationnet", "2k", "cali", "interop", "force", "butterfly":
+					address.CurrentNetwork = address.Testnet
+				default:
+					return fmt.Errorf("invalid network name %s", c.String("nettype"))
+				}
 			}
 			return nil
 		},
