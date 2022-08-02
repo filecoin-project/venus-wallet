@@ -19,8 +19,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type IWalletLock = api.IWalletLock
-
 var (
 	ErrLocked          = errors.New("wallet locked")
 	ErrPasswordEmpty   = errors.New("password not set")
@@ -46,7 +44,7 @@ type KeyMiddleware interface {
 	EqualRootToken(token string) error
 	// CheckToken check if the `strategy` token has all permissions
 	CheckToken(ctx context.Context) error
-	IWalletLock
+	api.IWalletLock
 }
 
 type KeyMixLayer struct {

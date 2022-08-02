@@ -17,7 +17,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
-	shared "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
@@ -75,7 +74,7 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
 }
 
 func permissionedFullAPI(a api.IFullAPI) api.IFullAPI {
-	var out shared.IFullAPIStruct
+	var out api.IFullAPIStruct
 	permission.PermissionProxy(a, &out)
 	return &out
 }

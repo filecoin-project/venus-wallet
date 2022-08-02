@@ -13,8 +13,6 @@ import (
 	"go.uber.org/fx"
 )
 
-type ICommon = api.ICommon
-
 type APIAlg jwt.HMACSHA
 
 var _ api.ICommon = &Common{}
