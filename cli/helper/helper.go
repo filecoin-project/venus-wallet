@@ -11,11 +11,10 @@ import (
 	"time"
 
 	jsonrpc "github.com/filecoin-project/go-jsonrpc"
-	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
-	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/filemgr"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/howeyc/gopass"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/mitchellh/go-homedir"
@@ -107,7 +106,7 @@ func dial(addr string) error {
 	return nil
 }
 
-func GetAPI(ctx *cli.Context) (common.ICommon, jsonrpc.ClientCloser, error) {
+func GetAPI(ctx *cli.Context) (api.ICommon, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {
 		return nil, nil, err

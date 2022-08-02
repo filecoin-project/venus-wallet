@@ -17,7 +17,7 @@ type ICommon = api.ICommon
 
 type APIAlg jwt.HMACSHA
 
-var _ ICommon = &Common{}
+var _ api.ICommon = &Common{}
 
 type Common struct {
 	fx.In

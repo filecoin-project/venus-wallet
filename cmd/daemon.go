@@ -10,12 +10,12 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
 
-	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/build"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 )
 
 type cmd = string

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/EventBus"
-	"github.com/filecoin-project/venus-wallet/api"
+	api2 "github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/filemgr"
@@ -15,6 +15,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"go.uber.org/fx"
 )
 
@@ -63,7 +64,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		Override(new(storage.StrategyStore), sqlite.NewRouterStore),
 		Override(new(*config.StrategyConfig), c.Strategy),
 		Override(new(*node.NodeClient), node.NewNodeClient),
-		Override(new(strategy.ILocalStrategy), strategy.NewStrategy),
+		Override(new(api.ILocalStrategy), strategy.NewStrategy),
 		Override(new(*config.CryptoFactor), c.Factor),
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),
@@ -72,25 +73,25 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 				return walletPwd
 			}
 		}),
-		Override(new(wallet.ILocalWallet), wallet.NewWallet),
+		Override(new(api.ILocalWallet), wallet.NewWallet),
 
-		Override(new(wallet_event.ShimWallet), From(new(wallet.ILocalWallet))),
+		Override(new(wallet_event.ShimWallet), From(new(api.ILocalWallet))),
 		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
 		Override(new(wallet_event.IAPIRegisterHub), wallet_event.NewAPIRegisterHub),
-		Override(new(wallet_event.IWalletEvent), wallet_event.NewWalletEventAPI),
+		Override(new(api.IWalletEvent), wallet_event.NewWalletEventAPI),
 	)
 }
 
 func CommonOpt(alg *common.APIAlg) Option {
 	return Options(
 		Override(new(*common.APIAlg), alg),
-		Override(new(common.ICommon), From(new(common.Common))),
+		Override(new(api.ICommon), From(new(common.Common))),
 	)
 }
 
 func FullAPIOpt(out *api.IFullAPI) Option {
 	return func(s *Settings) error {
-		resAPI := &api.FullAPI{}
+		resAPI := &api2.FullAPI{}
 		s.invokes[ExtractApiKey] = fx.Extract(resAPI)
 		*out = resAPI
 		return nil

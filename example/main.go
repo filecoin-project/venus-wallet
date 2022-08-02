@@ -17,12 +17,12 @@ import (
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
-	"github.com/filecoin-project/venus-wallet/storage/wallet"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
 )
 
 type RemoteWallet struct {
-	wallet.IWallet
+	api.IWallet
 	Cancel func()
 }
 
@@ -45,7 +45,7 @@ func SetupRemoteWallet(info string) (*RemoteWallet, error) {
 	}, nil
 }
 
-func (w *RemoteWallet) Get() wallet.IWallet {
+func (w *RemoteWallet) Get() api.IWallet {
 	if w == nil {
 		return nil
 	}

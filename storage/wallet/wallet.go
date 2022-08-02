@@ -17,33 +17,26 @@ import (
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus-wallet/storage"
-	"github.com/filecoin-project/venus-wallet/storage/strategy"
 )
 
 var log = logging.Logger("wallet")
 
-type ILocalWallet interface {
-	IWallet
-	storage.IWalletLock
-}
-
-type IWallet = api.IWallet
-
 type GetPwdFunc func() string
 
-var _ IWallet = &wallet{}
+var _ api.IWallet = &wallet{}
+var _ api.IWalletLock = &wallet{}
 
 // wallet implementation
 type wallet struct {
 	keyCache map[string]crypto.PrivateKey // simple key cache
 	ws       storage.KeyStore             // key storage
 	mw       storage.KeyMiddleware        //
-	verify   strategy.IStrategyVerify     // check wallet strategy with token
+	verify   api.IStrategyVerify          // check wallet strategy with token
 	bus      EventBus.Bus
 	m        sync.RWMutex
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, verify strategy.ILocalStrategy, getPwd GetPwdFunc) ILocalWallet {
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, verify api.ILocalStrategy, getPwd GetPwdFunc) api.ILocalWallet {
 	w := &wallet{
 		ws:       ks,
 		mw:       mw,

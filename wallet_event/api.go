@@ -10,15 +10,13 @@ import (
 	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 )
 
-type IWalletEvent = api.IWalletEvent
-
 type WalletEventAPI struct {
 	cfg            *config.APIRegisterHubConfig
 	apiRegisterHub IAPIRegisterHub
 	fsr            filemgr.Repo
 }
 
-func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRegisterHub IAPIRegisterHub) IWalletEvent {
+func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRegisterHub IAPIRegisterHub) api.IWalletEvent {
 	return &WalletEventAPI{
 		fsr:            fsr,
 		cfg:            cfg,

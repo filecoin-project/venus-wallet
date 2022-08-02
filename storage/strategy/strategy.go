@@ -28,16 +28,10 @@ var (
 )
 
 // NOTE: for wallet
-type IStrategyVerify = api.IStrategyVerify
+var _ api.IStrategyVerify = &strategy{}
 
-type IStrategy = api.IStrategy
-
-type ILocalStrategy interface {
-	IStrategyVerify
-	IStrategy
-}
-
-var _ ILocalStrategy = &strategy{}
+var _ api.IStrategy = &strategy{}
+var _ api.ILocalStrategy = &strategy{}
 
 type VerifyFunc func(token string, address core.Address, enum types2.MsgEnum, method types2.MethodName) error
 

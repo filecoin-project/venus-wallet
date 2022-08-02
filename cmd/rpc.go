@@ -12,11 +12,11 @@ import (
 
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
-	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/build"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
+	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	shared "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/multiformats/go-multiaddr"
