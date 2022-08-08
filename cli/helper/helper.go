@@ -168,7 +168,7 @@ func withPWD(cctx *cli.Context) error {
 	return nil
 }
 
-//lint:ignore U1000 third used
+// nolint
 func withCategory(cat string, cmd *cli.Command) *cli.Command {
 	cmd.Category = cat
 	return cmd
