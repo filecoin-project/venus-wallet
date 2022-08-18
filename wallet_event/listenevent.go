@@ -2,6 +2,7 @@ package wallet_event
 
 import (
 	"context"
+	"github.com/filecoin-project/venus/venus-shared/api/gateway/v1"
 	"sync"
 
 	"github.com/asaskevich/EventBus"
@@ -43,7 +44,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, signer types.IWalletHandler, bus EventBu
 
 	for _, apiHub := range cfg.RegisterAPI {
 		ctx, cancel := context.WithCancel(context.Background())
-		walletEventClient, closer, err := walletevent.NewWalletRegisterClient(ctx, apiHub, cfg.Token)
+		walletEventClient, closer, err := gateway.DialIGatewayRPC(ctx, apiHub, cfg.Token, nil)
 		if err != nil {
 			//todo return or continue. allow failed client
 			log.Errorf("connect to api hub %s failed %v", apiHub, err)

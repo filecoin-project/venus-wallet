@@ -16,7 +16,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
 	"github.com/ipfs-force-community/venus-gateway/types"
-	gwe "github.com/ipfs-force-community/venus-gateway/walletevent"
 	"go.uber.org/fx"
 
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
@@ -81,7 +80,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		Override(new(types.IWalletHandler), From(new(wallet_api.ILocalWallet))),
 		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
 		Override(new(wallet_event.IAPIRegisterHub), wallet_event.NewAPIRegisterHub),
-		Override(new(gwe.WalletEventClient), wallet_event.NewWalletEventAPI),
+		Override(new(wallet_api.IWalletEvent), wallet_event.NewWalletEventAPI),
 	)
 }
 
