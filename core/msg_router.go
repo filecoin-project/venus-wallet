@@ -2,8 +2,8 @@ package core
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"fmt"
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 	"reflect"
 
 	cborutil "github.com/filecoin-project/go-cbor-util"
@@ -16,8 +16,6 @@ import (
 	"github.com/filecoin-project/venus/venus-shared/types"
 	types2 "github.com/filecoin-project/venus/venus-shared/types/wallet"
 )
-
-var hash256 = sha256.New()
 
 // Abstract data types to be signed
 type Types struct {
@@ -100,9 +98,7 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 			return in.([]byte), nil
 		},
 		parseObj: func(in []byte, meta types.MsgMeta) (interface{}, error) {
-			hasher := sha256.New()
-			_, _ = hasher.Write(append(meta.Extra, RandSignBytes...))
-			expected := hash256.Sum(nil)
+			expected := walletevent.GetSignData(meta.Extra, RandSignBytes)
 			if !bytes.Equal(in, expected) {
 				return nil, fmt.Errorf("sign data not match, actual %v, expected %v", in, expected)
 			}
