@@ -15,14 +15,14 @@ import (
 
 	"github.com/filecoin-project/venus-wallet/api/remotecli"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
-	"github.com/filecoin-project/venus-wallet/storage/wallet"
+	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 )
 
 type RemoteWallet struct {
-	wallet.IWallet
+	wallet_api.IWallet
 	Cancel func()
 }
 
@@ -45,7 +45,7 @@ func SetupRemoteWallet(info string) (*RemoteWallet, error) {
 	}, nil
 }
 
-func (w *RemoteWallet) Get() wallet.IWallet {
+func (w *RemoteWallet) Get() wallet_api.IWallet {
 	if w == nil {
 		return nil
 	}
@@ -117,7 +117,7 @@ func main() {
 	}
 	log.Printf("addr:%s exist:%v", addr.String(), exist)
 	sh := sha256.New()
-	signData := sh.Sum(core.RandSignBytes)
+	signData := sh.Sum(walletevent.RandomBytes)
 	sig, err := remoteWallet.WalletSign(context.Background(), addr, signData, types.MsgMeta{Type: types.MTVerifyAddress})
 	if err != nil {
 		log.Fatalf("wallet sign: %v", err)

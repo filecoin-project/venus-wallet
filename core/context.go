@@ -24,7 +24,7 @@ const CtxKeyStrategy ContextKey = "strategy"
 func ContextStrategyToken(ctx context.Context) string {
 	localPerm, ok := ctx.Value(CtxKeyStrategy).(string)
 	if !ok {
-		return StringEmpty
+		return ""
 	}
 	return localPerm
 }

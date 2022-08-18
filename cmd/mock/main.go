@@ -12,6 +12,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
+	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/mitchellh/go-homedir"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
@@ -49,7 +50,7 @@ func main() {
 		build.FullAPIOpt(&fullAPI),
 		build.WalletOpt(r, ""),
 		build.CommonOpt(secret),
-		build.Override(new(build.NetworkName), build.NetworkName("main net")),
+		build.Override(new(types.NetworkName), types.NetworkNameMain),
 	)
 	if err != nil {
 		log.Fatalf("initializing node: %s", err)

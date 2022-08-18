@@ -5,9 +5,10 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-crypto"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/minio/blake2b-simd"
+
+	c1 "github.com/filecoin-project/go-state-types/crypto"
 )
 
 type secpPrivateKey struct {
@@ -35,13 +36,13 @@ func (p *secpPrivateKey) Public() []byte {
 	return crypto.PublicKey(p.key)
 }
 
-func (p *secpPrivateKey) Sign(msg []byte) (*core.Signature, error) {
+func (p *secpPrivateKey) Sign(msg []byte) (*c1.Signature, error) {
 	b2sum := blake2b.Sum256(msg)
 	sig, err := crypto.Sign(p.key, b2sum[:])
 	if err != nil {
 		return nil, err
 	}
-	return &core.Signature{
+	return &c1.Signature{
 		Data: sig,
 		Type: p.Type(),
 	}, nil
@@ -49,10 +50,10 @@ func (p *secpPrivateKey) Sign(msg []byte) (*core.Signature, error) {
 func (p *secpPrivateKey) Bytes() []byte {
 	return p.key
 }
-func (p *secpPrivateKey) Address() (core.Address, error) {
+func (p *secpPrivateKey) Address() (address.Address, error) {
 	addr, err := address.NewSecp256k1Address(p.Public())
 	if err != nil {
-		return core.NilAddress, fmt.Errorf("converting Secp256k1 to address: %w", err)
+		return address.Undef, fmt.Errorf("converting Secp256k1 to address: %w", err)
 	}
 	return addr, nil
 }
@@ -68,7 +69,7 @@ func (p *secpPrivateKey) ToKeyInfo() *types.KeyInfo {
 		Type:       types.KTSecp256k1,
 	}
 }
-func secpVerify(sig []byte, a core.Address, msg []byte) error {
+func secpVerify(sig []byte, a address.Address, msg []byte) error {
 	b2sum := blake2b.Sum256(msg)
 	pubk, err := crypto.EcRecover(b2sum[:], sig)
 	if err != nil {

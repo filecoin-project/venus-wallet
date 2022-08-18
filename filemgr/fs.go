@@ -11,7 +11,6 @@ import (
 
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	jwt "github.com/gbrlsnchs/jwt/v3"
 	"github.com/google/uuid"
@@ -108,15 +107,15 @@ func (fsr *FsRepo) APIStrategyToken(password string) (string, error) {
 	hashPasswd := aes.Keccak256([]byte(password))
 	rootKey, err := aes.EncryptData(hashPasswd, []byte("root"), fsr.cnf.Factor.ScryptN, fsr.cnf.Factor.ScryptP)
 	if err != nil {
-		return core.StringEmpty, errors.New("failed to gen token seed")
+		return "", errors.New("failed to gen token seed")
 	}
 	rootKB, err := json.Marshal(rootKey)
 	if err != nil {
-		return core.StringEmpty, errors.New("failed to marshal token seed")
+		return "", errors.New("failed to marshal token seed")
 	}
 	rootk, err := uuid.NewRandomFromReader(bytes.NewBuffer(rootKB))
 	if err != nil {
-		return core.StringEmpty, errors.New("failed to convert token seed to uuid")
+		return "", errors.New("failed to convert token seed to uuid")
 	}
 	return rootk.String(), nil
 }

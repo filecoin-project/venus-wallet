@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/storage"
 	logging "github.com/ipfs/go-log/v2"
@@ -53,7 +52,7 @@ func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 	return err
 }
 
-func (s *sqliteStorage) Has(addr core.Address) (bool, error) {
+func (s *sqliteStorage) Has(addr address.Address) (bool, error) {
 	var counts int64 = 0
 	err := s.db.Table(s.walletTB).Where("address=?", shortAddress(addr)).Count(&counts).Error
 	if err != nil {
@@ -62,13 +61,13 @@ func (s *sqliteStorage) Has(addr core.Address) (bool, error) {
 	return counts > 0, err
 }
 
-func (s *sqliteStorage) List() ([]core.Address, error) {
+func (s *sqliteStorage) List() ([]address.Address, error) {
 	var ws []Wallet
 	err := s.db.Table(s.walletTB).Scan(&ws).Error
 	if err != nil {
 		return nil, err
 	}
-	addresses := make([]core.Address, 0, len(ws))
+	addresses := make([]address.Address, 0, len(ws))
 	for _, val := range ws {
 		addr, err := shortAddressFromString(val.Address)
 		if err != nil {
@@ -80,7 +79,7 @@ func (s *sqliteStorage) List() ([]core.Address, error) {
 	return addresses, err
 }
 
-func (s *sqliteStorage) Get(addr core.Address) (*aes.EncryptedKey, error) {
+func (s *sqliteStorage) Get(addr address.Address) (*aes.EncryptedKey, error) {
 	res := &Wallet{}
 	if err := s.db.Table(s.walletTB).Where("address=?", shortAddress(addr)).First(res).Error; err != nil {
 		return nil, err
@@ -97,7 +96,7 @@ func (s *sqliteStorage) Get(addr core.Address) (*aes.EncryptedKey, error) {
 	}, nil
 }
 
-func (s *sqliteStorage) Delete(addr core.Address) error {
+func (s *sqliteStorage) Delete(addr address.Address) error {
 	var err error
 	tmpDb := s.db.Table(s.walletTB).Delete(nil, "address = ?", shortAddress(addr))
 	if err = tmpDb.Error; err != nil {

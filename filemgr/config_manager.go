@@ -8,7 +8,6 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus-wallet/core"
 )
 
 var log = logging.Logger("configmanager")
@@ -82,7 +81,7 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 	}
 	if op != nil {
 		// override
-		if op.API != core.StringEmpty {
+		if len(op.API) > 0 {
 			cnf.API.ListenAddress = op.API
 		}
 		if len(op.GatewayAPI) != 0 {

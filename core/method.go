@@ -6,12 +6,12 @@ import (
 	"sort"
 
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"github.com/filecoin-project/venus/venus-shared/utils"
+	"github.com/ipfs/go-cid"
 )
-
-var MethodsMap = utils.MethodsMap
 
 var MethodNamesMap = make(map[string]struct{})
 var MethodNameList []types.MethodName
@@ -23,7 +23,7 @@ func init() {
 }
 
 func loadMethodNames() {
-	for _, methods := range MethodsMap {
+	for _, methods := range utils.MethodsMap {
 		for _, mm := range methods {
 			MethodNamesMap[mm.Name] = struct{}{}
 		}
@@ -39,14 +39,13 @@ func loadMethodNames() {
 }
 
 func ReloadMethodNames() {
-	MethodsMap = utils.MethodsMap
 	loadMethodNames()
 }
 
-func GetMethodName(actCode Cid, method MethodNum) (string, error) {
-	m, found := MethodsMap[actCode][method]
+func GetMethodName(actCode cid.Cid, method abi.MethodNum) (string, error) {
+	m, found := utils.MethodsMap[actCode][method]
 	if !found {
-		return StringEmpty, fmt.Errorf("unknown method %d for actor %s", method, actCode)
+		return "", fmt.Errorf("unknown method %d for actor %s", method, actCode)
 	}
 	return m.Name, nil
 }

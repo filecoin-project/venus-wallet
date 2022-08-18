@@ -16,6 +16,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
+	"github.com/filecoin-project/venus/venus-shared/types"
 )
 
 type cmd = string
@@ -71,7 +72,7 @@ var RunCmd = &cli.Command{
 			build.WalletOpt(r, cctx.String(cmdPwd)),
 			build.CommonOpt(secret),
 			build.ApplyIf(func(s *build.Settings) bool { return cctx.IsSet(cmdNetType) },
-				build.Override(new(build.NetworkName), build.NetworkName(cctx.String(cmdNetType)))),
+				build.Override(new(types.NetworkName), types.NetworkName(cctx.String(cmdNetType)))),
 		)
 		if err != nil {
 			return fmt.Errorf("initializing node: %w", err)

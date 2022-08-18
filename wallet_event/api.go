@@ -7,10 +7,8 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/filemgr"
-	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+	"github.com/filecoin-project/venus/venus-shared/api/wallet"
 )
-
-type IWalletEvent = api.IWalletEvent
 
 type WalletEventAPI struct {
 	cfg            *config.APIRegisterHubConfig
@@ -18,7 +16,7 @@ type WalletEventAPI struct {
 	fsr            filemgr.Repo
 }
 
-func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRegisterHub IAPIRegisterHub) IWalletEvent {
+func NewWalletEventAPI(fsr filemgr.Repo, cfg *config.APIRegisterHubConfig, apiRegisterHub IAPIRegisterHub) wallet.IWalletEvent {
 	return &WalletEventAPI{
 		fsr:            fsr,
 		cfg:            cfg,

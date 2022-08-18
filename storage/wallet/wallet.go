@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/filecoin-project/go-address"
+
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/asaskevich/EventBus"
-	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	logging "github.com/ipfs/go-log/v2"
 
+	c "github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
@@ -22,16 +25,9 @@ import (
 
 var log = logging.Logger("wallet")
 
-type ILocalWallet interface {
-	IWallet
-	storage.IWalletLock
-}
-
-type IWallet = api.IWallet
-
 type GetPwdFunc func() string
 
-var _ IWallet = &wallet{}
+var _ wallet_api.IWallet = &wallet{}
 
 // wallet implementation
 type wallet struct {
@@ -43,7 +39,7 @@ type wallet struct {
 	m        sync.RWMutex
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, verify strategy.ILocalStrategy, getPwd GetPwdFunc) ILocalWallet {
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, verify strategy.ILocalStrategy, getPwd GetPwdFunc) wallet_api.ILocalWallet {
 	w := &wallet{
 		ws:       ks,
 		mw:       mw,
@@ -102,29 +98,29 @@ func (w *wallet) LockState(ctx context.Context) bool {
 	return w.mw.LockState(ctx)
 }
 
-func (w *wallet) WalletNew(ctx context.Context, kt types.KeyType) (core.Address, error) {
+func (w *wallet) WalletNew(ctx context.Context, kt types.KeyType) (address.Address, error) {
 	if err := w.mw.Next(); err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	err := w.mw.CheckToken(ctx)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	prv, err := crypto.GeneratePrivateKey(types.KeyType2Sign(kt))
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	addr, err := prv.Address()
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	ckey, err := w.mw.Encrypt(storage.EmptyPassword, prv)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	err = w.ws.Put(ckey)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	// notify
 	w.bus.Publish("wallet:add_address", addr)
@@ -132,14 +128,14 @@ func (w *wallet) WalletNew(ctx context.Context, kt types.KeyType) (core.Address,
 
 }
 
-func (w *wallet) WalletHas(ctx context.Context, address core.Address) (bool, error) {
+func (w *wallet) WalletHas(ctx context.Context, address address.Address) (bool, error) {
 	if !w.verify.ContainWallet(ctx, address) {
 		return false, errcode.ErrWithoutPermission
 	}
 	return w.ws.Has(address)
 }
 
-func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
+func (w *wallet) WalletList(ctx context.Context) ([]address.Address, error) {
 	addrScope, err := w.verify.ScopeWallet(ctx)
 	if err != nil {
 		return nil, err
@@ -158,12 +154,12 @@ func (w *wallet) WalletList(ctx context.Context) ([]core.Address, error) {
 	return addrs, nil
 }
 
-func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types.MsgMeta) (*core.Signature, error) {
+func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign []byte, meta types.MsgMeta) (*c.Signature, error) {
 	if err := w.mw.Next(); err != nil {
 		return nil, err
 	}
 	var (
-		owner core.Address
+		owner address.Address
 		data  []byte
 	)
 	// Do not validate strategy
@@ -216,7 +212,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer core.Address, toSign []b
 	return prvKey.Sign(data)
 }
 
-func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*types.KeyInfo, error) {
+func (w *wallet) WalletExport(ctx context.Context, addr address.Address) (*types.KeyInfo, error) {
 	if err := w.mw.Next(); err != nil {
 		return nil, err
 	}
@@ -234,43 +230,43 @@ func (w *wallet) WalletExport(ctx context.Context, addr core.Address) (*types.Ke
 	return pkey.ToKeyInfo(), nil
 }
 
-func (w *wallet) WalletImport(ctx context.Context, ki *types.KeyInfo) (core.Address, error) {
+func (w *wallet) WalletImport(ctx context.Context, ki *types.KeyInfo) (address.Address, error) {
 	if err := w.mw.Next(); err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	err := w.mw.CheckToken(ctx)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	pk, err := crypto.NewKeyFromKeyInfo(ki)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	addr, err := pk.Address()
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	exist, err := w.ws.Has(addr)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	if exist {
 		return addr, nil
 	}
 	key, err := w.mw.Encrypt(storage.EmptyPassword, pk)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	err = w.ws.Put(key)
 	if err != nil {
-		return core.NilAddress, err
+		return address.Undef, err
 	}
 	// notify
 	w.bus.Publish("wallet:add_address", addr)
 	return addr, nil
 }
 
-func (w *wallet) WalletDelete(ctx context.Context, addr core.Address) error {
+func (w *wallet) WalletDelete(ctx context.Context, addr address.Address) error {
 	if err := w.mw.Next(); err != nil {
 		return err
 	}
@@ -294,18 +290,18 @@ func (w *wallet) VerifyPassword(ctx context.Context, password string) error {
 	return w.mw.VerifyPassword(ctx, password)
 }
 
-func (w *wallet) pushCache(address core.Address, prv crypto.PrivateKey) {
+func (w *wallet) pushCache(address address.Address, prv crypto.PrivateKey) {
 	w.m.Lock()
 	defer w.m.Unlock()
 	w.keyCache[address.String()] = prv
 }
 
-func (w *wallet) pullCache(address core.Address) {
+func (w *wallet) pullCache(address address.Address) {
 	w.m.Lock()
 	defer w.m.Unlock()
 	delete(w.keyCache, address.String())
 }
-func (w *wallet) cacheKey(address core.Address) crypto.PrivateKey {
+func (w *wallet) cacheKey(address address.Address) crypto.PrivateKey {
 	w.m.RLock()
 	defer w.m.RUnlock()
 	return w.keyCache[address.String()]
