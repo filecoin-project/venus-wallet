@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/venus/venus-shared/types"
 )
 
@@ -13,11 +13,11 @@ type PrivateKey interface {
 	// Private to public
 	Public() []byte
 	// private key signature
-	Sign([]byte) (*core.Signature, error)
+	Sign([]byte) (*crypto.Signature, error)
 	// private key data
 	Bytes() []byte
 	// key address, depends on network changes
-	Address() (core.Address, error)
+	Address() (address.Address, error)
 	// key sign type
 	Type() types.SigType
 	// key type
@@ -26,7 +26,7 @@ type PrivateKey interface {
 	ToKeyInfo() *types.KeyInfo
 }
 
-func Verify(sig *core.Signature, addr core.Address, msg []byte) error {
+func Verify(sig *crypto.Signature, addr address.Address, msg []byte) error {
 	if sig == nil {
 		return fmt.Errorf("signature is nil")
 	}

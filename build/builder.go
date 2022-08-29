@@ -15,7 +15,10 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
+	"github.com/ipfs-force-community/venus-gateway/types"
 	"go.uber.org/fx"
+
+	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 )
 
 // special is a type used to give keys to modules which
@@ -58,7 +61,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 	return Options(
 		Override(new(filemgr.Repo), repo),
 		Override(new(*config.DBConfig), c.DB),
-		Override(new(EventBus.Bus), node.NewEventBus),
+		Override(new(EventBus.Bus), EventBus.New),
 		Override(new(*sqlite.Conn), sqlite.NewSQLiteConn),
 		Override(new(storage.StrategyStore), sqlite.NewRouterStore),
 		Override(new(*config.StrategyConfig), c.Strategy),
@@ -72,12 +75,12 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 				return walletPwd
 			}
 		}),
-		Override(new(wallet.ILocalWallet), wallet.NewWallet),
+		Override(new(wallet_api.ILocalWallet), wallet.NewWallet),
 
-		Override(new(wallet_event.ShimWallet), From(new(wallet.ILocalWallet))),
+		Override(new(types.IWalletHandler), From(new(wallet_api.ILocalWallet))),
 		Override(new(*config.APIRegisterHubConfig), c.APIRegisterHub),
 		Override(new(wallet_event.IAPIRegisterHub), wallet_event.NewAPIRegisterHub),
-		Override(new(wallet_event.IWalletEvent), wallet_event.NewWalletEventAPI),
+		Override(new(wallet_api.IWalletEvent), wallet_event.NewWalletEventAPI),
 	)
 }
 

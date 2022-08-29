@@ -6,31 +6,26 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	blst "github.com/supranational/blst/bindings/go"
 )
 
 const DST = string("BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_")
 
-type SecretKey = blst.SecretKey
-type PublicKey = blst.P1Affine
-type Signature = blst.P2Affine
-type AggregateSignature = blst.P2Aggregate
-
 type blsPrivate struct {
-	key    *SecretKey
+	key    *blst.SecretKey
 	public []byte
 }
 
 func newBlsKeyFromData(data []byte) (PrivateKey, error) {
-	pk := new(SecretKey).FromLEndian(data)
+	pk := new(blst.SecretKey).FromLEndian(data)
 	if pk == nil || !pk.Valid() {
 		return nil, errors.New("bls signature invalid private key")
 	}
 	return &blsPrivate{
 		key:    pk,
-		public: new(PublicKey).From(pk).Compress(),
+		public: new(blst.P1Affine).From(pk).Compress(),
 	}, nil
 }
 
@@ -45,7 +40,7 @@ func genBlsPrivate() (PrivateKey, error) {
 	sk := blst.KeyGen(ikm[:])
 	pk := &blsPrivate{
 		key:    sk,
-		public: new(PublicKey).From(sk).Compress(),
+		public: new(blst.P1Affine).From(sk).Compress(),
 	}
 
 	return pk, nil
@@ -55,19 +50,19 @@ func (p *blsPrivate) Public() []byte {
 	return p.public
 }
 
-func (p *blsPrivate) Sign(msg []byte) (*core.Signature, error) {
-	return &core.Signature{
-		Data: new(Signature).Sign(p.key, msg, []byte(DST)).Compress(),
+func (p *blsPrivate) Sign(msg []byte) (*crypto.Signature, error) {
+	return &crypto.Signature{
+		Data: new(blst.P2Affine).Sign(p.key, msg, []byte(DST)).Compress(),
 		Type: p.Type(),
 	}, nil
 }
 func (p *blsPrivate) Bytes() []byte {
 	return p.key.ToLEndian()
 }
-func (p *blsPrivate) Address() (core.Address, error) {
+func (p *blsPrivate) Address() (address.Address, error) {
 	addr, err := address.NewBLSAddress(p.public)
 	if err != nil {
-		return core.NilAddress, fmt.Errorf("converting BLS to address: %w", err)
+		return address.Undef, fmt.Errorf("converting BLS to address: %w", err)
 	}
 	return addr, nil
 }
@@ -86,8 +81,8 @@ func (p *blsPrivate) ToKeyInfo() *types.KeyInfo {
 }
 
 // sig []byte, sigGroupcheck bool, pk []byte, pkValidate bool, msg Message, dst []byte,
-func blsVerify(sig []byte, a core.Address, msg []byte) error {
-	if !new(Signature).VerifyCompressed(sig, false, a.Payload()[:], false, msg, []byte(DST)) {
+func blsVerify(sig []byte, a address.Address, msg []byte) error {
+	if !new(blst.P2Affine).VerifyCompressed(sig, false, a.Payload()[:], false, msg, []byte(DST)) {
 		return errors.New("bls signature failed to verify")
 	}
 	return nil

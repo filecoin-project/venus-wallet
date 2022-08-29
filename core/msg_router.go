@@ -17,7 +17,7 @@ import (
 	types2 "github.com/filecoin-project/venus/venus-shared/types/wallet"
 )
 
-// Abstract data types to be signed
+// Types Abstract data types to be signed
 type Types struct {
 	Type      reflect.Type
 	signBytes FGetSignBytes
@@ -27,14 +27,14 @@ type Types struct {
 type FGetSignBytes func(in interface{}) ([]byte, error)
 type FParseObj func([]byte, types.MsgMeta) (interface{}, error)
 
-func RegistSupportedMsgTypes(msgType types.MsgType, p reflect.Type,
+func RegisterSupportedMsgTypes(msgType types.MsgType, p reflect.Type,
 	fGetSignBytes FGetSignBytes, fParseObj FParseObj) (replaced bool) {
 	_, replaced = SupportedMsgTypes[msgType]
 	SupportedMsgTypes[msgType] = &Types{p, fGetSignBytes, fParseObj}
 	return replaced
 }
 
-// signature type factory
+// SupportedMsgTypes signature type factory
 var SupportedMsgTypes = map[types.MsgType]*Types{
 	types.MTDealProposal: {reflect.TypeOf(market.DealProposal{}), func(i interface{}) ([]byte, error) {
 		return cborutil.Dump(i)
@@ -78,8 +78,8 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 	}, nil,
 	},
 	// chain/gen/gen.go:659,
-	// in method 'ComputVRF' sign bytes with MsgType='MTUnkown'
-	// so, must deal 'MTUnkown' MsgType, and this may case safe problem
+	// in method 'ComputeVRF' sign bytes with MsgType='MTUnknown'
+	// so, must deal 'MTUnknown' MsgType, and this may case safe problem
 	types.MTUnknown: {reflect.TypeOf([]byte{}), func(in interface{}) ([]byte, error) {
 		msg, isok := in.([]byte)
 		if !isok {
@@ -92,23 +92,25 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 		}
 		return nil, fmt.Errorf("un-expected MsgType:%s", meta.Type)
 	}},
+	// the data to sign is divide into 2 parts:
+	// first  part: is from venus-gateway, which here should be `meta.Extra`
+	// second part: is from venus-wallet, which here is `wallet_event.RandomBytes`
 	types.MTVerifyAddress: {
 		Type: reflect.TypeOf([]byte{}),
 		signBytes: func(in interface{}) ([]byte, error) {
 			return in.([]byte), nil
 		},
 		parseObj: func(in []byte, meta types.MsgMeta) (interface{}, error) {
-			expected := walletevent.GetSignData(meta.Extra, RandSignBytes)
+			expected := walletevent.GetSignData(meta.Extra, walletevent.RandomBytes)
 			if !bytes.Equal(in, expected) {
 				return nil, fmt.Errorf("sign data not match, actual %v, expected %v", in, expected)
 			}
-
 			return in, nil
 		},
 	},
 }
 
-// Matches the type and returns the data that needs to be signed
+// GetSignBytes Matches the type and returns the data that needs to be signed
 func GetSignBytes(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error) {
 	t := SupportedMsgTypes[meta.Type]
 	if t == nil {

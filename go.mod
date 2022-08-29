@@ -19,7 +19,7 @@ require (
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
-	github.com/ipfs-force-community/venus-gateway v1.6.2-0.20220818064711-6812ad1f9a38
+	github.com/ipfs-force-community/venus-gateway v1.6.2-0.20220825071140-7fe252f3ab6b
 	github.com/ipfs/go-cid v0.1.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
@@ -76,7 +76,7 @@ require (
 	github.com/filecoin-project/specs-actors/v7 v7.0.1 // indirect
 	github.com/filecoin-project/specs-actors/v8 v8.0.1 // indirect
 	github.com/filecoin-project/specs-storage v0.4.1 // indirect
-	github.com/filecoin-project/venus-auth v1.6.0 // indirect
+	github.com/filecoin-project/venus-auth v1.6.1-0.20220818060206-3313af6a9ba1 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.8.1 // indirect
@@ -164,7 +164,6 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/prometheus/statsd_exporter v0.21.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect

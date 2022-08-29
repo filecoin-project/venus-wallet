@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	"gorm.io/gorm"
 )
@@ -19,7 +19,7 @@ type SqlScannerValuer interface {
 type Key struct {
 	types.KeyInfo
 	PublicKey []byte
-	Address   core.Address
+	Address   address.Address
 }
 
 type Wallet struct {

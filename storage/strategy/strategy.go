@@ -39,7 +39,7 @@ type ILocalStrategy interface {
 
 var _ ILocalStrategy = &strategy{}
 
-type VerifyFunc func(token string, address core.Address, enum types2.MsgEnum, method types2.MethodName) error
+type VerifyFunc func(token string, address address.Address, enum types2.MsgEnum, method types2.MethodName) error
 
 // TODO: add Cache
 type strategy struct {
@@ -108,7 +108,7 @@ func (s *strategy) RemoveMethodTemplate(ctx context.Context, name string) error 
 	return s.store.DeleteMethodTemplate(m.MTId)
 }
 
-func (s *strategy) NewKeyBindCustom(ctx context.Context, name string, address core.Address, codes []int, methods []types2.MethodName) error {
+func (s *strategy) NewKeyBindCustom(ctx context.Context, name string, address address.Address, codes []int, methods []types2.MethodName) error {
 	em, err := types2.AggregateMsgEnumCode(codes)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func (s *strategy) NewKeyBindCustom(ctx context.Context, name string, address co
 	return nil
 }
 
-func (s *strategy) NewKeyBindFromTemplate(ctx context.Context, name string, address core.Address, mttName, mtName string) error {
+func (s *strategy) NewKeyBindFromTemplate(ctx context.Context, name string, address address.Address, mttName, mtName string) error {
 	mtt, err := s.store.GetMsgTypeTemplateByName(mttName)
 	if err != nil {
 		return fmt.Errorf("find msgType template failed:%s", err)
@@ -155,7 +155,7 @@ func (s *strategy) GetKeyBindByName(ctx context.Context, name string) (*types2.K
 	return s.store.GetKeyBindByName(name)
 }
 
-func (s *strategy) GetKeyBinds(ctx context.Context, address core.Address) ([]*types2.KeyBind, error) {
+func (s *strategy) GetKeyBinds(ctx context.Context, address address.Address) ([]*types2.KeyBind, error) {
 	return s.store.GetKeyBinds(address.String())
 }
 
@@ -177,7 +177,7 @@ func (s *strategy) RemoveKeyBind(ctx context.Context, name string) error {
 	return nil
 }
 
-func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, addr core.Address) (int64, error) {
+func (s *strategy) RemoveKeyBindByAddress(ctx context.Context, addr address.Address) (int64, error) {
 	s.Lock()
 	defer s.Unlock()
 	num, err := s.store.DeleteKeyBindsByAddress(addr.String())
@@ -358,16 +358,16 @@ func (s *strategy) RemoveStToken(ctx context.Context, token string) error {
 func (s *strategy) NewStToken(ctx context.Context, groupName string) (token string, err error) {
 	g, err := s.store.GetGroupByName(groupName)
 	if err != nil {
-		return core.StringEmpty, err
+		return "", err
 	}
 	tk, err := uuid.NewRandom()
 	if err != nil {
-		return core.StringEmpty, ErrGenToken
+		return "", ErrGenToken
 	}
 	token = tk.String()
 	err = s.store.PutGroupAuth(token, g.GroupID)
 	if err != nil {
-		return core.StringEmpty, err
+		return "", err
 	}
 	for _, v := range g.KeyBinds {
 		s.scache.removeBlank(token, v.Address)
@@ -392,7 +392,7 @@ func (s *strategy) GetWalletTokenInfo(ctx context.Context, token string) (*types
 }
 
 // NOTE: for wallet
-func (s *strategy) Verify(ctx context.Context, address core.Address, msgType types.MsgType, msg *types.Message) error {
+func (s *strategy) Verify(ctx context.Context, address address.Address, msgType types.MsgType, msg *types.Message) error {
 	s.RLock()
 	defer s.RUnlock()
 	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.DefaultPerms, permission.PermAdmin) {
@@ -466,8 +466,8 @@ func (s *strategy) ScopeWallet(ctx context.Context) (*types2.AddressScope, error
 	if err != nil {
 		return &types2.AddressScope{Root: false}, err
 	}
-	var addresses []core.Address
-	linq.From(kb.KeyBinds).SelectT(func(i *types2.KeyBind) core.Address {
+	var addresses []address.Address
+	linq.From(kb.KeyBinds).SelectT(func(i *types2.KeyBind) address.Address {
 		addr, _ := address.NewFromString(i.Address)
 		return addr
 	}).ToSlice(&addresses)
@@ -477,7 +477,7 @@ func (s *strategy) ScopeWallet(ctx context.Context) (*types2.AddressScope, error
 // level: 0  all pass
 // level: 1  check token
 // level: 2  check token
-func (s *strategy) ContainWallet(ctx context.Context, address core.Address) bool {
+func (s *strategy) ContainWallet(ctx context.Context, address address.Address) bool {
 	// strategy disable, root view
 	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.DefaultPerms, permission.PermAdmin) {
 		return true

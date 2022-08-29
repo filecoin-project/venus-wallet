@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/asaskevich/EventBus"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/config"
 	v1 "github.com/filecoin-project/venus/venus-shared/api/chain/v1"
@@ -29,7 +28,7 @@ func NewNodeClient(cnf *config.StrategyConfig) (*NodeClient, error) {
 	if cnf.Level < core.SLMethod {
 		return EmptyNodeClient, nil
 	}
-	if cnf.NodeURL == core.StringEmpty {
+	if len(cnf.NodeURL) == 0 {
 		return nil, errors.New("nod/ip4e url can not be empty when level is SLMethod")
 	}
 	ai, err := httpparse.ParseApiInfo(cnf.NodeURL)
@@ -64,8 +63,4 @@ func reloadMethodNames(ctx context.Context, full v1.FullNode) error {
 	core.ReloadMethodNames()
 
 	return nil
-}
-
-func NewEventBus() EventBus.Bus {
-	return EventBus.New()
 }

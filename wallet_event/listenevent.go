@@ -2,10 +2,8 @@ package wallet_event
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
+	"github.com/filecoin-project/venus/venus-shared/api/gateway/v1"
 	"sync"
-	"time"
 
 	"github.com/asaskevich/EventBus"
 	"github.com/filecoin-project/go-address"
@@ -13,15 +11,9 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus-wallet/core"
-	types2 "github.com/filecoin-project/venus/venus-shared/types"
-	types "github.com/filecoin-project/venus/venus-shared/types/gateway"
+	"github.com/ipfs-force-community/venus-gateway/types"
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 )
-
-type ShimWallet interface {
-	WalletList(ctx context.Context) ([]core.Address, error)
-	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types2.MsgMeta) (*core.Signature, error)
-}
 
 var log = logging.Logger("wallet_event")
 
@@ -31,22 +23,17 @@ type IAPIRegisterHub interface {
 	RemoveAddress(ctx context.Context, newAddrs []address.Address) error
 }
 
-type IWalletProcess interface {
-	WalletList(ctx context.Context) ([]core.Address, error)
-	WalletSign(ctx context.Context, signer core.Address, toSign []byte, meta types2.MsgMeta) (*core.Signature, error)
-}
-
 type APIRegisterHub struct {
-	registerClient map[string]*WalletEvent
-	bus            EventBus.Bus
-	lk             sync.Mutex
+	weClient map[string]*walletevent.WalletEventClient
+	bus      EventBus.Bus
+	lk       sync.Mutex
 }
 
-func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cfg *config.APIRegisterHubConfig) (*APIRegisterHub, error) {
+func NewAPIRegisterHub(lc fx.Lifecycle, signer types.IWalletHandler, bus EventBus.Bus, cfg *config.APIRegisterHubConfig) (*APIRegisterHub, error) {
 	apiRegister := &APIRegisterHub{
-		registerClient: make(map[string]*WalletEvent),
-		bus:            bus,
-		lk:             sync.Mutex{},
+		weClient: make(map[string]*walletevent.WalletEventClient),
+		bus:      bus,
+		lk:       sync.Mutex{},
 	}
 
 	if len(cfg.RegisterAPI) == 0 {
@@ -57,7 +44,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 
 	for _, apiHub := range cfg.RegisterAPI {
 		ctx, cancel := context.WithCancel(context.Background())
-		walletEventClient, closer, err := NewWalletRegisterClient(ctx, apiHub, cfg.Token)
+		walletEventClient, closer, err := gateway.DialIGatewayRPC(ctx, apiHub, cfg.Token, nil)
 		if err != nil {
 			//todo return or continue. allow failed client
 			log.Errorf("connect to api hub %s failed %v", apiHub, err)
@@ -65,10 +52,10 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 			return nil, err
 		}
 		mLog := log.With("api hub", apiHub)
-		walletEvent := NewWalletEvent(ctx, process, walletEventClient, mLog, cfg)
-		go walletEvent.listenWalletRequest(ctx)
+		walletEvent := walletevent.NewWalletEventClient(ctx, signer, walletEventClient, mLog, cfg.SupportAccounts)
+		go walletEvent.ListenWalletRequest(ctx)
 		apiRegister.lk.Lock()
-		apiRegister.registerClient[apiHub] = walletEvent
+		apiRegister.weClient[apiHub] = walletEvent
 		apiRegister.lk.Unlock()
 		lc.Append(fx.Hook{
 			OnStop: func(_ context.Context) error {
@@ -79,7 +66,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		})
 	}
 
-	_ = bus.Subscribe("wallet:add_address", func(addr core.Address) {
+	_ = bus.Subscribe("wallet:add_address", func(addr address.Address) {
 		log.Infof("wallet add address %s", addr)
 		err := apiRegister.AddNewAddress(context.TODO(), []address.Address{addr})
 		if err != nil {
@@ -87,7 +74,7 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 		}
 	})
 
-	_ = bus.Subscribe("wallet:remove_address", func(addr core.Address) {
+	_ = bus.Subscribe("wallet:remove_address", func(addr address.Address) {
 		log.Infof("wallet remove address %s", addr)
 		err := apiRegister.RemoveAddress(context.TODO(), []address.Address{addr})
 		if err != nil {
@@ -97,10 +84,10 @@ func NewAPIRegisterHub(lc fx.Lifecycle, process ShimWallet, bus EventBus.Bus, cf
 	return apiRegister, nil
 }
 
-func (apiRegisterhub *APIRegisterHub) SupportNewAccount(ctx context.Context, supportAccount string) error {
-	apiRegisterhub.lk.Lock()
-	defer apiRegisterhub.lk.Unlock()
-	for _, c := range apiRegisterhub.registerClient {
+func (h *APIRegisterHub) SupportNewAccount(ctx context.Context, supportAccount string) error {
+	h.lk.Lock()
+	defer h.lk.Unlock()
+	for _, c := range h.weClient {
 		err := c.SupportAccount(ctx, supportAccount)
 		if err != nil {
 			return err
@@ -109,10 +96,10 @@ func (apiRegisterhub *APIRegisterHub) SupportNewAccount(ctx context.Context, sup
 	return nil
 }
 
-func (apiRegisterhub *APIRegisterHub) AddNewAddress(ctx context.Context, newAddrs []address.Address) error {
-	apiRegisterhub.lk.Lock()
-	defer apiRegisterhub.lk.Unlock()
-	for _, c := range apiRegisterhub.registerClient {
+func (h *APIRegisterHub) AddNewAddress(ctx context.Context, newAddrs []address.Address) error {
+	h.lk.Lock()
+	defer h.lk.Unlock()
+	for _, c := range h.weClient {
 		err := c.AddNewAddress(ctx, newAddrs)
 		if err != nil {
 			return err
@@ -121,161 +108,14 @@ func (apiRegisterhub *APIRegisterHub) AddNewAddress(ctx context.Context, newAddr
 	return nil
 }
 
-func (apiRegisterhub *APIRegisterHub) RemoveAddress(ctx context.Context, newAddrs []address.Address) error {
-	apiRegisterhub.lk.Lock()
-	defer apiRegisterhub.lk.Unlock()
-	for _, c := range apiRegisterhub.registerClient {
+func (h *APIRegisterHub) RemoveAddress(ctx context.Context, newAddrs []address.Address) error {
+	h.lk.Lock()
+	defer h.lk.Unlock()
+	for _, c := range h.weClient {
 		err := c.RemoveAddress(ctx, newAddrs)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-type WalletEvent struct {
-	processor IWalletProcess
-	client    *WalletRegisterClient
-	log       logging.StandardLogger
-	channel   types2.UUID
-	cfg       *config.APIRegisterHubConfig
-}
-
-func NewWalletEvent(ctx context.Context, process IWalletProcess, client *WalletRegisterClient, log logging.StandardLogger, cfg *config.APIRegisterHubConfig) *WalletEvent {
-	return &WalletEvent{processor: process, client: client, log: log, cfg: cfg}
-}
-
-func (e *WalletEvent) SupportAccount(ctx context.Context, supportAccount string) error {
-	err := e.client.SupportNewAccount(ctx, e.channel, supportAccount)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (e *WalletEvent) AddNewAddress(ctx context.Context, newAddrs []address.Address) error {
-	return e.client.AddNewAddress(ctx, e.channel, newAddrs)
-}
-
-func (e *WalletEvent) RemoveAddress(ctx context.Context, newAddrs []address.Address) error {
-	return e.client.RemoveAddress(ctx, e.channel, newAddrs)
-}
-
-func (e *WalletEvent) listenWalletRequest(ctx context.Context) {
-	for {
-		if err := e.listenWalletRequestOnce(ctx); err != nil {
-			e.log.Errorf("listen wallet event errored: %s", err)
-		} else {
-			e.log.Warn("listenWalletRequestOnce quit, try again")
-		}
-		select {
-		case <-time.After(time.Second):
-		case <-ctx.Done():
-			e.log.Warnf("not restarting listenWalletRequestOnce: context error: %s", ctx.Err())
-			return
-		}
-
-		e.log.Info("restarting listenWalletRequestOnce")
-	}
-}
-
-func (e *WalletEvent) listenWalletRequestOnce(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	policy := &types.WalletRegisterPolicy{
-		SupportAccounts: e.cfg.SupportAccounts,
-		SignBytes:       core.RandSignBytes,
-	}
-	log.Infow("", "rand sign byte", core.RandSignBytes)
-	walletEventCh, err := e.client.ListenWalletEvent(ctx, policy)
-	if err != nil {
-		// Retry is handled by caller
-		return fmt.Errorf("listenWalletRequestOnce listenWalletRequestOnce call failed: %w", err)
-	}
-
-	for event := range walletEventCh {
-		switch event.Method {
-		case "InitConnect":
-			req := types.ConnectedCompleted{}
-			err := json.Unmarshal(event.Payload, &req)
-			if err != nil {
-				e.log.Errorf("init connect error %s", err)
-			}
-			e.channel = req.ChannelId
-			e.log.Infof("connect to server success %v", req.ChannelId)
-			//do not response
-		case "WalletList":
-			go e.walletList(ctx, event.ID)
-		case "WalletSign":
-			go e.walletSign(ctx, event)
-		default:
-			e.log.Errorf("unexpect proof event type %s", event.Method)
-		}
-	}
-
-	return nil
-}
-
-func (e *WalletEvent) walletList(ctx context.Context, id types2.UUID) {
-	addrs, err := e.processor.WalletList(ctx)
-	if err != nil {
-		e.log.Errorf("WalletList error %s", err)
-		e.error(ctx, id, err)
-		return
-	}
-	e.value(ctx, id, addrs)
-}
-
-func (e *WalletEvent) walletSign(ctx context.Context, event *types.RequestEvent) {
-	log.Debug("receive WalletSign event")
-	req := types.WalletSignRequest{}
-	err := json.Unmarshal(event.Payload, &req)
-	if err != nil {
-		e.log.Errorf("unmarshal WalletSignRequest error %s", err)
-		e.error(ctx, event.ID, err)
-		return
-	}
-	log.Debug("start WalletSign")
-	sig, err := e.processor.WalletSign(ctx, req.Signer, req.ToSign, types2.MsgMeta{Type: req.Meta.Type, Extra: req.Meta.Extra})
-	if err != nil {
-		e.log.Errorf("WalletSign error %s", err)
-		e.error(ctx, event.ID, err)
-		return
-	}
-	log.Debug("end WalletSign")
-	e.value(ctx, event.ID, sig)
-	log.Debug("end WalletSign response")
-}
-
-func (e *WalletEvent) value(ctx context.Context, id types2.UUID, val interface{}) {
-	respBytes, err := json.Marshal(val)
-	if err != nil {
-		e.log.Errorf("marshal address list error %s", err)
-		err = e.client.ResponseWalletEvent(ctx, &types.ResponseEvent{
-			ID:      id,
-			Payload: nil,
-			Error:   err.Error(),
-		})
-		e.log.Errorf("response wallet event error %s", err)
-		return
-	}
-	err = e.client.ResponseWalletEvent(ctx, &types.ResponseEvent{
-		ID:      id,
-		Payload: respBytes,
-		Error:   "",
-	})
-	if err != nil {
-		e.log.Errorf("response error %v", err)
-	}
-}
-
-func (e *WalletEvent) error(ctx context.Context, id types2.UUID, err error) {
-	err = e.client.ResponseWalletEvent(ctx, &types.ResponseEvent{
-		ID:      id,
-		Payload: nil,
-		Error:   err.Error(),
-	})
-	if err != nil {
-		e.log.Errorf("response error %v", err)
-	}
 }

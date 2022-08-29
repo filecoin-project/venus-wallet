@@ -14,12 +14,10 @@ import (
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
-	api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	"github.com/google/uuid"
 )
-
-type IWalletLock = api.IWalletLock
 
 var (
 	ErrLocked          = errors.New("wallet locked")
@@ -46,7 +44,7 @@ type KeyMiddleware interface {
 	EqualRootToken(token string) error
 	// CheckToken check if the `strategy` token has all permissions
 	CheckToken(ctx context.Context) error
-	IWalletLock
+	wallet_api.IWalletLock
 }
 
 type KeyMixLayer struct {
@@ -87,15 +85,15 @@ func (o *KeyMixLayer) genRootToken(ctx context.Context, password string) (string
 	hashPasswd := aes.Keccak256([]byte(password))
 	rootKey, err := aes.EncryptData(hashPasswd, []byte("root"), o.scryptN, o.scryptP)
 	if err != nil {
-		return core.StringEmpty, errors.New("failed to gen token seed")
+		return "", errors.New("failed to gen token seed")
 	}
 	rootKB, err := json.Marshal(rootKey)
 	if err != nil {
-		return core.StringEmpty, errors.New("failed to marshal token seed")
+		return "", errors.New("failed to marshal token seed")
 	}
 	rootk, err := uuid.NewRandomFromReader(bytes.NewBuffer(rootKB))
 	if err != nil {
-		return core.StringEmpty, errors.New("failed to convert token seed to uuid")
+		return "", errors.New("failed to convert token seed to uuid")
 	}
 	return rootk.String(), nil
 }
