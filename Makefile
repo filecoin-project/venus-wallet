@@ -53,6 +53,8 @@ print-%:
 
 .PHONY: docker
 
-
+TAG:=test
 docker:
-	docker build --build-arg https_proxy=$(BUILD_DOCKER_PROXY) -t venus-wallet .
+	curl -O https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/dockerfile
+	docker build --build-arg https_proxy=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=venus-wallet -t venus-wallet .
+	docker tag venus-wallet filvenus/venus-wallet:$(TAG)

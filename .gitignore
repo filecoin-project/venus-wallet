@@ -2,3 +2,4 @@ venus-wallet
 .idea/
 coverage.*
 .vscode
+dockerfile
