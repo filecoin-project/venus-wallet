@@ -3,7 +3,7 @@ package common
 import (
 	"fmt"
 
-	"github.com/filecoin-project/venus/venus-shared/api"
+	"github.com/filecoin-project/venus/venus-shared/types"
 )
 
 // Version provides various build-time information
@@ -14,7 +14,7 @@ type Version struct {
 	// this api
 	//
 	// See APIVersion in build/version.go
-	APIVersion api.Version
+	APIVersion types.APIVersion
 }
 
 func (v Version) String() string {
