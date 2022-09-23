@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	jwt "github.com/gbrlsnchs/jwt/v3"
@@ -59,12 +58,12 @@ func NewFS(path string, op *OverrideParams) (Repo, error) {
 	}
 	return fs, nil
 }
-func (fsr *FsRepo) APISecret() (*common.APIAlg, error) {
+func (fsr *FsRepo) APISecret() (*jwt.HMACSHA, error) {
 	sec, err := hex.DecodeString(fsr.cnf.JWT.Secret)
 	if err != nil {
 		return nil, err
 	}
-	return (*common.APIAlg)(jwt.NewHS256(sec)), nil
+	return jwt.NewHS256(sec), nil
 }
 func (fsr *FsRepo) init() error {
 	exist, err := fsr.exists()

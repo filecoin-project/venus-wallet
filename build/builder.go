@@ -15,6 +15,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/strategy"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
+	"github.com/gbrlsnchs/jwt/v3"
 	"github.com/ipfs-force-community/venus-gateway/types"
 	"go.uber.org/fx"
 
@@ -84,9 +85,9 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 	)
 }
 
-func CommonOpt(alg *common.APIAlg) Option {
+func CommonOpt(alg *jwt.HMACSHA) Option {
 	return Options(
-		Override(new(*common.APIAlg), alg),
+		Override(new(*jwt.HMACSHA), alg),
 		Override(new(common.ICommon), From(new(common.Common))),
 	)
 }
