@@ -1,3 +1,4 @@
+//stm: #unit
 package sqlite
 
 import (
@@ -14,6 +15,7 @@ import (
 func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	mockName := "mockTest"
 	// MsgTypeTemplate test
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_NEW_MSG_TYPE_001
 	mtt := &types.MsgTypeTemplate{
 		Name:      mockName,
 		MetaTypes: 127,
@@ -26,12 +28,14 @@ func TestRouterStore_PutMsgTypeTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetMsgTypeTemplateByName err:%s", err)
 	}
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_GET_MSG_TYPE_001
 	mttById, err := mockRouterStore.GetMsgTypeTemplate(mttByName.MTTId)
 	if err != nil {
 		t.Fatalf("GetMsgTypeTemplate err:%s", err)
 	}
 	assert.DeepEqual(t, mttById, mttByName)
 
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_LIST_MSG_TYPE_001
 	mttArr, err := mockRouterStore.ListMsgTypeTemplates(0, 10)
 	if err != nil {
 		t.Fatalf("ListMethodTemplates err:%s", err)

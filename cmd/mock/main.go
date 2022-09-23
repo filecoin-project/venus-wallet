@@ -75,7 +75,7 @@ func main() {
 	log.Println("Pre-preparation completed")
 	// TODO: properly parse api endpoint (or make it a URL)
 	// Use serveRPC method to perform local CLI debugging
-	err = cmd.ServeRPC(fullAPI, stop, endpoint)
+	err = cmd.ServeRPC(fullAPI, stop, endpoint, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

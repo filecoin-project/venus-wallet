@@ -1,3 +1,4 @@
+//stm: #unit
 package strategy
 
 import (
@@ -18,6 +19,7 @@ func TestCacheFlow(t *testing.T) {
 		Name:    "kb1",
 		Address: addr1,
 	}
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_CACHE_SET_001
 	cache.set(tk1, kb1)
 	kbTmp1 := cache.get(tk1, addr1)
 	// Check the query is correct
@@ -77,6 +79,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk3 		addr2	kb3
 	// tk1		addr2	kb5
 
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_CACHE_REMOVE_001
 	cache.remove(tk2, addr1)
 	kbTmp2 = cache.get(tk2, addr1)
 	if kbTmp2 != nil {
@@ -116,6 +119,7 @@ func TestCacheFlow(t *testing.T) {
 	// tk3 		addr2	kb3  x
 	// tk1		addr2	kb5  x
 	// tk1		addr2	kb6
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_CACHE_REMOVE_ST_TOKEN_001
 	cache.removeStToken(tk1)
 	kb1 = cache.get(tk1, addr1)
 	kb6 = cache.get(tk1, addr2)
@@ -128,6 +132,20 @@ func TestCacheFlow(t *testing.T) {
 	// tk1		addr2	kb5  x
 	// tk1		addr2	kb6  x
 	assert.Equal(t, len(cache.(*strategyCache).kbCache), 0)
+
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_CACHE_REMOVE_TOKENS_001
+	cache.removeTokens([]string{tk2, tk3})
+	assert.Equal(t, len(cache.(*strategyCache).cache), 0)
+
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_CACHE_SET_BLANK_001
+	cache.setBlank(tk1, addr1)
+	_, exist := cache.(*strategyCache).blank[tk1+addr1]
+	assert.Equal(t, exist, true)
+
+	//stm: @VENUSWALLET_STORAGE_SQLITE_STRATEGY_CACHE_REMOVE_BLANK_001
+	cache.removeBlank(tk1, addr1)
+	_, exist = cache.(*strategyCache).blank[tk1+addr1]
+	assert.Equal(t, exist, false)
 
 	KeyBinds(cache, t)
 }
