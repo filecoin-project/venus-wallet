@@ -37,8 +37,7 @@ func setup() error {
 		return err
 	}
 
-	// have no loger or a *testing.T, just output information to stdio.
-	fmt.Printf("Wallet instance listen on endpoint: %s\n", url)
+	log.Infof("Wallet instance listen on endpoint: %s", url)
 
 	flags := flag.NewFlagSet("", flag.PanicOnError)
 	flags.String("repo", inst.repoDir, "")
@@ -50,7 +49,7 @@ func setup() error {
 func shutDown() error {
 	defer func() {
 		if err := os.RemoveAll(inst.repoDir); err != nil {
-			fmt.Printf("remove repo dir:%s failed:%s\n", inst.repoDir, err.Error())
+			log.Errorf("remove repo dir:%s failed:%s", inst.repoDir, err.Error())
 		}
 	}()
 

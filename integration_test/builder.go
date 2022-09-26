@@ -36,7 +36,7 @@ type WalletInst struct {
 func (inst *WalletInst) Start() (string, error) {
 	secret, err := inst.repo.APISecret()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	var fullAPI api.IFullAPI
@@ -86,7 +86,7 @@ func (inst *WalletInst) checkService() error {
 	case err := <-inst.stopChan:
 		return err
 	case <-time.After(time.Second):
-		log.Info("waiting for service shutdown for 1 seconds")
+		log.Info("no signal from stopping channel, after 1 second waitting...")
 	}
 	return nil
 }
