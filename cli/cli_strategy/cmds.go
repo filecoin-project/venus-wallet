@@ -6,7 +6,7 @@ import (
 
 var StrategyCmd = &cli.Command{
 	Name:    "strategy",
-	Usage:   "Manage logging",
+	Usage:   "Manage the signing strategy",
 	Aliases: []string{"st"},
 	Subcommands: []*cli.Command{
 		//read
