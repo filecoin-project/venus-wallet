@@ -76,17 +76,6 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string, sigChan chan os.
 	return srv.Serve(manet.NetListener(lst))
 }
 
-func NewService(a api.IFullAPI, stop build.StopFunc, addr string) (*http.Server, error) {
-	rpcServer := jsonrpc.NewServer()
-	rpcServer.Register("Filecoin", permissionedFullAPI(a))
-	ah := &Handler{
-		Verify: a.AuthVerify,
-		Next:   rpcServer.ServeHTTP,
-	}
-	http.Handle("/rpc/v0", CorsMiddleWare(ah))
-	return &http.Server{Handler: http.DefaultServeMux}, nil
-}
-
 func permissionedFullAPI(a api.IFullAPI) api.IFullAPI {
 	var out shared.IFullAPIStruct
 	permission.PermissionProxy(a, &out)

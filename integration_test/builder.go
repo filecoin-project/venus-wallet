@@ -59,6 +59,9 @@ func (inst *WalletInst) Start() (string, error) {
 	stats.Record(ctx, middleware.VenusInfo.M(1))
 
 	endPoint, err := inst.repo.APIEndpoint()
+	if err != nil {
+		return "", fmt.Errorf("get api endpoint failed:%w", err)
+	}
 
 	ma, err := multiaddr.NewMultiaddr(endPoint)
 	if err != nil {
