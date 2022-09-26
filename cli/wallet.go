@@ -54,7 +54,7 @@ var walletSetPassword = &cli.Command{
 
 var walletUnlock = &cli.Command{
 	Name:  "unlock",
-	Usage: "unlock the wallet and release private key",
+	Usage: "Unlock the wallet private key, so that it can be used for signing",
 	Action: func(cctx *cli.Context) error {
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
@@ -104,7 +104,7 @@ var walletLock = &cli.Command{
 
 var walletLockState = &cli.Command{
 	Name:  "lock-state",
-	Usage: "unlock the wallet and release private key",
+	Usage: "View the status of the key lock",
 	Action: func(cctx *cli.Context) error {
 		api, closer, err := helper.GetFullAPI(cctx)
 		if err != nil {
@@ -301,7 +301,7 @@ var walletImport = &cli.Command{
 
 var walletSign = &cli.Command{
 	Name:  "sign",
-	Usage: "sign a message",
+	Usage: "sign a  hex-encoded message",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "msg-type",
@@ -360,7 +360,7 @@ var walletSign = &cli.Command{
 
 var walletDel = &cli.Command{
 	Name:      "del",
-	Usage:     "del a wallet and message",
+	Usage:     "Del a wallet private key",
 	ArgsUsage: "<address>",
 	Action: func(cctx *cli.Context) error {
 		if !cctx.Args().Present() || cctx.NArg() != 1 {
