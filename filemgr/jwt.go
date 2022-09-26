@@ -39,10 +39,6 @@ func randSecret() (*jwtSecret, error) {
 	}, nil
 }
 
-/*func (js *jwtSecret) alg() *api.APIAlg {
-	return (*api.APIAlg)(jwt.NewHS256(js.key))
-}*/
-
 // Random generation of JWT config
 func RandJWTConfig() (*config.JWTConfig, error) {
 	js, err := randSecret()

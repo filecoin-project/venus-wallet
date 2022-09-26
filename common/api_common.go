@@ -15,13 +15,11 @@ import (
 
 type ICommon = api.ICommon
 
-type APIAlg jwt.HMACSHA
-
 var _ ICommon = &Common{}
 
 type Common struct {
 	fx.In
-	APISecret *APIAlg
+	APISecret *jwt.HMACSHA
 }
 
 type jwtPayload struct {
@@ -30,7 +28,7 @@ type jwtPayload struct {
 
 func (a *Common) AuthVerify(ctx context.Context, token string) ([]auth.Permission, error) {
 	var payload jwtPayload
-	if _, err := jwt.Verify([]byte(token), (*jwt.HMACSHA)(a.APISecret), &payload); err != nil {
+	if _, err := jwt.Verify([]byte(token), a.APISecret, &payload); err != nil {
 		return nil, fmt.Errorf("JWT Verification failed: %w", err)
 	}
 	return payload.Allow, nil
@@ -40,7 +38,7 @@ func (a *Common) AuthNew(ctx context.Context, perms []auth.Permission) ([]byte, 
 	p := jwtPayload{
 		Allow: perms, // TODO: consider checking validity
 	}
-	return jwt.Sign(&p, (*jwt.HMACSHA)(a.APISecret))
+	return jwt.Sign(&p, a.APISecret)
 }
 
 func (a *Common) Version(context.Context) (types.Version, error) {

@@ -40,8 +40,8 @@ func CorsMiddleWare(next http.Handler) http.Handler {
 	})
 }
 
-// Start the interface service and bind the address
-func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
+// ServeRPC Start the interface service and bind the address
+func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string, sigChan chan os.Signal) error {
 	rpcServer := jsonrpc.NewServer()
 	rpcServer.Register("Filecoin", permissionedFullAPI(a))
 	ah := &Handler{
@@ -58,7 +58,9 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string) error {
 		return fmt.Errorf("could not listen: %w", err)
 	}
 	srv := &http.Server{Handler: http.DefaultServeMux}
-	sigChan := make(chan os.Signal, 2)
+	if sigChan == nil {
+		sigChan = make(chan os.Signal, 2)
+	}
 	go func() {
 		<-sigChan
 		if err := srv.Shutdown(context.TODO()); err != nil {

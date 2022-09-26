@@ -94,6 +94,6 @@ var RunCmd = &cli.Command{
 		}
 
 		// TODO: properly parse api endpoint (or make it a URL)
-		return ServeRPC(fullAPI, stop, endpoint)
+		return ServeRPC(fullAPI, stop, endpoint, nil)
 	},
 }

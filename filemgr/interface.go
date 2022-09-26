@@ -1,8 +1,8 @@
 package filemgr
 
 import (
-	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
+	"github.com/gbrlsnchs/jwt/v3"
 )
 
 // file system
@@ -13,7 +13,7 @@ type Repo interface {
 	// APIToken returns JWT API Token for use in operations that require auth
 	APIToken() ([]byte, error)
 
-	APISecret() (*common.APIAlg, error)
+	APISecret() (*jwt.HMACSHA, error)
 
 	// APIStrategyToken cli pwd convert root token
 	APIStrategyToken(password string) (string, error)
