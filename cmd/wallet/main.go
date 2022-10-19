@@ -55,7 +55,6 @@ func main() {
 			&cli.StringFlag{
 				Name:    "repo",
 				EnvVars: []string{"VENUS_WALLET_PATH"},
-				Hidden:  true,
 				Value:   "~/.venus_wallet",
 			},
 			&cli.StringFlag{Name: "nettype",

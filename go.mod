@@ -12,9 +12,9 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1
 	github.com/filecoin-project/go-fil-markets v1.24.0-v17
 	github.com/filecoin-project/go-jsonrpc v0.1.5
-	github.com/filecoin-project/go-state-types v0.9.0
+	github.com/filecoin-project/go-state-types v0.9.1
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/venus v1.8.0-rc1.0.20221017103737-1296457d612c
+	github.com/filecoin-project/venus v1.8.0-rc3
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
