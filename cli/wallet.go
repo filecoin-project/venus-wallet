@@ -317,13 +317,11 @@ var walletSign = &cli.Command{
 			return helper.ShowHelp(cctx, errcode.ErrParameterMismatch)
 		}
 		addr, err := address.NewFromString(cctx.Args().First())
-
 		if err != nil {
 			return err
 		}
 
 		msg, err := hex.DecodeString(cctx.Args().Get(1))
-
 		if err != nil {
 			return err
 		}

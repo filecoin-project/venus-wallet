@@ -57,12 +57,14 @@ func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, 
 
 	return w
 }
+
 func (w *wallet) SetPassword(ctx context.Context, password string) error {
 	if err := w.checkPassword(ctx, password); err != nil {
 		return err
 	}
 	return w.mw.SetPassword(ctx, password)
 }
+
 func (w *wallet) checkPassword(ctx context.Context, password string) error {
 	hashPasswd := aes.Keccak256([]byte(password))
 	addrs, err := w.WalletList(ctx)
@@ -125,7 +127,6 @@ func (w *wallet) WalletNew(ctx context.Context, kt types.KeyType) (address.Addre
 	// notify
 	w.bus.Publish("wallet:add_address", addr)
 	return addr, nil
-
 }
 
 func (w *wallet) WalletHas(ctx context.Context, address address.Address) (bool, error) {
@@ -301,6 +302,7 @@ func (w *wallet) pullCache(address address.Address) {
 	defer w.m.Unlock()
 	delete(w.keyCache, address.String())
 }
+
 func (w *wallet) cacheKey(address address.Address) crypto.PrivateKey {
 	w.m.RLock()
 	defer w.m.RUnlock()

@@ -1,4 +1,4 @@
-//stm: #unit
+// stm: #unit
 package filemgr
 
 import (
@@ -11,7 +11,7 @@ import (
 )
 
 func TestNewFS(t *testing.T) {
-	//stm: @VENUSWALLET_FILEMGR_FS_NEW_001
+	// stm: @VENUSWALLET_FILEMGR_FS_NEW_001
 	fsPath, err := ioutil.TempDir("", "venus-repo-")
 	defer os.RemoveAll(fsPath)
 	if err != nil {
@@ -24,12 +24,12 @@ func TestNewFS(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, fs)
 
-	//stm: @VENUSWALLET_FILEMGR_FS_API_SECRET_001,
+	// stm: @VENUSWALLET_FILEMGR_FS_API_SECRET_001,
 	secr, err := fs.APISecret()
 	require.NoError(t, err)
 	require.NotNil(t, secr)
 
-	//stm: @VENUSWALLET_FILEMGR_FS_API_STRATEGY_TOKEN_001
+	// stm: @VENUSWALLET_FILEMGR_FS_API_STRATEGY_TOKEN_001
 	token, err := fs.APIStrategyToken("password")
 	require.NoError(t, err)
 	require.NotEqual(t, token, "")

@@ -53,6 +53,7 @@ func GeneratePrivateKey(st types.SigType) (PrivateKey, error) {
 		return nil, fmt.Errorf("invalid signature type: %d", st)
 	}
 }
+
 func NewKeyFromKeyInfo(ki *types.KeyInfo) (PrivateKey, error) {
 	switch ki.Type {
 	case types.KTBLS:

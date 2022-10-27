@@ -30,7 +30,7 @@ const (
 )
 
 func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
-	var db, err = gorm.Open(sqlite.Open(cfg.Conn), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(cfg.Conn), &gorm.Config{})
 	var sqldb *sql.DB
 	if err != nil {
 		return nil, fmt.Errorf("open database(%s) failed:%w", cfg.Conn, err)

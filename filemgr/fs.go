@@ -58,6 +58,7 @@ func NewFS(path string, op *OverrideParams) (Repo, error) {
 	}
 	return fs, nil
 }
+
 func (fsr *FsRepo) APISecret() (*jwt.HMACSHA, error) {
 	sec, err := hex.DecodeString(fsr.cnf.JWT.Secret)
 	if err != nil {
@@ -65,6 +66,7 @@ func (fsr *FsRepo) APISecret() (*jwt.HMACSHA, error) {
 	}
 	return jwt.NewHS256(sec), nil
 }
+
 func (fsr *FsRepo) init() error {
 	exist, err := fsr.exists()
 	if err != nil {
@@ -73,12 +75,13 @@ func (fsr *FsRepo) init() error {
 	if exist {
 		return nil
 	}
-	err = os.Mkdir(fsr.path, 0755) //nolint: gosec
+	err = os.Mkdir(fsr.path, 0o755) //nolint: gosec
 	if err != nil && !os.IsExist(err) {
 		return err
 	}
 	return nil
 }
+
 func (fsr *FsRepo) exists() (bool, error) {
 	_, err := os.Stat(filepath.Join(fsr.path, skKeyStore))
 	notexist := os.IsNotExist(err)

@@ -12,5 +12,4 @@ func TestRandSecret(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(hex.EncodeToString(sec.key))
-
 }

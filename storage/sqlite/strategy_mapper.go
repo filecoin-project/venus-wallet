@@ -26,8 +26,7 @@ type iStrategyMapper interface {
 
 const splitChar = ","
 
-type strategyMapper struct {
-}
+type strategyMapper struct{}
 
 func newRouterMapper() iStrategyMapper {
 	return &strategyMapper{}
@@ -95,6 +94,7 @@ func (m *strategyMapper) toOuterMethodTemplate(inner *MethodTemplate) *types.Met
 		Methods: strings.Split(inner.Methods, splitChar),
 	}
 }
+
 func (m *strategyMapper) toOuterMethodTemplates(inner []*MethodTemplate) []*types.MethodTemplate {
 	res := make([]*types.MethodTemplate, 0, len(inner))
 	for _, v := range inner {

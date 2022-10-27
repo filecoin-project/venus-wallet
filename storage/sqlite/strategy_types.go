@@ -13,7 +13,7 @@ type GroupAuth struct {
 	// uuid
 	Token   string `gorm:"primaryKey;type:varchar(36);column:token;not null"`
 	GroupId uint   `gorm:"index;type:int;column:id;not null"`
-	//Public    []byte //pubkey for verify data source
+	// Public    []byte //pubkey for verify data source
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt sql.NullTime `gorm:"index"`

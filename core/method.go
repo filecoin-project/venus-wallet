@@ -13,8 +13,10 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-var MethodNamesMap = make(map[string]struct{})
-var MethodNameList []types.MethodName
+var (
+	MethodNamesMap = make(map[string]struct{})
+	MethodNameList []types.MethodName
+)
 
 type EmptyValue struct{}
 

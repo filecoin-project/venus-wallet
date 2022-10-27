@@ -81,6 +81,7 @@ func (o *KeyMixLayer) SetPassword(ctx context.Context, password string) error {
 	o.locked = false
 	return nil
 }
+
 func (o *KeyMixLayer) genRootToken(ctx context.Context, password string) (string, error) {
 	hashPasswd := aes.Keccak256([]byte(password))
 	rootKey, err := aes.EncryptData(hashPasswd, []byte("root"), o.scryptN, o.scryptP)
@@ -97,6 +98,7 @@ func (o *KeyMixLayer) genRootToken(ctx context.Context, password string) (string
 	}
 	return rootk.String(), nil
 }
+
 func (o *KeyMixLayer) EqualRootToken(token string) error {
 	if len(o.password) == 0 || len(o.rootToken) == 0 {
 		return ErrPasswordEmpty
@@ -106,6 +108,7 @@ func (o *KeyMixLayer) EqualRootToken(token string) error {
 	}
 	return errcode.ErrWithoutPermission
 }
+
 func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
 	err := o.changeLock(password, false)
 	if err != nil && err == ErrPasswordEmpty {
@@ -113,12 +116,15 @@ func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
 	}
 	return err
 }
+
 func (o *KeyMixLayer) Lock(ctx context.Context, password string) error {
 	return o.changeLock(password, true)
 }
+
 func (o *KeyMixLayer) LockState(ctx context.Context) bool {
 	return o.locked
 }
+
 func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 	o.m.Lock()
 	defer o.m.Unlock()

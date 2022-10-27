@@ -33,7 +33,7 @@ func (n netWork) prefix() string {
 }
 
 func (sa *shortAddress) Scan(value interface{}) error {
-	var a, ok = value.([]byte)
+	a, ok := value.([]byte)
 	if !ok {
 		return errors.New("address should be a string")
 	}

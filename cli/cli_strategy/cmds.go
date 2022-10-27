@@ -9,7 +9,7 @@ var StrategyCmd = &cli.Command{
 	Usage:   "Manage the signing strategy",
 	Aliases: []string{"st"},
 	Subcommands: []*cli.Command{
-		//read
+		// read
 		strategyTypeList,
 		strategyMethodList,
 		strategyGetMsgTypeTemplate,
@@ -23,7 +23,7 @@ var StrategyCmd = &cli.Command{
 		strategyTokenInfo,
 		strategyListMethodTemplates,
 		strategyListMsgTypeTemplates,
-		//write
+		// write
 		strategyNewMsgTypeTemplate,
 		strategyNewMethodTemplate,
 		strategyNewKeyBindCustom,

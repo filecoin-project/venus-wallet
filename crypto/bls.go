@@ -56,9 +56,11 @@ func (p *blsPrivate) Sign(msg []byte) (*crypto.Signature, error) {
 		Type: p.Type(),
 	}, nil
 }
+
 func (p *blsPrivate) Bytes() []byte {
 	return p.key.ToLEndian()
 }
+
 func (p *blsPrivate) Address() (address.Address, error) {
 	addr, err := address.NewBLSAddress(p.public)
 	if err != nil {
@@ -70,9 +72,11 @@ func (p *blsPrivate) Address() (address.Address, error) {
 func (p *blsPrivate) Type() types.SigType {
 	return types.SigTypeBLS
 }
+
 func (p *blsPrivate) KeyType() types.KeyType {
 	return types.KTBLS
 }
+
 func (p *blsPrivate) ToKeyInfo() *types.KeyInfo {
 	return &types.KeyInfo{
 		PrivateKey: p.Bytes(),

@@ -115,6 +115,7 @@ func (fsr *FsRepo) configExist() (bool, error) {
 	}
 	return false, nil
 }
+
 func (fsr *FsRepo) loadConfig() (*config.Config, error) {
 	cnf, err := config.DecodeConfig(fsr.configPath())
 	if err != nil {
@@ -122,6 +123,7 @@ func (fsr *FsRepo) loadConfig() (*config.Config, error) {
 	}
 	return cnf, nil
 }
+
 func (fsr *FsRepo) configPath() string {
 	return filepath.Join(fsr.path, skConfig)
 }

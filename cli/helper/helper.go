@@ -115,6 +115,7 @@ func GetAPI(ctx *cli.Context) (common.ICommon, jsonrpc.ClientCloser, error) {
 
 	return remotecli.NewCommonRPC(ctx.Context, addr, headers)
 }
+
 func GetFullAPI(ctx *cli.Context) (api.IFullAPI, jsonrpc.ClientCloser, error) {
 	addr, headers, err := GetRawAPI(ctx)
 	if err != nil {

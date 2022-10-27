@@ -47,9 +47,11 @@ func (p *secpPrivateKey) Sign(msg []byte) (*c1.Signature, error) {
 		Type: p.Type(),
 	}, nil
 }
+
 func (p *secpPrivateKey) Bytes() []byte {
 	return p.key
 }
+
 func (p *secpPrivateKey) Address() (address.Address, error) {
 	addr, err := address.NewSecp256k1Address(p.Public())
 	if err != nil {
@@ -57,18 +59,22 @@ func (p *secpPrivateKey) Address() (address.Address, error) {
 	}
 	return addr, nil
 }
+
 func (p *secpPrivateKey) Type() types.SigType {
 	return types.SigTypeSecp256k1
 }
+
 func (p *secpPrivateKey) KeyType() types.KeyType {
 	return types.KTSecp256k1
 }
+
 func (p *secpPrivateKey) ToKeyInfo() *types.KeyInfo {
 	return &types.KeyInfo{
 		PrivateKey: p.Bytes(),
 		Type:       types.KTSecp256k1,
 	}
 }
+
 func secpVerify(sig []byte, a address.Address, msg []byte) error {
 	b2sum := blake2b.Sum256(msg)
 	pubk, err := crypto.EcRecover(b2sum[:], sig)

@@ -57,7 +57,8 @@ func main() {
 				EnvVars: []string{"VENUS_WALLET_PATH"},
 				Value:   "~/.venus_wallet",
 			},
-			&cli.StringFlag{Name: "nettype",
+			&cli.StringFlag{
+				Name:    "nettype",
 				EnvVars: []string{"VENUS_ADDRESS_TYPE"},
 				Value:   "mainnet",
 				Usage:   "should be one of mainnet, integrationnet,2k,cali,interop,force,butterfly",
