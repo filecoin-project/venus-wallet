@@ -108,7 +108,6 @@ func NewWalletInst() (*WalletInst, error) {
 	dir, err := ioutil.TempDir("", "venus_wallet_")
 	if err != nil {
 		return nil, err
-
 	}
 	repo, err := filemgr.NewFS(dir, nil)
 	if err != nil {
@@ -119,5 +118,6 @@ func NewWalletInst() (*WalletInst, error) {
 		repo:     repo,
 		sigChan:  make(chan os.Signal, 1),
 		stopChan: make(chan error, 1),
-		repoDir:  dir}, nil
+		repoDir:  dir,
+	}, nil
 }

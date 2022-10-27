@@ -25,6 +25,7 @@ var strategyTypeList = &cli.Command{
 		return nil
 	},
 }
+
 var strategyMethodList = &cli.Command{
 	Name:  "methods",
 	Usage: "show all methods (index are used for counting only)",
@@ -376,6 +377,7 @@ var strategyListMethodTemplates = &cli.Command{
 		return nil
 	},
 }
+
 var strategyListMsgTypeTemplates = &cli.Command{
 	Name:    "listMsgTypeTemplates",
 	Aliases: []string{"lmtt"},

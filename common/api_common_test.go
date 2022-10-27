@@ -1,4 +1,4 @@
-//stm: #unit
+// stm: #unit
 package common
 
 import (
@@ -16,7 +16,7 @@ import (
 )
 
 func TestCommon_AuthVerify(t *testing.T) {
-	//stm: @VENUSWALLET_API_COMMON_AUTH_VERIFY_001, @VENUSWALLET_API_COMMON_AUTH_NEW_001
+	// stm: @VENUSWALLET_API_COMMON_AUTH_VERIFY_001, @VENUSWALLET_API_COMMON_AUTH_NEW_001
 	t.Parallel()
 	var c Common
 

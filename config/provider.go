@@ -34,7 +34,7 @@ func ConfigComment(t interface{}) ([]byte, error) {
 		return nil, fmt.Errorf("encoding config: %w", err)
 	}
 	b := buf.Bytes()
-	//b = bytes.ReplaceAll(b, []byte("\n"), []byte("\n#"))
+	// b = bytes.ReplaceAll(b, []byte("\n"), []byte("\n#"))
 	b = bytes.ReplaceAll(b, []byte("#["), []byte("["))
 	return b, nil
 }

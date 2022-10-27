@@ -5,7 +5,7 @@ import (
 )
 
 type StrategyStore interface {
-	//PutMsgTypeTemplate saves a msgType template
+	// PutMsgTypeTemplate saves a msgType template
 	PutMsgTypeTemplate(mtt *types.MsgTypeTemplate) error
 	// GetMsgTypeTemplate gets a msgType template by Id
 	GetMsgTypeTemplate(mttId uint) (*types.MsgTypeTemplate, error)

@@ -18,9 +18,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-var (
-	ErrDecrypt = errors.New("could not decrypt key with given password")
-)
+var ErrDecrypt = errors.New("could not decrypt key with given password")
 
 const (
 	keyHeaderKDF = "scrypt"
@@ -79,6 +77,7 @@ func getKDFKey(cryptoJSON *CryptoJSON, auth []byte) ([]byte, error) {
 
 	return nil, fmt.Errorf("unsupported KDF: %s", cryptoJSON.KDF)
 }
+
 func ensureInt(x interface{}) int {
 	res, ok := x.(int)
 	if !ok {
@@ -159,7 +158,6 @@ func EncryptData(password, data []byte, scryptN, scryptP int) (*CryptoJSON, erro
 		MAC:          hex.EncodeToString(mac),
 	}
 	return cryptoStruct, nil
-
 }
 
 func Decrypt(cryptoJson *CryptoJSON, pwd []byte) ([]byte, error) {

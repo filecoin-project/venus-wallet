@@ -1,4 +1,4 @@
-//stm: #integration
+// stm: #integration
 package integration
 
 import (
@@ -58,7 +58,7 @@ func shutDown() error {
 }
 
 func TestMain(m *testing.M) {
-	//stm: @VENUSWALLET_NODE_NEW_NODE_CLIENT_001
+	// stm: @VENUSWALLET_NODE_NEW_NODE_CLIENT_001
 	if err := setup(); err != nil {
 		panic(fmt.Sprintf("setup ingeration test failed:%v", err))
 	}
@@ -73,12 +73,12 @@ func TestMain(m *testing.M) {
 }
 
 func TestWallet(t *testing.T) {
-	//stm: @VENUSWALLET_STORAGE_KEYMIX_SET_PASSWORD_001, @VENUSWALLET_STORAGE_WALLET_SET_PASSWORD_001
+	// stm: @VENUSWALLET_STORAGE_KEYMIX_SET_PASSWORD_001, @VENUSWALLET_STORAGE_WALLET_SET_PASSWORD_001
 	t.Run("wallet setPwd/unlock", testWalletSetPassword)
 
-	//stm: @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_PUT_001, @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_HAS_001,
-	//stm: @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_LIST_001,  @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_DELETE_001, @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_GET_001
-	//stm: @VENUSWALLET_STORAGE_WALLET_WALLET_NEW_001, @VENUSWALLET_STORAGE_WALLET_WALLET_LIST_001
+	// stm: @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_PUT_001, @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_HAS_001,
+	// stm: @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_LIST_001,  @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_DELETE_001, @VENUSWALLET_STORAGE_SQLITE_KEY_STORE_GET_001
+	// stm: @VENUSWALLET_STORAGE_WALLET_WALLET_NEW_001, @VENUSWALLET_STORAGE_WALLET_WALLET_LIST_001
 	t.Run("wallet address", testWalletAddress)
 }
 
@@ -96,7 +96,7 @@ func testWalletSetPassword(t *testing.T) {
 func testWalletAddress(t *testing.T) {
 	ctx := context.TODO()
 
-	var newAddrs = make(map[address.Address]struct{})
+	newAddrs := make(map[address.Address]struct{})
 	var err error
 
 	blsAddr, err := client.WalletNew(ctx, types.KTBLS)
@@ -110,7 +110,7 @@ func testWalletAddress(t *testing.T) {
 	addrList, err := client.WalletList(ctx)
 	require.NoError(t, err)
 
-	var totalAddrs = make(map[address.Address]struct{})
+	totalAddrs := make(map[address.Address]struct{})
 	for _, a := range addrList {
 		totalAddrs[a] = struct{}{}
 	}

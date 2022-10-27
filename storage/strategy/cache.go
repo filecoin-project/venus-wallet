@@ -34,9 +34,11 @@ type StrategyCache interface {
 	removeAddress(address string)
 }
 
-type tokenKey = string
-type addressKey = string
-type keyBindKey = string
+type (
+	tokenKey   = string
+	addressKey = string
+	keyBindKey = string
+)
 
 func genKeyBindKey(kb *types.KeyBind) keyBindKey {
 	return kb.Address + "|" + kb.Name
@@ -45,7 +47,7 @@ func genKeyBindKey(kb *types.KeyBind) keyBindKey {
 // strategyCache memory based wallet policy cache
 type strategyCache struct {
 	sync.RWMutex
-	blank map[string]struct{} //prevent data penetration
+	blank map[string]struct{} // prevent data penetration
 	cache map[tokenKey]map[addressKey]*types.KeyBind
 	// keyBind index, for remove keyBind or token
 	kbCache map[keyBindKey][]tokenKey

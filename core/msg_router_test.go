@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetSignBytes(t *testing.T) {
-	//addr := "t3sxzvhng4nqko7nv26hgkl53tak5kzk6pjgmrevnehk6cidrafhtcu53n6hpyj6hr4m2c362hxrtpacndicpa"
+	// addr := "t3sxzvhng4nqko7nv26hgkl53tak5kzk6pjgmrevnehk6cidrafhtcu53n6hpyj6hr4m2c362hxrtpacndicpa"
 	mtblockData := "904300e8078158609117ac930d5e257fd6117df27a552e65ec60ea759133cf83e784bcaf936ba241593f1e24553c027d" +
 		"69b6b4dd57a99df2030c2154f8bc3bb3600f3c5de6f9eda618e31a20f853af183007cc4beff10bbaf6eba21fa18dfe0610a1001e6c" +
 		"14bb4d82045860b662e9f11b3cd549d12b4682bb108b3b18a00756f42887cf269b57ab14b4b209d3f1c0d09cb88ec38d438f4554a2" +

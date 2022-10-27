@@ -58,6 +58,7 @@ func NewStrategy(store storage.StrategyStore, nodeCli *node.NodeClient, mw stora
 		mw:      mw,
 	}
 }
+
 func (s *strategy) NewMsgTypeTemplate(ctx context.Context, name string, codes []int) error {
 	enum, err := types2.AggregateMsgEnumCode(codes)
 	if err != nil {
@@ -151,6 +152,7 @@ func (s *strategy) NewKeyBindFromTemplate(ctx context.Context, name string, addr
 	}
 	return nil
 }
+
 func (s *strategy) GetKeyBindByName(ctx context.Context, name string) (*types2.KeyBind, error) {
 	return s.store.GetKeyBindByName(name)
 }
@@ -460,7 +462,7 @@ func (s *strategy) ScopeWallet(ctx context.Context) (*types2.AddressScope, error
 	if err == nil {
 		return &types2.AddressScope{Root: true}, nil
 	}
-	//TODO: Rich Domain Mode, need replace
+	// TODO: Rich Domain Mode, need replace
 
 	kb, err := s.store.GetGroupAuth(stToken)
 	if err != nil {

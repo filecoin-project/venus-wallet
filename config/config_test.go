@@ -9,6 +9,7 @@ func TestAAA(t *testing.T) {
 	cnf := new(Config)
 	t.Log(cnf.DB)
 }
+
 func TestDecodeConfig(t *testing.T) {
 	path := "./config.toml"
 	cnf, err := DecodeConfig(path)
@@ -31,7 +32,7 @@ func TestSafeWriteConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	//t.Log(cnf.API, cnf.DB)
+	// t.Log(cnf.API, cnf.DB)
 	barr, err := ConfigComment(cnf)
 	if err != nil {
 		t.Fatal(err)

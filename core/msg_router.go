@@ -3,8 +3,9 @@ package core
 import (
 	"bytes"
 	"fmt"
-	"github.com/ipfs-force-community/venus-gateway/walletevent"
 	"reflect"
+
+	"github.com/ipfs-force-community/venus-gateway/walletevent"
 
 	cborutil "github.com/filecoin-project/go-cbor-util"
 	"github.com/filecoin-project/go-fil-markets/storagemarket"
@@ -24,11 +25,14 @@ type Types struct {
 	parseObj  FParseObj
 }
 
-type FGetSignBytes func(in interface{}) ([]byte, error)
-type FParseObj func([]byte, types.MsgMeta) (interface{}, error)
+type (
+	FGetSignBytes func(in interface{}) ([]byte, error)
+	FParseObj     func([]byte, types.MsgMeta) (interface{}, error)
+)
 
 func RegisterSupportedMsgTypes(msgType types.MsgType, p reflect.Type,
-	fGetSignBytes FGetSignBytes, fParseObj FParseObj) (replaced bool) {
+	fGetSignBytes FGetSignBytes, fParseObj FParseObj,
+) (replaced bool) {
 	_, replaced = SupportedMsgTypes[msgType]
 	SupportedMsgTypes[msgType] = &Types{p, fGetSignBytes, fParseObj}
 	return replaced
@@ -58,8 +62,10 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 	}, nil},
 	types.MTAskResponse: {Type: reflect.TypeOf(network.AskResponse{}), signBytes: func(in interface{}) ([]byte, error) {
 		newAsk := in.(*network.AskResponse).Ask.Ask
-		oldAsk := &migrations.StorageAsk0{Price: newAsk.Price, VerifiedPrice: newAsk.VerifiedPrice, MinPieceSize: newAsk.MinPieceSize,
-			MaxPieceSize: newAsk.MaxPieceSize, Miner: newAsk.Miner, Timestamp: newAsk.Timestamp, Expiry: newAsk.Expiry, SeqNo: newAsk.SeqNo}
+		oldAsk := &migrations.StorageAsk0{
+			Price: newAsk.Price, VerifiedPrice: newAsk.VerifiedPrice, MinPieceSize: newAsk.MinPieceSize,
+			MaxPieceSize: newAsk.MaxPieceSize, Miner: newAsk.Miner, Timestamp: newAsk.Timestamp, Expiry: newAsk.Expiry, SeqNo: newAsk.SeqNo,
+		}
 		return cborutil.Dump(oldAsk)
 	}},
 	types.MTNetWorkResponse: {reflect.TypeOf(network.Response{}), func(in interface{}) ([]byte, error) {
@@ -73,9 +79,10 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 		msg := in.(*types.Message)
 		return msg.Cid().Bytes(), nil
 	}, nil},
-	types.MTProviderDealState: {reflect.TypeOf(storagemarket.ProviderDealState{}), func(in interface{}) ([]byte, error) {
-		return cborutil.Dump(in)
-	}, nil,
+	types.MTProviderDealState: {
+		reflect.TypeOf(storagemarket.ProviderDealState{}), func(in interface{}) ([]byte, error) {
+			return cborutil.Dump(in)
+		}, nil,
 	},
 	// chain/gen/gen.go:659,
 	// in method 'ComputeVRF' sign bytes with MsgType='MTUnknown'
