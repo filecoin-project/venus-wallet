@@ -42,6 +42,7 @@ func (s *sqliteStorage) Put(key *aes.EncryptedKey) error {
 	if sqlAddr, err = shortAddressFromString(key.Address); err != nil {
 		return fmt.Errorf("%s is not an address:%w", key.Address, err)
 	}
+
 	if err = s.db.Table(s.walletTB).First(wallet, "address=?",
 		sqlAddr).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return err

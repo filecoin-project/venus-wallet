@@ -66,12 +66,7 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 			ScryptP: 1,
 		}
 	}
-	if cnf.Strategy == nil {
-		cnf.Strategy = &config.StrategyConfig{
-			Level:   0,
-			NodeURL: "",
-		}
-	}
+
 	if cnf.APIRegisterHub == nil {
 		cnf.APIRegisterHub = &config.APIRegisterHubConfig{
 			RegisterAPI:     []string{},
