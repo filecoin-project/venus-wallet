@@ -1,0 +1,33 @@
+
+version: 2.1
+
+orbs:
+  go: venus/go-pkg-test@1.0.1
+jobs:
+  test_all:
+    executor:
+      name: go/default
+      tag: "cimg/go:1.18.1"
+    steps:
+      - go/setup_env:
+          install_ffi: true
+      - go/test:
+          display-name: unit_test_common
+          suite: "unit_test_common"
+          target: "./common/..."
+      - go/test:
+          display-name: unit_test_filemgr
+          suite: "filemgr"
+          target: "./filemgr/..."
+      - go/test:
+          display-name: integrate_test
+          suite: " integrate_test"
+          target: "./integration_test/..."
+      - go/test:
+          display-name: unit_test_storage
+          suite: "unit_test_storage"
+          target: "./storage/..."
+workflows:
+  ci:
+    jobs:
+      - test_all
