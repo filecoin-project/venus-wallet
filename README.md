@@ -1,6 +1,12 @@
-### Venus-wallet
-[![Go Report Card](https://goreportcard.com/badge/github.com/filecoin-project/venus-wallet)](https://goreportcard.com/report/github.com/filecoin-project/venus-wallet)
-![Go](https://github.com/filecoin-project/venus-wallet/workflows/Go/badge.svg)
+<h1 align="center">Venus Wallet</h1>
+
+<p align="center">
+ <a href="https://github.com/filecoin-project/venus-wallet/actions"><img src="https://github.com/filecoin-project/venus-wallet/actions/workflows/build_upload.yml/badge.svg"/></a>
+ <a href="https://codecov.io/gh/filecoin-project/venus-wallet"><img src="https://codecov.io/gh/filecoin-project/venus-wallet/branch/master/graph/badge.svg?token=J5QWYWkgHT"/></a>
+ <a href="https://goreportcard.com/report/github.com/filecoin-project/venus-wallet"><img src="https://goreportcard.com/badge/github.com/filecoin-project/venus-wallet"/></a>
+ <a href="https://github.com/filecoin-project/venus-wallet/tags"><img src="https://img.shields.io/github/v/tag/filecoin-project/venus-wallet"/></a>
+  <br>
+</p>
 
 - A remote wallet for Filecoin and supports JsonRPC2.0 call. 
 - The project is decoupled from Lotus and Venus independently, and can be called by different implementations of Filecoin.
