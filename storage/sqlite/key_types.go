@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -11,11 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type SqlScannerValuer interface {
-	sql.Scanner
-	driver.Valuer
-}
-
 type Key struct {
 	types.KeyInfo
 	PublicKey []byte
@@ -24,9 +18,8 @@ type Key struct {
 
 type Wallet struct {
 	gorm.Model
-	Address string            `gorm:"type:varchar(255);uniqueIndex"`
-	KeyInfo *SqlKeyInfo       `gorm:"type:blob;column:private_key;not null"`
-	Meta    *SqlScannerValuer `gorm:"type:blob;column:meta;default:null"`
+	Address string      `gorm:"type:varchar(255);uniqueIndex"`
+	KeyInfo *SqlKeyInfo `gorm:"type:blob;column:private_key;not null"`
 }
 
 func (w *Wallet) TableName() string {

@@ -15,7 +15,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/api/remotecli/httpparse"
 	"github.com/filecoin-project/venus-wallet/build"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	shared "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	logging "github.com/ipfs/go-log/v2"
@@ -106,13 +105,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		token = strings.TrimPrefix(token, "Bearer ")
 
-		tokenStrategy := strings.Split(token, "___") // just for compatible with lotus apiinfo parser
-		if len(tokenStrategy) == 2 {
-			ctx = context.WithValue(ctx, core.CtxKeyStrategy, tokenStrategy[1])
-		} else {
-			ctx = context.WithValue(ctx, core.CtxKeyStrategy, "")
+		{
+			tokenStrategy := strings.Split(token, "___") // todo deprecated, remove after confirm no one use strategies
+			token = tokenStrategy[0]
 		}
-		token = tokenStrategy[0]
 
 		allow, err := h.Verify(ctx, token)
 		if err != nil {

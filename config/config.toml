@@ -15,10 +15,6 @@ Secret = "7c40ce66a492e35ac828e8333a5703e38b23add87f29bd8fc7343989e08b3458"
 ScryptN = 262144
 ScryptP = 1
 
-[Strategy]
-Level = 2
-NodeURL = "/ip4/127.0.0.1/tcp/2345/http"
-
 [WalletEvent]
 GatewayAPI      = ""
 MessagerUrl     = ""

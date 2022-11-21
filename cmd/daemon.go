@@ -12,7 +12,6 @@ import (
 
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/build"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
@@ -60,7 +59,6 @@ var RunCmd = &cli.Command{
 		if err != nil {
 			return fmt.Errorf("opening fs repo: %w", err)
 		}
-		core.WalletStrategyLevel = r.Config().Strategy.Level
 		secret, err := r.APISecret()
 		if err != nil {
 			return fmt.Errorf("read secret failed: %w", err)

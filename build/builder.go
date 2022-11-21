@@ -9,10 +9,8 @@ import (
 	"github.com/filecoin-project/venus-wallet/common"
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/filemgr"
-	"github.com/filecoin-project/venus-wallet/node"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus-wallet/storage/sqlite"
-	"github.com/filecoin-project/venus-wallet/storage/strategy"
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
 	"github.com/gbrlsnchs/jwt/v3"
@@ -23,7 +21,8 @@ import (
 )
 
 // special is a type used to give keys to modules which
-//  can't really be identified by the returned type
+//
+//	can't really be identified by the returned type
 type special struct {
 	id int // nolint
 }
@@ -64,10 +63,6 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		Override(new(*config.DBConfig), c.DB),
 		Override(new(EventBus.Bus), EventBus.New),
 		Override(new(*sqlite.Conn), sqlite.NewSQLiteConn),
-		Override(new(storage.StrategyStore), sqlite.NewRouterStore),
-		Override(new(*config.StrategyConfig), c.Strategy),
-		Override(new(*node.NodeClient), node.NewNodeClient),
-		Override(new(strategy.ILocalStrategy), strategy.NewStrategy),
 		Override(new(*config.CryptoFactor), c.Factor),
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),
@@ -75,6 +70,9 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 			return func() string {
 				return walletPwd
 			}
+		}),
+		Override(new(wallet.ISignMsgFilter), func() wallet.ISignMsgFilter {
+			return wallet.NewSignFilter(c.SignFilter)
 		}),
 		Override(new(wallet_api.ILocalWallet), wallet.NewWallet),
 

@@ -12,7 +12,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/build"
 	"github.com/filecoin-project/venus-wallet/cmd"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
@@ -113,7 +112,6 @@ func NewWalletInst() (*WalletInst, error) {
 	if err != nil {
 		return nil, err
 	}
-	core.WalletStrategyLevel = repo.Config().Strategy.Level
 	return &WalletInst{
 		repo:     repo,
 		sigChan:  make(chan os.Signal, 1),

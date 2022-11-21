@@ -8,7 +8,6 @@ import (
 	"github.com/filecoin-project/venus-wallet/api"
 	"github.com/filecoin-project/venus-wallet/build"
 	"github.com/filecoin-project/venus-wallet/cmd"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/filemgr"
 	"github.com/filecoin-project/venus-wallet/middleware"
 	"github.com/filecoin-project/venus-wallet/version"
@@ -37,7 +36,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("opening fs repo: %s", err)
 	}
-	core.WalletStrategyLevel = r.Config().Strategy.Level
 	secret, err := r.APISecret()
 	if err != nil {
 		log.Fatalf("read secret failed: %s", err)
@@ -47,7 +45,6 @@ func main() {
 		build.Override(build.SetNet, func() {
 			address.CurrentNetwork = address.Testnet
 		}),
-		build.FullAPIOpt(&fullAPI),
 		build.WalletOpt(r, ""),
 		build.CommonOpt(secret),
 		build.Override(new(types.NetworkName), types.NetworkNameMain),
