@@ -79,13 +79,6 @@ ScryptP = 1
 Token = "" 
 # hex JWT secret, randam generate first init
 Secret = ""
-
-[Strategy]
-# strategy level
-# 0：nouse  1：only check struct  2：check struct and msg.method
-Level = 2
-# need config when Level = 2 and get the actor for msg.to
-NodeURL = "/ip4/127.0.0.1/tcp/2345/http"
 ```
 
 ---

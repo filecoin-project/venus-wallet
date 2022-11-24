@@ -5,13 +5,9 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/venus-wallet/config"
-	logging "github.com/ipfs/go-log/v2"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
-
-var log = logging.Logger("sqlite")
 
 // for sqlite use a single file socket
 type Conn struct {
@@ -21,12 +17,7 @@ type Conn struct {
 type TableName = string
 
 const (
-	TBWallet          TableName = "wallets"
-	TBGroupAuth       TableName = "groupAuth"
-	TBKeyBind         TableName = "keyBind"
-	TBGroup           TableName = "group"
-	TBMethodTemplate  TableName = "methodTmp"
-	TBMsgTypeTemplate TableName = "typeTmp"
+	TBWallet TableName = "wallets"
 )
 
 func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
@@ -43,7 +34,6 @@ func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
 	sqldb.SetConnMaxIdleTime(300)
 	sqldb.SetMaxIdleConns(8)
 	sqldb.SetMaxOpenConns(64)
-	db.Logger = logger.Default.LogMode(logger.Silent)
 	// key_types 1
 	if !db.Migrator().HasTable(TBWallet) {
 		if err = db.Table(TBWallet).AutoMigrate(&Wallet{}); err != nil {
@@ -51,35 +41,5 @@ func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
 		}
 	}
 
-	// NOTE: routeType 1
-	if !db.Migrator().HasTable(TBGroupAuth) {
-		if err = db.Table(TBGroupAuth).AutoMigrate(&GroupAuth{}); err != nil {
-			return nil, fmt.Errorf("migrate failed:%w", err)
-		}
-	}
-	// NOTE: routeType 2
-	if !db.Migrator().HasTable(TBKeyBind) {
-		if err = db.Table(TBKeyBind).AutoMigrate(&KeyBind{}); err != nil {
-			return nil, fmt.Errorf("migrate failed:%w", err)
-		}
-	}
-	// NOTE: routeType 3
-	if !db.Migrator().HasTable(TBGroup) {
-		if err = db.Table(TBGroup).AutoMigrate(&Group{}); err != nil {
-			return nil, fmt.Errorf("migrate failed:%w", err)
-		}
-	}
-	// NOTE: routeType 4
-	if !db.Migrator().HasTable(TBMethodTemplate) {
-		if err = db.Table(TBMethodTemplate).AutoMigrate(&MethodTemplate{}); err != nil {
-			return nil, fmt.Errorf("migrate failed:%w", err)
-		}
-	}
-	// NOTE: routeType 5
-	if !db.Migrator().HasTable(TBMsgTypeTemplate) {
-		if err = db.Table(TBMsgTypeTemplate).AutoMigrate(&MsgTypeTemplate{}); err != nil {
-			return nil, fmt.Errorf("migrate failed:%w", err)
-		}
-	}
 	return &Conn{DB: db}, nil
 }

@@ -7,14 +7,8 @@ type Config struct {
 	Metrics        *MetricsConfig        `json:"METRICS"`
 	JWT            *JWTConfig            `json:"JWT"`
 	Factor         *CryptoFactor         `json:"FACTOR"`
-	Strategy       *StrategyConfig       `json:"STRATEGY"`
+	SignFilter     *SignFilter           `json:"SignFilter"`
 	APIRegisterHub *APIRegisterHubConfig `json:"WalletEvent"`
-}
-
-// strategy validation
-type StrategyConfig struct {
-	Level   uint8  `json:"level"`   // 0：nouse  1：only check struct  2：check struct and msg.method
-	NodeURL string `json:"nodeUrl"` // need config when Level = 2 and get the actor for msg.to
 }
 
 type APIRegisterHubConfig struct {
@@ -55,4 +49,8 @@ type CryptoFactor struct {
 	// ScryptP is the P parameter of Scrypt encryption algorithm, using 256MB
 	// memory and taking approximately 1s CPU time on a modern processor.
 	ScryptP int `json:"scryptP"`
+}
+
+type SignFilter struct {
+	Expr string `json:"expr"`
 }

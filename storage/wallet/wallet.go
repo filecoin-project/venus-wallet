@@ -8,19 +8,15 @@ import (
 
 	"github.com/filecoin-project/go-address"
 
-	"github.com/ahmetb/go-linq/v3"
 	"github.com/asaskevich/EventBus"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	logging "github.com/ipfs/go-log/v2"
 
 	c "github.com/filecoin-project/go-state-types/crypto"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
-	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus-wallet/storage"
-	"github.com/filecoin-project/venus-wallet/storage/strategy"
 )
 
 var log = logging.Logger("wallet")
@@ -34,17 +30,17 @@ type wallet struct {
 	keyCache map[string]crypto.PrivateKey // simple key cache
 	ws       storage.KeyStore             // key storage
 	mw       storage.KeyMiddleware        //
-	verify   strategy.IStrategyVerify     // check wallet strategy with token
 	bus      EventBus.Bus
+	filter   ISignMsgFilter
 	m        sync.RWMutex
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, bus EventBus.Bus, verify strategy.ILocalStrategy, getPwd GetPwdFunc) wallet_api.ILocalWallet {
+func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, filter ISignMsgFilter, bus EventBus.Bus, getPwd GetPwdFunc) wallet_api.ILocalWallet {
 	w := &wallet{
 		ws:       ks,
 		mw:       mw,
-		verify:   verify,
 		bus:      bus,
+		filter:   filter,
 		keyCache: make(map[string]crypto.PrivateKey),
 	}
 	if getPwd != nil {
@@ -130,28 +126,14 @@ func (w *wallet) WalletNew(ctx context.Context, kt types.KeyType) (address.Addre
 }
 
 func (w *wallet) WalletHas(ctx context.Context, address address.Address) (bool, error) {
-	if !w.verify.ContainWallet(ctx, address) {
-		return false, errcode.ErrWithoutPermission
-	}
 	return w.ws.Has(address)
 }
 
 func (w *wallet) WalletList(ctx context.Context) ([]address.Address, error) {
-	addrScope, err := w.verify.ScopeWallet(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if addrScope.Root {
-		return w.ws.List()
-	}
-	if len(addrScope.Addresses) == 0 {
-		return addrScope.Addresses, nil
-	}
 	addrs, err := w.ws.List()
 	if err != nil {
 		return nil, err
 	}
-	linq.From(addrs).Intersect(linq.From(addrScope.Addresses)).ToSlice(&addrs)
 	return addrs, nil
 }
 
@@ -165,7 +147,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign 
 	)
 	// Do not validate strategy
 	if meta.Type == types.MTVerifyAddress {
-		_, toSign, err := core.GetSignBytes(toSign, meta)
+		_, toSign, err := GetSignBytes(toSign, meta)
 		if err != nil {
 			return nil, fmt.Errorf("get sign bytes failed: %v", err)
 		}
@@ -179,24 +161,37 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign 
 		if err != nil {
 			return nil, err
 		}
-		owner = msg.From
-		if signer.String() != owner.String() {
-			return nil, errors.New("singer does not match from in MSG")
-		}
-		data = msg.Cid().Bytes()
-		if err = w.verify.Verify(ctx, signer, meta.Type, msg); err != nil {
+
+		//Check filter
+		err = w.filter.CheckSignMsg(ctx, SignMsg{
+			SignType: types.MTChainMsg,
+			Data:     msg,
+		})
+		if err != nil {
 			return nil, err
 		}
+
+		owner = msg.From
+		if signer.String() != owner.String() {
+			return nil, fmt.Errorf("singe %s does not match from in MSG %s", signer, owner)
+		}
+		data = msg.Cid().Bytes()
 	} else {
-		_, toSign, err := core.GetSignBytes(toSign, meta)
+		signObj, toSign, err := GetSignBytes(toSign, meta)
 		if err != nil {
 			return nil, fmt.Errorf("get sign bytes failed: %w", err)
 		}
-		owner = signer
-		data = toSign
-		if err = w.verify.Verify(ctx, signer, meta.Type, nil); err != nil {
+
+		//Check filter
+		err = w.filter.CheckSignMsg(ctx, SignMsg{
+			SignType: meta.Type,
+			Data:     signObj,
+		})
+		if err != nil {
 			return nil, err
 		}
+		owner = signer
+		data = toSign
 	}
 	prvKey := w.cacheKey(owner)
 	if prvKey == nil {
@@ -216,9 +211,6 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign 
 func (w *wallet) WalletExport(ctx context.Context, addr address.Address) (*types.KeyInfo, error) {
 	if err := w.mw.Next(); err != nil {
 		return nil, err
-	}
-	if !w.verify.ContainWallet(ctx, addr) {
-		return nil, errcode.ErrWithoutPermission
 	}
 	key, err := w.ws.Get(addr)
 	if err != nil {

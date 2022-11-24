@@ -3,20 +3,17 @@ package storage
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"sync"
 
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus-wallet/core"
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"github.com/google/uuid"
 )
 
 var (
@@ -40,20 +37,17 @@ type KeyMiddleware interface {
 	Decrypt(password []byte, key *aes.EncryptedKey) (crypto.PrivateKey, error)
 	// Next Check the password has been set and the wallet is locked
 	Next() error
-	// EqualRootToken compare the root token
-	EqualRootToken(token string) error
 	// CheckToken check if the `strategy` token has all permissions
 	CheckToken(ctx context.Context) error
 	wallet_api.IWalletLock
 }
 
 type KeyMixLayer struct {
-	m         sync.RWMutex
-	rootToken string // gen from password
-	locked    bool
-	password  []byte
-	scryptN   int // aes cryptographic variable
-	scryptP   int // aes cryptographic variable
+	m        sync.RWMutex
+	locked   bool
+	password []byte
+	scryptN  int // aes cryptographic variable
+	scryptP  int // aes cryptographic variable
 }
 
 func NewKeyMiddleware(cnf *config.CryptoFactor) KeyMiddleware {
@@ -71,42 +65,10 @@ func (o *KeyMixLayer) SetPassword(ctx context.Context, password string) error {
 	if len(o.password) != 0 {
 		return ErrPasswordExist
 	}
-	rootToken, err := o.genRootToken(ctx, password)
-	if err != nil {
-		return err
-	}
-	o.rootToken = rootToken
 	hashPasswd := aes.Keccak256([]byte(password))
 	o.password = hashPasswd
 	o.locked = false
 	return nil
-}
-
-func (o *KeyMixLayer) genRootToken(ctx context.Context, password string) (string, error) {
-	hashPasswd := aes.Keccak256([]byte(password))
-	rootKey, err := aes.EncryptData(hashPasswd, []byte("root"), o.scryptN, o.scryptP)
-	if err != nil {
-		return "", errors.New("failed to gen token seed")
-	}
-	rootKB, err := json.Marshal(rootKey)
-	if err != nil {
-		return "", errors.New("failed to marshal token seed")
-	}
-	rootk, err := uuid.NewRandomFromReader(bytes.NewBuffer(rootKB))
-	if err != nil {
-		return "", errors.New("failed to convert token seed to uuid")
-	}
-	return rootk.String(), nil
-}
-
-func (o *KeyMixLayer) EqualRootToken(token string) error {
-	if len(o.password) == 0 || len(o.rootToken) == 0 {
-		return ErrPasswordEmpty
-	}
-	if o.rootToken == token {
-		return nil
-	}
-	return errcode.ErrWithoutPermission
 }
 
 func (o *KeyMixLayer) Unlock(ctx context.Context, password string) error {
@@ -150,19 +112,14 @@ func (o *KeyMixLayer) changeLock(password string, lock bool) error {
 }
 
 func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
-	if len(o.password) == 0 || len(o.rootToken) == 0 {
+	if len(o.password) == 0 {
 		return ErrPasswordEmpty
 	}
 
-	if core.WalletStrategyLevel == core.SLDisable || auth.HasPerm(ctx, permission.AllPermissions, permission.PermAdmin) {
+	if auth.HasPerm(ctx, permission.AllPermissions, permission.PermAdmin) {
 		return nil
 	}
 
-	token := core.ContextStrategyToken(ctx)
-
-	if o.rootToken == token {
-		return nil
-	}
 	return errcode.ErrWithoutPermission
 }
 
