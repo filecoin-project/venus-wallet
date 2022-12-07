@@ -91,6 +91,10 @@ func (fsr *FsRepo) checkConfig(op *OverrideParams) error {
 			cnf.APIRegisterHub.SupportAccounts = op.SupportAccounts
 		}
 	}
+	if cnf.SignFilter == nil {
+		cnf.SignFilter = &config.SignFilter{}
+	}
+
 	if reset {
 		err = config.CoverConfig(fsr.configPath(), cnf)
 		if err != nil {
