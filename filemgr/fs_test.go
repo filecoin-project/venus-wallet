@@ -39,4 +39,8 @@ func TestNewFS(t *testing.T) {
 		t.Fatal()
 	}
 	assert.Equal(t, curAPI, targetAPI)
+
+	require.NotNil(t, fs.Config().Factor)
+	require.NotNil(t, fs.Config().SignFilter)
+	require.NotNil(t, fs.Config().APIRegisterHub)
 }
