@@ -39,7 +39,6 @@ show-env:
 	@echo '-------------------------------------------------'
 
 lint:
-	gofmt -s -w ./
 	golangci-lint run
 
 clean:

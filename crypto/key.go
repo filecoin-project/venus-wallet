@@ -38,6 +38,8 @@ func Verify(sig *crypto.Signature, addr address.Address, msg []byte) error {
 		return secpVerify(sig.Data, addr, msg)
 	case types.SigTypeBLS:
 		return blsVerify(sig.Data, addr, msg)
+	case types.SigTypeDelegated:
+		return delegatedVerify(sig.Data, addr, msg)
 	default:
 		return fmt.Errorf("cannot verify signature of unsupported type: %v", sig.Type)
 	}
@@ -49,6 +51,8 @@ func GeneratePrivateKey(st types.SigType) (PrivateKey, error) {
 		return genSecpPrivateKey()
 	case types.SigTypeBLS:
 		return genBlsPrivate()
+	case types.SigTypeDelegated:
+		return genDelegatedPrivateKey()
 	default:
 		return nil, fmt.Errorf("invalid signature type: %d", st)
 	}
@@ -60,6 +64,8 @@ func NewKeyFromKeyInfo(ki *types.KeyInfo) (PrivateKey, error) {
 		return newBlsKeyFromData(ki.PrivateKey)
 	case types.KTSecp256k1:
 		return newSecpKeyFromData(ki.PrivateKey), nil
+	case types.KTDelegated:
+		return newDelegatedKeyFromData(ki.PrivateKey), nil
 	default:
 		return nil, fmt.Errorf("invalid key type: %s", ki.Type)
 	}
@@ -71,6 +77,8 @@ func NewKeyFromData2(kt types.KeyType, prv []byte) (PrivateKey, error) {
 		return newBlsKeyFromData(prv)
 	case types.KTSecp256k1:
 		return newSecpKeyFromData(prv), nil
+	case types.KTDelegated:
+		return newDelegatedKeyFromData(prv), nil
 	default:
 		return nil, fmt.Errorf("invalid key type: %s", kt)
 	}
@@ -82,6 +90,8 @@ func NewKeyFromData(st types.SigType, prv []byte) (PrivateKey, error) {
 		return newSecpKeyFromData(prv), nil
 	case types.SigTypeBLS:
 		return newBlsKeyFromData(prv)
+	case types.SigTypeDelegated:
+		return newDelegatedKeyFromData(prv), nil
 	default:
 		return nil, fmt.Errorf("invalid signature type: %d", st)
 	}

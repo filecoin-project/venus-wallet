@@ -2,7 +2,6 @@
 package filemgr
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -12,7 +11,7 @@ import (
 
 func TestNewFS(t *testing.T) {
 	// stm: @VENUSWALLET_FILEMGR_FS_NEW_001
-	fsPath, err := ioutil.TempDir("", "venus-repo-")
+	fsPath, err := os.MkdirTemp("", "venus-repo-")
 	defer os.RemoveAll(fsPath)
 	if err != nil {
 		t.Fatal(err)

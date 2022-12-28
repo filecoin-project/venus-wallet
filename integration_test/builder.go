@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"syscall"
@@ -104,7 +103,7 @@ func (inst *WalletInst) StopAndWait() error {
 }
 
 func NewWalletInst() (*WalletInst, error) {
-	dir, err := ioutil.TempDir("", "venus_wallet_")
+	dir, err := os.MkdirTemp("", "venus_wallet_")
 	if err != nil {
 		return nil, err
 	}
