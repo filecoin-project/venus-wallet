@@ -95,7 +95,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v2.0.0+incompatible // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hannahhoward/cbor-gen-for v0.0.0-20200817222906-ea96cece81f1 // indirect
 	github.com/hannahhoward/go-pubsub v0.0.0-20200423002714-8d62886cc36e // indirect
@@ -107,7 +107,7 @@ require (
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-blockservice v0.4.0 // indirect
-	github.com/ipfs/go-cid v0.2.0 // indirect
+	github.com/ipfs/go-cid v0.3.2 // indirect
 	github.com/ipfs/go-datastore v0.5.1 // indirect
 	github.com/ipfs/go-ipfs-blockstore v1.2.0 // indirect
 	github.com/ipfs/go-ipfs-ds-help v1.1.0 // indirect
@@ -122,7 +122,7 @@ require (
 	github.com/ipfs/go-verifcid v0.0.1 // indirect
 	github.com/ipld/go-car v0.4.0 // indirect
 	github.com/ipld/go-codec-dagpb v1.5.0 // indirect
-	github.com/ipld/go-ipld-prime v0.18.0 // indirect
+	github.com/ipld/go-ipld-prime v0.19.0 // indirect
 	github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52 // indirect
 	github.com/jbenet/goprocess v0.1.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -151,7 +151,7 @@ require (
 	github.com/multiformats/go-base32 v0.0.4 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
 	github.com/multiformats/go-multibase v0.1.1 // indirect
-	github.com/multiformats/go-multicodec v0.5.0 // indirect
+	github.com/multiformats/go-multicodec v0.6.0 // indirect
 	github.com/multiformats/go-multihash v0.2.1 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
