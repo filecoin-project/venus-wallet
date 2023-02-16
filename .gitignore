@@ -3,3 +3,4 @@ venus-wallet
 coverage.*
 .vscode
 dockerfile
+*_bin
