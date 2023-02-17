@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 
 	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus/venus-shared/api/permission"
@@ -22,7 +21,7 @@ type jwtSecret struct {
 
 // Random generation of secret keys
 func randSecret() (*jwtSecret, error) {
-	sk, err := ioutil.ReadAll(io.LimitReader(rand.Reader, 32))
+	sk, err := io.ReadAll(io.LimitReader(rand.Reader, 32))
 	if err != nil {
 		return nil, err
 	}

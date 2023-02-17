@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -79,12 +78,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tb, err := ioutil.ReadFile(path.Join(dir, "example", "remote-token.tmp"))
+	tb, err := os.ReadFile(path.Join(dir, "example", "remote-token.tmp"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	token := strings.TrimSpace(string(tb))
-	pb, err := ioutil.ReadFile(path.Join(dir, "example", "pid.tmp"))
+	pb, err := os.ReadFile(path.Join(dir, "example", "pid.tmp"))
 	if err != nil {
 		log.Fatal(err)
 	}

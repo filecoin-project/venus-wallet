@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -233,7 +232,7 @@ var walletImport = &cli.Command{
 			inpdata = indata
 
 		} else {
-			fdata, err := ioutil.ReadFile(cctx.Args().First())
+			fdata, err := os.ReadFile(cctx.Args().First())
 			if err != nil {
 				if strings.Contains(err.Error(), "no such file or directory") {
 					return errors.New("input whether it is a file, if not, exec `./venus-wallet import` and then `enter` ")

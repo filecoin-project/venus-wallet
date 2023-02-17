@@ -69,3 +69,31 @@ func TestBLSPrivateKey(t *testing.T) {
 	}
 	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "828e485cf906ae5deda33ec3e16b2a5ac761ab5a6109f481134a4dd40d7b5c3b03d187f614c7dd85d142ff50b902bdf50923f58b5bb741b4a522bf17f8efe5cf3f8f51715cd31a765eb5e5d76889102752d2cc2efa4287829cacb4de2be07cf7")
 }
+
+func TestDelegatedPrivateKey(t *testing.T) {
+	k := "33ff38fa8c1c53c3ef1b2f811cee9ce4f7ec2ce90b16ceeb9675dc6aa3d04821"
+	key, err := hex.DecodeString(k)
+	if err != nil {
+		t.Fatal(err)
+	}
+	prv, err := NewKeyFromData2(types.KTDelegated, key)
+	if err != nil {
+		t.Fatalf("load private key from bytes err:%s", err)
+	}
+
+	pub := prv.Public()
+	assert.Equal(t, fmt.Sprintf("%x", pub), "04f047588679644c440d8f7878fe29730e0cdc8c21b32ab8be5c8c01e1bf5d25e09609fff9c037fcd5cd6ac090e44a438c3d13a31a39a96a4b412831e4a3c83b0e")
+
+	addr, err := prv.Address()
+	if err != nil {
+		t.Fatalf("private key parse address error:%s", err)
+	}
+	assert.Equal(t, addr.String(), "t410fnz6o7a4owcgw33z2zvsxtuf64aoxlmcn4dh5hzy")
+
+	signData := []byte("hello filecoin")
+	signature, err := prv.Sign(signData)
+	if err != nil {
+		t.Fatalf("private key sign data err:%s", err)
+	}
+	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "e8f6ad5958dde03013e45fc77f71238cd0013af0d05ec5569007f70ffa7d2453007e7a581dcdf6d9f8e89846de210b74b188d8e1d2629f2d351e9e92f08be29600")
+}
