@@ -20,7 +20,7 @@ import (
 )
 
 func setup(t *testing.T) storage.KeyStore {
-	conn, err := NewSQLiteConn(&config.DBConfig{
+	conn, err := NewDB(&config.DBConfig{
 		Conn: "file::memory:",
 	})
 	assert.NoError(t, err)

@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -21,14 +22,24 @@ import (
 // Types Abstract data types to be signed
 type Types struct {
 	Type      reflect.Type
-	signBytes FGetSignBytes
-	parseObj  FParseObj
+	SignBytes FGetSignBytes
+	ParseObj  FParseObj
 }
 
 type (
-	FGetSignBytes func(in interface{}) ([]byte, error)
+	FGetSignBytes func(signObj interface{}) ([]byte, error)
 	FParseObj     func([]byte, types.MsgMeta) (interface{}, error)
 )
+
+var getDefaultPaseObjFunc = func(t reflect.Type) FParseObj {
+	return func(b []byte, meta types.MsgMeta) (interface{}, error) {
+		obj := reflect.New(t).Interface()
+		if err := cborDecodeInto(b, obj); err != nil {
+			return nil, err
+		}
+		return obj, nil
+	}
+}
 
 func RegisterSupportedMsgTypes(msgType types.MsgType, p reflect.Type,
 	fGetSignBytes FGetSignBytes, fParseObj FParseObj,
@@ -40,74 +51,125 @@ func RegisterSupportedMsgTypes(msgType types.MsgType, p reflect.Type,
 
 // SupportedMsgTypes signature type factory
 var SupportedMsgTypes = map[types.MsgType]*Types{
-	types.MTDealProposal: {reflect.TypeOf(market.DealProposal{}), func(i interface{}) ([]byte, error) {
-		return cborutil.Dump(i)
-	}, nil},
-	types.MTClientDeal: {reflect.TypeOf(market.ClientDealProposal{}), func(in interface{}) ([]byte, error) {
-		ni, err := cborutil.AsIpld(in)
-		if err != nil {
-			return nil, err
-		}
-		return ni.Cid().Bytes(), nil
-	}, nil},
-	types.MTDrawRandomParam: {reflect.TypeOf(types2.DrawRandomParams{}), func(in interface{}) ([]byte, error) {
-		param := in.(*types2.DrawRandomParams)
-		return param.SignBytes()
-	}, nil},
-	types.MTSignedVoucher: {reflect.TypeOf(paych.SignedVoucher{}), func(in interface{}) ([]byte, error) {
-		return (in.(*paych.SignedVoucher)).SigningBytes()
-	}, nil},
-	types.MTStorageAsk: {reflect.TypeOf(storagemarket.StorageAsk{}), func(in interface{}) ([]byte, error) {
-		return cborutil.Dump(in)
-	}, nil},
-	types.MTAskResponse: {Type: reflect.TypeOf(network.AskResponse{}), signBytes: func(in interface{}) ([]byte, error) {
-		newAsk := in.(*network.AskResponse).Ask.Ask
-		oldAsk := &migrations.StorageAsk0{
-			Price: newAsk.Price, VerifiedPrice: newAsk.VerifiedPrice, MinPieceSize: newAsk.MinPieceSize,
-			MaxPieceSize: newAsk.MaxPieceSize, Miner: newAsk.Miner, Timestamp: newAsk.Timestamp, Expiry: newAsk.Expiry, SeqNo: newAsk.SeqNo,
-		}
-		return cborutil.Dump(oldAsk)
-	}},
-	types.MTNetWorkResponse: {reflect.TypeOf(network.Response{}), func(in interface{}) ([]byte, error) {
-		return cborutil.Dump(in)
-	}, nil},
-
-	types.MTBlock: {reflect.TypeOf(types.BlockHeader{}), func(in interface{}) ([]byte, error) {
-		return in.(*types.BlockHeader).SignatureData()
-	}, nil},
-	types.MTChainMsg: {reflect.TypeOf(types.Message{}), func(in interface{}) ([]byte, error) {
-		msg := in.(*types.Message)
-		return msg.Cid().Bytes(), nil
-	}, nil},
-	types.MTProviderDealState: {
-		reflect.TypeOf(storagemarket.ProviderDealState{}), func(in interface{}) ([]byte, error) {
+	types.MTDealProposal: {
+		Type: reflect.TypeOf(market.DealProposal{}),
+		SignBytes: func(i interface{}) ([]byte, error) {
+			return cborutil.Dump(i)
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(market.DealProposal{})),
+	},
+	types.MTClientDeal: {
+		Type: reflect.TypeOf(market.ClientDealProposal{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			ni, err := cborutil.AsIpld(in)
+			if err != nil {
+				return nil, err
+			}
+			return ni.Cid().Bytes(), nil
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(market.ClientDealProposal{})),
+	},
+	types.MTDrawRandomParam: {
+		Type: reflect.TypeOf(types2.DrawRandomParams{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			param := in.(*types2.DrawRandomParams)
+			return param.SignBytes()
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(types2.DrawRandomParams{})),
+	},
+	types.MTSignedVoucher: {
+		Type: reflect.TypeOf(paych.SignedVoucher{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			return (in.(*paych.SignedVoucher)).SigningBytes()
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(paych.SignedVoucher{})),
+	},
+	types.MTStorageAsk: {
+		Type: reflect.TypeOf(storagemarket.StorageAsk{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
 			return cborutil.Dump(in)
-		}, nil,
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(storagemarket.StorageAsk{})),
+	},
+	types.MTAskResponse: {
+		Type: reflect.TypeOf(network.AskResponse{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			newAsk := in.(*network.AskResponse).Ask.Ask
+			oldAsk := &migrations.StorageAsk0{
+				Price: newAsk.Price, VerifiedPrice: newAsk.VerifiedPrice, MinPieceSize: newAsk.MinPieceSize,
+				MaxPieceSize: newAsk.MaxPieceSize, Miner: newAsk.Miner, Timestamp: newAsk.Timestamp, Expiry: newAsk.Expiry, SeqNo: newAsk.SeqNo,
+			}
+			return cborutil.Dump(oldAsk)
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(network.AskResponse{})),
+	},
+	types.MTNetWorkResponse: {
+		Type: reflect.TypeOf(network.Response{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			return cborutil.Dump(in)
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(network.Response{})),
+	},
+
+	types.MTBlock: {
+		Type: reflect.TypeOf(types.BlockHeader{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			return in.(*types.BlockHeader).SignatureData()
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(types.BlockHeader{})),
+	},
+	types.MTChainMsg: {
+		Type: reflect.TypeOf(types.Message{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			msg := in.(*types.Message)
+			return msg.Cid().Bytes(), nil
+		},
+		ParseObj: func(in []byte, meta types.MsgMeta) (interface{}, error) {
+			if len(meta.Extra) == 0 {
+				return nil, errors.New("msg type must contain extra data")
+			}
+			msg, err := types.DecodeMessage(meta.Extra)
+			if err != nil {
+				return nil, err
+			}
+
+			return msg, nil
+		},
+	},
+	types.MTProviderDealState: {
+		Type: reflect.TypeOf(storagemarket.ProviderDealState{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			return cborutil.Dump(in)
+		},
+		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(storagemarket.ProviderDealState{})),
 	},
 	// chain/gen/gen.go:659,
 	// in method 'ComputeVRF' sign bytes with MsgType='MTUnknown'
 	// so, must deal 'MTUnknown' MsgType, and this may case safe problem
-	types.MTUnknown: {reflect.TypeOf([]byte{}), func(in interface{}) ([]byte, error) {
-		msg, isok := in.([]byte)
-		if !isok {
-			return nil, fmt.Errorf("MTUnkown must be []byte")
-		}
-		return msg, nil
-	}, func(in []byte, meta types.MsgMeta) (interface{}, error) {
-		if meta.Type == types.MTUnknown {
-			return in, nil
-		}
-		return nil, fmt.Errorf("un-expected MsgType:%s", meta.Type)
-	}},
+	types.MTUnknown: {
+		Type: reflect.TypeOf([]byte{}),
+		SignBytes: func(in interface{}) ([]byte, error) {
+			msg, isOk := in.([]byte)
+			if !isOk {
+				return nil, fmt.Errorf("MTUnknown must be []byte")
+			}
+			return msg, nil
+		},
+		ParseObj: func(in []byte, meta types.MsgMeta) (interface{}, error) {
+			if meta.Type == types.MTUnknown {
+				return in, nil
+			}
+			return nil, fmt.Errorf("un-expected MsgType:%s", meta.Type)
+		}},
 	// the data to sign is divide into 2 parts:
 	// first  part: is from venus-gateway, which here should be `meta.Extra`
 	// second part: is from venus-wallet, which here is `wallet_event.RandomBytes`
 	types.MTVerifyAddress: {
 		Type: reflect.TypeOf([]byte{}),
-		signBytes: func(in interface{}) ([]byte, error) {
+		SignBytes: func(in interface{}) ([]byte, error) {
 			return in.([]byte), nil
 		},
-		parseObj: func(in []byte, meta types.MsgMeta) (interface{}, error) {
+		ParseObj: func(in []byte, meta types.MsgMeta) (interface{}, error) {
 			expected := walletevent.GetSignData(meta.Extra, walletevent.RandomBytes)
 			if !bytes.Equal(in, expected) {
 				return nil, fmt.Errorf("sign data not match, actual %v, expected %v", in, expected)
@@ -117,29 +179,30 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 	},
 }
 
-// GetSignBytes Matches the type and returns the data that needs to be signed
-func GetSignBytes(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error) {
+// ParseSignMsg Matches the type and returns the data that needs to be signed
+func ParseSignMsg(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error) {
 	t := SupportedMsgTypes[meta.Type]
 	if t == nil {
 		return nil, nil, fmt.Errorf("unsupported msgtype:%s", meta.Type)
 	}
 	var in interface{}
 	var err error
-	if t.parseObj != nil {
-		if in, err = t.parseObj(toSign, meta); err != nil {
-			return nil, nil, fmt.Errorf("parseObj failed:%w", err)
-		}
-	} else { // treat as cbor unmarshal-able object by default
-		in = reflect.New(t.Type).Interface()
-		unmarshaler, isok := in.(cbor.Unmarshaler)
-		if !isok {
-			return nil, nil, fmt.Errorf("type:%s is is not an 'unmarhsaler'", t.Type.Name())
-		}
-		if err := unmarshaler.UnmarshalCBOR(bytes.NewReader(toSign)); err != nil {
-			return nil, nil, fmt.Errorf("cborunmarshal to %s failed:%w", t.Type.Name(), err)
-		}
+	if in, err = t.ParseObj(toSign, meta); err != nil {
+		return nil, nil, fmt.Errorf("parseObj failed:%w", err)
 	}
+
 	var data []byte
-	data, err = t.signBytes(in)
+	data, err = t.SignBytes(in)
 	return in, data, err
+}
+
+func cborDecodeInto(r []byte, v interface{}) error {
+	unmarshaler, isOk := v.(cbor.Unmarshaler)
+	if !isOk {
+		return fmt.Errorf("not an 'unmarhsaler'")
+	}
+	if err := unmarshaler.UnmarshalCBOR(bytes.NewReader(r)); err != nil {
+		return fmt.Errorf("cbor unmarshal:%w", err)
+	}
+	return nil
 }

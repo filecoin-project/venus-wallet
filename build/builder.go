@@ -16,6 +16,7 @@ import (
 	"github.com/gbrlsnchs/jwt/v3"
 	"github.com/ipfs-force-community/venus-gateway/types"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 )
@@ -62,10 +63,11 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		Override(new(filemgr.Repo), repo),
 		Override(new(*config.DBConfig), c.DB),
 		Override(new(EventBus.Bus), EventBus.New),
-		Override(new(*sqlite.Conn), sqlite.NewSQLiteConn),
+		Override(new(*gorm.DB), sqlite.NewDB),
 		Override(new(*config.CryptoFactor), c.Factor),
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),
+		Override(new(storage.IRecorder), sqlite.NewSqliteRecorder),
 		Override(new(wallet.GetPwdFunc), func() wallet.GetPwdFunc {
 			return func() string {
 				return walletPwd

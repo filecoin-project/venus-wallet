@@ -5,6 +5,7 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
+	"github.com/filecoin-project/venus/venus-shared/types"
 )
 
 var (
@@ -25,4 +26,13 @@ type KeyStore interface {
 	List() ([]address.Address, error)
 	// Delete removes a key from keystore
 	Delete(addr address.Address) error
+}
+
+type QueryParams = types.QuerySignRecordParams
+
+type SignRecord = types.SignRecord
+
+type IRecorder interface {
+	Record(rcd *SignRecord) error
+	QueryRecord(params *QueryParams) ([]SignRecord, error)
 }

@@ -18,7 +18,7 @@ func (fsr *FsRepo) defConfig() *config.Config {
 			ListenAddress: "/ip4/127.0.0.1/tcp/5678/http",
 		},
 		DB: &config.DBConfig{
-			Conn:      filepath.Join(fsr.path, skKeyStore),
+			Conn:      filepath.Join(fsr.path, dbName),
 			Type:      "sqlite",
 			DebugMode: true,
 		},

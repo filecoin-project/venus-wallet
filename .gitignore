@@ -4,3 +4,4 @@ coverage.*
 .vscode
 dockerfile
 *_bin
+*test.db

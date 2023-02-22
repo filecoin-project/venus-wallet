@@ -9,18 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// for sqlite use a single file socket
-type Conn struct {
-	DB *gorm.DB
-}
-
 type TableName = string
 
 const (
 	TBWallet TableName = "wallets"
 )
 
-func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
+func NewDB(cfg *config.DBConfig) (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(cfg.Conn), &gorm.Config{})
 	var sqldb *sql.DB
 	if err != nil {
@@ -41,5 +36,5 @@ func NewSQLiteConn(cfg *config.DBConfig) (*Conn, error) {
 		}
 	}
 
-	return &Conn{DB: db}, nil
+	return db, nil
 }

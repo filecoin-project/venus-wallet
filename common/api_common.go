@@ -11,6 +11,8 @@ import (
 	"github.com/gbrlsnchs/jwt/v3"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
+
+	"github.com/filecoin-project/venus-wallet/storage"
 )
 
 type ICommon = api.ICommon
@@ -20,6 +22,7 @@ var _ ICommon = &Common{}
 type Common struct {
 	fx.In
 	APISecret *jwt.HMACSHA
+	Recorder  storage.IRecorder
 }
 
 type jwtPayload struct {
@@ -54,4 +57,8 @@ func (a *Common) LogList(context.Context) ([]string, error) {
 
 func (a *Common) LogSetLevel(ctx context.Context, subsystem, level string) error {
 	return logging.SetLogLevel(subsystem, level)
+}
+
+func (a *Common) QuerySignRecord(ctx context.Context, param *types.QuerySignRecordParams) ([]types.SignRecord, error) {
+	return a.Recorder.QueryRecord(param)
 }
