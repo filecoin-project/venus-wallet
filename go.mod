@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
-	github.com/BurntSushi/toml v1.2.0
+	github.com/BurntSushi/toml v1.2.1
 	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef
 	github.com/filecoin-project/go-address v1.1.0
 	github.com/filecoin-project/go-cbor-util v0.0.1
@@ -27,7 +27,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.1
 	github.com/supranational/blst v0.3.4
-	github.com/urfave/cli/v2 v2.16.3
+	github.com/urfave/cli/v2 v2.24.0
 	go.opencensus.io v0.23.0
 	go.uber.org/fx v1.15.0
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90

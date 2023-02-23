@@ -34,7 +34,7 @@ type (
 var getDefaultPaseObjFunc = func(t reflect.Type) FParseObj {
 	return func(b []byte, meta types.MsgMeta) (interface{}, error) {
 		obj := reflect.New(t).Interface()
-		if err := cborDecodeInto(b, obj); err != nil {
+		if err := CborDecodeInto(b, obj); err != nil {
 			return nil, err
 		}
 		return obj, nil
@@ -196,7 +196,7 @@ func ParseSignMsg(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error
 	return in, data, err
 }
 
-func cborDecodeInto(r []byte, v interface{}) error {
+func CborDecodeInto(r []byte, v interface{}) error {
 	unmarshaler, isOk := v.(cbor.Unmarshaler)
 	if !isOk {
 		return fmt.Errorf("not an 'unmarhsaler'")

@@ -53,13 +53,16 @@ func (s *sqliteSignRecord) toSignRecord() *storage.SignRecord {
 }
 
 func (s *sqliteSignRecord) getId() string {
-	s1 := s.Signer
-	s2 := s.CreatedAt.UnixNano()
-	return fmt.Sprintf("%s-%d", s1, s2)
+	return fmt.Sprintf("%d-%s", s.CreatedAt.UnixNano(), s.Signer)
 }
 
 func parseId(id string) (signer string, createAt time.Time, err error) {
-	_, err = fmt.Sscanf(id, "%s-%d", &signer, &createAt)
+	var nanoSec int64
+	_, err = fmt.Sscanf(id, "%d-%s", &nanoSec, &signer)
+	if err != nil {
+		return signer, createAt, fmt.Errorf("parse id: %w", err)
+	}
+	createAt = time.Unix(0, nanoSec)
 	return signer, createAt, err
 }
 
@@ -88,10 +91,10 @@ func (s *SqliteRecorder) QueryRecord(params *storage.QueryParams) ([]storage.Sig
 		if err != nil {
 			return nil, fmt.Errorf("parse id: %w", err)
 		}
-		query = query.Where("signer = ?", signer).Where("created_at = ?", createAt)
+		query = query.Where("signer = ?", signer).Where("created_at <= ?", createAt).Where("created_at >= ?", createAt)
 	} else {
 		if params.Signer != address.Undef {
-			query = query.Where("signer = ?", params.Signer)
+			query = query.Where("signer = ?", params.Signer.String())
 		}
 		if !params.After.IsZero() {
 			query = query.Where("created_at >= ?", params.After)
@@ -111,10 +114,11 @@ func (s *SqliteRecorder) QueryRecord(params *storage.QueryParams) ([]storage.Sig
 		if params.Limit > 0 {
 			query = query.Limit(params.Limit)
 		}
-		err := query.Order("created_at desc").Find(&records).Error
-		if err != nil {
-			return nil, err
-		}
+	}
+
+	err := query.Order("created_at desc").Find(&records).Error
+	if err != nil {
+		return nil, err
 	}
 
 	ret := make([]storage.SignRecord, 0, len(records))

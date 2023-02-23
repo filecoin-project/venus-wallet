@@ -5,3 +5,4 @@ coverage.*
 dockerfile
 *_bin
 *test.db
+storage/sqlite/test.db

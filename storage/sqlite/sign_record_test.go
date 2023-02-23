@@ -26,5 +26,8 @@ func TestSingRecord(t *testing.T) {
 		CreateAt: time.Now(),
 	})
 	assert.NoError(t, err)
+	res, err := s.QueryRecord(&types.QuerySignRecordParams{})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(res))
 
 }
