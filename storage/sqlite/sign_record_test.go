@@ -12,7 +12,7 @@ import (
 )
 
 func TestSingRecord(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	assert.NoError(t, err)
 
 	// Migrate the schema
@@ -20,7 +20,7 @@ func TestSingRecord(t *testing.T) {
 	assert.NoError(t, err)
 
 	err = s.Record(&types.SignRecord{
-		Msg:      []byte("hello"),
+		RawMsg:   []byte("hello"),
 		Err:      fmt.Errorf("error"),
 		Type:     types.MTVerifyAddress,
 		CreateAt: time.Now(),

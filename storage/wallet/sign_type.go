@@ -31,7 +31,7 @@ type (
 	FParseObj     func([]byte, types.MsgMeta) (interface{}, error)
 )
 
-var getDefaultPaseObjFunc = func(t reflect.Type) FParseObj {
+var defaultPaseObjFunc = func(t reflect.Type) FParseObj {
 	return func(b []byte, meta types.MsgMeta) (interface{}, error) {
 		obj := reflect.New(t).Interface()
 		if err := CborDecodeInto(b, obj); err != nil {
@@ -56,7 +56,7 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 		SignBytes: func(i interface{}) ([]byte, error) {
 			return cborutil.Dump(i)
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(market.DealProposal{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(market.DealProposal{})),
 	},
 	types.MTClientDeal: {
 		Type: reflect.TypeOf(market.ClientDealProposal{}),
@@ -67,7 +67,7 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 			}
 			return ni.Cid().Bytes(), nil
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(market.ClientDealProposal{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(market.ClientDealProposal{})),
 	},
 	types.MTDrawRandomParam: {
 		Type: reflect.TypeOf(types2.DrawRandomParams{}),
@@ -75,21 +75,21 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 			param := in.(*types2.DrawRandomParams)
 			return param.SignBytes()
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(types2.DrawRandomParams{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(types2.DrawRandomParams{})),
 	},
 	types.MTSignedVoucher: {
 		Type: reflect.TypeOf(paych.SignedVoucher{}),
 		SignBytes: func(in interface{}) ([]byte, error) {
 			return (in.(*paych.SignedVoucher)).SigningBytes()
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(paych.SignedVoucher{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(paych.SignedVoucher{})),
 	},
 	types.MTStorageAsk: {
 		Type: reflect.TypeOf(storagemarket.StorageAsk{}),
 		SignBytes: func(in interface{}) ([]byte, error) {
 			return cborutil.Dump(in)
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(storagemarket.StorageAsk{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(storagemarket.StorageAsk{})),
 	},
 	types.MTAskResponse: {
 		Type: reflect.TypeOf(network.AskResponse{}),
@@ -101,14 +101,14 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 			}
 			return cborutil.Dump(oldAsk)
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(network.AskResponse{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(network.AskResponse{})),
 	},
 	types.MTNetWorkResponse: {
 		Type: reflect.TypeOf(network.Response{}),
 		SignBytes: func(in interface{}) ([]byte, error) {
 			return cborutil.Dump(in)
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(network.Response{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(network.Response{})),
 	},
 
 	types.MTBlock: {
@@ -116,7 +116,7 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 		SignBytes: func(in interface{}) ([]byte, error) {
 			return in.(*types.BlockHeader).SignatureData()
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(types.BlockHeader{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(types.BlockHeader{})),
 	},
 	types.MTChainMsg: {
 		Type: reflect.TypeOf(types.Message{}),
@@ -141,7 +141,7 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 		SignBytes: func(in interface{}) ([]byte, error) {
 			return cborutil.Dump(in)
 		},
-		ParseObj: getDefaultPaseObjFunc(reflect.TypeOf(storagemarket.ProviderDealState{})),
+		ParseObj: defaultPaseObjFunc(reflect.TypeOf(storagemarket.ProviderDealState{})),
 	},
 	// chain/gen/gen.go:659,
 	// in method 'ComputeVRF' sign bytes with MsgType='MTUnknown'
@@ -179,8 +179,8 @@ var SupportedMsgTypes = map[types.MsgType]*Types{
 	},
 }
 
-// ParseSignMsg Matches the type and returns the data that needs to be signed
-func ParseSignMsg(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error) {
+// GetSignBytesAndObj Matches the type and returns the data that needs to be signed
+func GetSignBytesAndObj(toSign []byte, meta types.MsgMeta) (interface{}, []byte, error) {
 	t := SupportedMsgTypes[meta.Type]
 	if t == nil {
 		return nil, nil, fmt.Errorf("unsupported msgtype:%s", meta.Type)

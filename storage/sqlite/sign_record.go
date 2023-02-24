@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	"gorm.io/gorm"
@@ -13,11 +14,12 @@ import (
 const MTUndefined types.MsgType = ""
 
 type sqliteSignRecord struct {
-	CreatedAt time.Time     `gorm:"index"`
-	Type      types.MsgType `gorm:"index"`
-	Signer    string        `gorm:"type:varchar(256);not null"`
-	Err       string        `gorm:"type:varchar(256);default:null"`
-	Msg       []byte        `gorm:"type:blob;default:null"`
+	CreatedAt time.Time         `gorm:"index"`
+	Type      types.MsgType     `gorm:"index"`
+	Signer    string            `gorm:"type:varchar(256);not null"`
+	Err       string            `gorm:"type:varchar(256);default:null"`
+	RawMsg    []byte            `gorm:"type:blob;default:null"`
+	Signature *crypto.Signature `gorm:"embedded;embeddedPrefix:signature_"`
 }
 
 func (s *sqliteSignRecord) TableName() string {
@@ -29,7 +31,8 @@ func newFromSignRecord(record *storage.SignRecord) *sqliteSignRecord {
 		CreatedAt: record.CreateAt,
 		Type:      record.Type,
 		Signer:    record.Signer.String(),
-		Msg:       record.Msg,
+		RawMsg:    record.RawMsg,
+		Signature: record.Signature,
 	}
 	if record.Err != nil {
 		ret.Err = record.Err.Error()
@@ -39,12 +42,13 @@ func newFromSignRecord(record *storage.SignRecord) *sqliteSignRecord {
 
 func (s *sqliteSignRecord) toSignRecord() *storage.SignRecord {
 	ret := &storage.SignRecord{
-		ID:       s.getId(),
-		CreateAt: s.CreatedAt,
-		Type:     s.Type,
-		Signer:   MustParseAddress(s.Signer),
-		Err:      fmt.Errorf(s.Err),
-		Msg:      s.Msg,
+		ID:        s.getId(),
+		CreateAt:  s.CreatedAt,
+		Type:      s.Type,
+		Signer:    MustParseAddress(s.Signer),
+		Err:       fmt.Errorf(s.Err),
+		RawMsg:    s.RawMsg,
+		Signature: s.Signature,
 	}
 	if s.Err == "" {
 		ret.Err = nil

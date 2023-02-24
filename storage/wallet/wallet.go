@@ -145,7 +145,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, data []
 	}
 
 	// parse msg
-	signObj, toSign, err := ParseSignMsg(data, meta)
+	signObj, toSign, err := GetSignBytesAndObj(data, meta)
 	if err != nil {
 		return nil, fmt.Errorf("get sign bytes: %w", err)
 	}
@@ -184,20 +184,22 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, data []
 	signature, signErr := prvKey.Sign(toSign)
 
 	// record
-	msg, err := cborutil.Dump(signObj)
-	if err != nil {
-		log.Errorf("dump signObj failed %v", err)
-	}
+	go func() {
+		msg, err := cborutil.Dump(signObj)
+		if err != nil {
+			log.Errorf("dump signObj failed %v", err)
+		}
 
-	err = w.recorder.Record(&storage.SignRecord{
-		Type:   meta.Type,
-		Signer: signer,
-		Msg:    msg,
-		Err:    signErr,
-	})
-	if err != nil {
-		log.Errorf("record sign failed: %v", err)
-	}
+		err = w.recorder.Record(&storage.SignRecord{
+			Type:   meta.Type,
+			Signer: signer,
+			RawMsg: msg,
+			Err:    signErr,
+		})
+		if err != nil {
+			log.Errorf("record sign failed: %v", err)
+		}
+	}()
 
 	return signature, signErr
 }

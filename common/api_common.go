@@ -59,6 +59,6 @@ func (a *Common) LogSetLevel(ctx context.Context, subsystem, level string) error
 	return logging.SetLogLevel(subsystem, level)
 }
 
-func (a *Common) QuerySignRecord(ctx context.Context, param *types.QuerySignRecordParams) ([]types.SignRecord, error) {
+func (a *Common) ListSignedRecord(ctx context.Context, param *types.QuerySignRecordParams) ([]types.SignRecord, error) {
 	return a.Recorder.QueryRecord(param)
 }

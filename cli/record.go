@@ -18,11 +18,11 @@ var recordCmd = &cli.Command{
 	Name:  "record",
 	Usage: "manipulate sign record",
 	Subcommands: []*cli.Command{
-		recordQuery,
+		recordList,
 	},
 }
 
-var recordQuery = &cli.Command{
+var recordList = &cli.Command{
 	Name:  "query",
 	Usage: "query sign record",
 	Flags: []cli.Flag{
@@ -127,7 +127,7 @@ var recordQuery = &cli.Command{
 			QueryParams.ID = cctx.String("id")
 		}
 
-		records, err := api.QuerySignRecord(ctx, &QueryParams)
+		records, err := api.ListSignedRecord(ctx, &QueryParams)
 		if err != nil {
 			return fmt.Errorf("query sign record: %w", err)
 		}
@@ -179,7 +179,7 @@ func GetDetailInJsonRawMessage(r *types.SignRecord) (json.RawMessage, error) {
 		return fmt.Errorf("get detail: %w", err)
 	}
 
-	if r.Msg == nil {
+	if r.RawMsg == nil {
 		return nil, wrap(fmt.Errorf("msg is nil"))
 	}
 
@@ -188,14 +188,14 @@ func GetDetailInJsonRawMessage(r *types.SignRecord) (json.RawMessage, error) {
 		output := struct {
 			Hex string
 		}{
-			Hex: hex.EncodeToString(r.Msg),
+			Hex: hex.EncodeToString(r.RawMsg),
 		}
 
 		return json.Marshal(output)
 	}
 
 	signObj := reflect.New(t.Type).Interface()
-	if err := wallet.CborDecodeInto(r.Msg, signObj); err != nil {
+	if err := wallet.CborDecodeInto(r.RawMsg, signObj); err != nil {
 		return nil, fmt.Errorf("decode msg:%w", err)
 	}
 	return json.Marshal(signObj)
