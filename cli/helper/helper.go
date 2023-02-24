@@ -2,6 +2,7 @@ package helper
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -201,4 +202,13 @@ func (e *PrintHelpErr) Is(o error) bool {
 
 func NewTabWriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
+}
+
+func PrintJSON(v interface{}) error {
+	bytes, err := json.MarshalIndent(v, " ", "\t")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(bytes))
+	return nil
 }
