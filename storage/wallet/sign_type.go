@@ -28,7 +28,7 @@ type Types struct {
 
 type (
 	FGetSignBytes func(signObj interface{}) ([]byte, error)
-	FParseObj     func([]byte, types.MsgMeta) (interface{}, error)
+	FParseObj     func(toSign []byte, meta types.MsgMeta) (interface{}, error)
 )
 
 var defaultPaseObjFunc = func(t reflect.Type) FParseObj {
