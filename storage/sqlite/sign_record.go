@@ -14,9 +14,9 @@ import (
 const MTUndefined types.MsgType = ""
 
 type sqliteSignRecord struct {
-	CreatedAt time.Time         `gorm:"index"`
+	CreatedAt time.Time         `gorm:"primaryKey;index"`
 	Type      types.MsgType     `gorm:"index"`
-	Signer    string            `gorm:"type:varchar(256);not null"`
+	Signer    string            `gorm:"primaryKey;type:varchar(256);index;not null"`
 	Err       string            `gorm:"type:varchar(256);default:null"`
 	RawMsg    []byte            `gorm:"type:blob;default:null"`
 	Signature *crypto.Signature `gorm:"embedded;embeddedPrefix:signature_"`
