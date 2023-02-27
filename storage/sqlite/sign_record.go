@@ -8,10 +8,13 @@ import (
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus/venus-shared/types"
+	logging "github.com/ipfs/go-log/v2"
 	"gorm.io/gorm"
 )
 
 const MTUndefined types.MsgType = ""
+
+var log = logging.Logger("recorder")
 
 type sqliteSignRecord struct {
 	CreatedAt time.Time         `gorm:"primaryKey;index"`
@@ -79,6 +82,18 @@ func NewSqliteRecorder(db *gorm.DB) (storage.IRecorder, error) {
 	if err != nil {
 		return nil, fmt.Errorf("init sqlite_recorder: %w", err)
 	}
+
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		for {
+			<-ticker.C
+			err := db.Where("created_at < ?", time.Now().Add(-time.Hour*24*7)).Delete(&sqliteSignRecord{}).Error
+			if err != nil {
+				log.Errorf("clean sqlite recorder: %s", err)
+			}
+		}
+	}()
+
 	return &SqliteRecorder{db: db}, nil
 }
 
