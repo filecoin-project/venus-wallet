@@ -17,9 +17,10 @@ const MTUndefined types.MsgType = ""
 var log = logging.Logger("recorder")
 
 type sqliteSignRecord struct {
-	CreatedAt time.Time         `gorm:"primaryKey;index"`
+	ID        string            `gorm:"primaryKey;type:varchar(256);index;not null"`
+	CreatedAt time.Time         `gorm:"index"`
 	Type      types.MsgType     `gorm:"index"`
-	Signer    string            `gorm:"primaryKey;type:varchar(256);index;not null"`
+	Signer    string            `gorm:"type:varchar(256);index;not null"`
 	Err       string            `gorm:"type:varchar(256);default:null"`
 	RawMsg    []byte            `gorm:"type:blob;default:null"`
 	Signature *crypto.Signature `gorm:"embedded;embeddedPrefix:signature_"`
@@ -31,6 +32,7 @@ func (s *sqliteSignRecord) TableName() string {
 
 func newFromSignRecord(record *storage.SignRecord) *sqliteSignRecord {
 	ret := &sqliteSignRecord{
+		ID:        record.ID,
 		CreatedAt: record.CreateAt,
 		Type:      record.Type,
 		Signer:    record.Signer.String(),
@@ -45,7 +47,7 @@ func newFromSignRecord(record *storage.SignRecord) *sqliteSignRecord {
 
 func (s *sqliteSignRecord) toSignRecord() *storage.SignRecord {
 	ret := &storage.SignRecord{
-		ID:        s.getId(),
+		ID:        s.ID,
 		CreateAt:  s.CreatedAt,
 		Type:      s.Type,
 		Signer:    MustParseAddress(s.Signer),
@@ -57,10 +59,6 @@ func (s *sqliteSignRecord) toSignRecord() *storage.SignRecord {
 		ret.Err = nil
 	}
 	return ret
-}
-
-func (s *sqliteSignRecord) getId() string {
-	return fmt.Sprintf("%d-%s", s.CreatedAt.UnixNano(), s.Signer)
 }
 
 func parseId(id string) (signer string, createAt time.Time, err error) {
@@ -98,6 +96,7 @@ func NewSqliteRecorder(db *gorm.DB) (storage.IRecorder, error) {
 }
 
 func (s *SqliteRecorder) Record(record *storage.SignRecord) error {
+	record.ID = types.NewUUID().String()
 	return s.db.Create(newFromSignRecord(record)).Error
 }
 
