@@ -96,7 +96,6 @@ func NewSqliteRecorder(db *gorm.DB) (storage.IRecorder, error) {
 }
 
 func (s *SqliteRecorder) Record(record *storage.SignRecord) error {
-	record.ID = types.NewUUID().String()
 	return s.db.Create(newFromSignRecord(record)).Error
 }
 

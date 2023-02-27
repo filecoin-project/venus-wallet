@@ -7,6 +7,7 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	cborutil "github.com/filecoin-project/go-cbor-util"
+	"github.com/google/uuid"
 
 	"github.com/asaskevich/EventBus"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
@@ -191,6 +192,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, data []
 		}
 
 		err = w.recorder.Record(&storage.SignRecord{
+			ID:     uuid.New().String(),
 			Type:   meta.Type,
 			Signer: signer,
 			RawMsg: msg,
