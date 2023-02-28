@@ -61,16 +61,6 @@ func (s *sqliteSignRecord) toSignRecord() *storage.SignRecord {
 	return ret
 }
 
-func parseId(id string) (signer string, createAt time.Time, err error) {
-	var nanoSec int64
-	_, err = fmt.Sscanf(id, "%d-%s", &nanoSec, &signer)
-	if err != nil {
-		return signer, createAt, fmt.Errorf("parse id: %w", err)
-	}
-	createAt = time.Unix(0, nanoSec)
-	return signer, createAt, err
-}
-
 type SqliteRecorder struct {
 	db *gorm.DB
 }
@@ -104,11 +94,7 @@ func (s *SqliteRecorder) QueryRecord(params *storage.QueryParams) ([]storage.Sig
 	query := s.db
 
 	if params.ID != "" {
-		signer, createAt, err := parseId(params.ID)
-		if err != nil {
-			return nil, fmt.Errorf("parse id: %w", err)
-		}
-		query = query.Where("signer = ?", signer).Where("created_at <= ?", createAt).Where("created_at >= ?", createAt)
+		query = query.Where("id = ?", params.ID)
 	} else {
 		if params.Signer != address.Undef {
 			query = query.Where("signer = ?", params.Signer.String())
