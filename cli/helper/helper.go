@@ -2,12 +2,15 @@ package helper
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"text/tabwriter"
 	"time"
 
 	jsonrpc "github.com/filecoin-project/go-jsonrpc"
@@ -195,4 +198,17 @@ func (e *PrintHelpErr) Unwrap() error {
 func (e *PrintHelpErr) Is(o error) bool {
 	_, ok := o.(*PrintHelpErr)
 	return ok
+}
+
+func NewTabWriter(w io.Writer) *tabwriter.Writer {
+	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
+}
+
+func PrintJSON(v interface{}) error {
+	bytes, err := json.MarshalIndent(v, " ", "\t")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(bytes))
+	return nil
 }

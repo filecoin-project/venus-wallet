@@ -83,12 +83,12 @@ func (fsr *FsRepo) init() error {
 }
 
 func (fsr *FsRepo) exists() (bool, error) {
-	_, err := os.Stat(filepath.Join(fsr.path, skKeyStore))
-	notexist := os.IsNotExist(err)
-	if notexist {
+	_, err := os.Stat(filepath.Join(fsr.path, dbName))
+	notExist := os.IsNotExist(err)
+	if notExist {
 		err = nil
 	}
-	return !notexist, err
+	return !notExist, err
 }
 
 func (fsr *FsRepo) Config() *config.Config {
