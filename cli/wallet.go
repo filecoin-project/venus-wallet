@@ -124,7 +124,7 @@ var walletLockState = &cli.Command{
 var walletNew = &cli.Command{
 	Name:      "new",
 	Usage:     "Generate a new key of the given type",
-	ArgsUsage: "[bls|secp256k1 (default secp256k1)]",
+	ArgsUsage: "[bls|secp256k1|delegated (default secp256k1)]",
 	Action: func(cctx *cli.Context) error {
 		t := types.KeyType(cctx.Args().First())
 		if t == "" {
