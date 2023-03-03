@@ -175,7 +175,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign 
 		if signer.String() != owner.String() {
 			return nil, fmt.Errorf("singe %s does not match from in MSG %s", signer, owner)
 		}
-		data = msg.Cid().Bytes()
+		data = toSign
 	} else {
 		signObj, toSign, err := GetSignBytes(toSign, meta)
 		if err != nil {
