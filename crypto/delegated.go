@@ -82,7 +82,7 @@ func (p *delegatedPrivateKey) KeyType() types.KeyType {
 func (p *delegatedPrivateKey) ToKeyInfo() *types.KeyInfo {
 	return &types.KeyInfo{
 		PrivateKey: p.Bytes(),
-		Type:       types.KTSecp256k1,
+		Type:       types.KTDelegated,
 	}
 }
 
