@@ -96,4 +96,6 @@ func TestDelegatedPrivateKey(t *testing.T) {
 		t.Fatalf("private key sign data err:%s", err)
 	}
 	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "e8f6ad5958dde03013e45fc77f71238cd0013af0d05ec5569007f70ffa7d2453007e7a581dcdf6d9f8e89846de210b74b188d8e1d2629f2d351e9e92f08be29600")
+
+	assert.NilError(t, delegatedVerify(signature.Data, addr, signData))
 }
