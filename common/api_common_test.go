@@ -9,6 +9,7 @@ import (
 
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/filemgr"
+	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/gbrlsnchs/jwt/v3"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/fx"
@@ -27,6 +28,7 @@ func TestCommon_AuthVerify(t *testing.T) {
 
 	app := fxtest.New(t,
 		fx.Provide(func() *jwt.HMACSHA { return jwt.NewHS256(sec) }),
+		fx.Provide(func() storage.IRecorder { return nil }),
 		fx.Populate(&c),
 	)
 	defer app.RequireStart().RequireStop()

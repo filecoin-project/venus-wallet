@@ -2,11 +2,12 @@ package wallet
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 
 	"github.com/filecoin-project/go-address"
+	cborutil "github.com/filecoin-project/go-cbor-util"
+	"github.com/google/uuid"
 
 	"github.com/asaskevich/EventBus"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
@@ -33,11 +34,13 @@ type wallet struct {
 	bus      EventBus.Bus
 	filter   ISignMsgFilter
 	m        sync.RWMutex
+	recorder storage.IRecorder
 }
 
-func NewWallet(ks storage.KeyStore, mw storage.KeyMiddleware, filter ISignMsgFilter, bus EventBus.Bus, getPwd GetPwdFunc) wallet_api.ILocalWallet {
+func NewWallet(ks storage.KeyStore, rd storage.IRecorder, mw storage.KeyMiddleware, filter ISignMsgFilter, bus EventBus.Bus, getPwd GetPwdFunc) wallet_api.ILocalWallet {
 	w := &wallet{
 		ws:       ks,
+		recorder: rd,
 		mw:       mw,
 		bus:      bus,
 		filter:   filter,
@@ -137,52 +140,30 @@ func (w *wallet) WalletList(ctx context.Context) ([]address.Address, error) {
 	return addrs, nil
 }
 
-func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign []byte, meta types.MsgMeta) (*c.Signature, error) {
+func (w *wallet) WalletSign(ctx context.Context, signer address.Address, data []byte, meta types.MsgMeta) (*c.Signature, error) {
 	if err := w.mw.Next(); err != nil {
 		return nil, err
 	}
-	var (
-		owner address.Address
-		data  []byte
-	)
-	// Do not validate strategy
-	if meta.Type == types.MTVerifyAddress {
-		_, toSign, err := GetSignBytes(toSign, meta)
-		if err != nil {
-			return nil, fmt.Errorf("get sign bytes failed: %v", err)
-		}
-		owner = signer
-		data = toSign
-	} else if meta.Type == types.MTChainMsg {
-		if len(meta.Extra) == 0 {
-			return nil, errors.New("msg type must contain extra data")
-		}
-		msg, err := types.DecodeMessage(meta.Extra)
-		if err != nil {
-			return nil, err
+
+	// parse msg
+	signObj, toSign, err := GetSignBytesAndObj(data, meta)
+	if err != nil {
+		return nil, fmt.Errorf("get sign bytes: %w", err)
+	}
+
+	// check owner
+	if meta.Type == types.MTChainMsg {
+		if signer != signObj.(*types.Message).From {
+			return nil, fmt.Errorf("signer(%s) is not msg sender(%s)", signer, signObj.(*types.Message).From)
 		}
 
-		//Check filter
-		err = w.filter.CheckSignMsg(ctx, SignMsg{
-			SignType: types.MTChainMsg,
-			Data:     msg,
-		})
-		if err != nil {
-			return nil, err
-		}
+		// Use the data passed directly, because the message of f4 address is not signed for cid.
+		// https://github.com/filecoin-project/venus/blob/master/venus-shared/actors/types/message.go#L228
+		toSign = data
+	}
 
-		owner = msg.From
-		if signer.String() != owner.String() {
-			return nil, fmt.Errorf("singe %s does not match from in MSG %s", signer, owner)
-		}
-		data = toSign
-	} else {
-		signObj, toSign, err := GetSignBytes(toSign, meta)
-		if err != nil {
-			return nil, fmt.Errorf("get sign bytes failed: %w", err)
-		}
-
-		//Check filter
+	// check filter
+	if meta.Type != types.MTVerifyAddress {
 		err = w.filter.CheckSignMsg(ctx, SignMsg{
 			SignType: meta.Type,
 			Data:     signObj,
@@ -190,12 +171,12 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign 
 		if err != nil {
 			return nil, err
 		}
-		owner = signer
-		data = toSign
 	}
-	prvKey := w.cacheKey(owner)
+
+	// sign
+	prvKey := w.cacheKey(signer)
 	if prvKey == nil {
-		key, err := w.ws.Get(owner)
+		key, err := w.ws.Get(signer)
 		if err != nil {
 			return nil, err
 		}
@@ -203,9 +184,30 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, toSign 
 		if err != nil {
 			return nil, err
 		}
-		w.pushCache(owner, prvKey)
+		w.pushCache(signer, prvKey)
 	}
-	return prvKey.Sign(data)
+	signature, signErr := prvKey.Sign(toSign)
+
+	// record
+	go func() {
+		msg, err := cborutil.Dump(signObj)
+		if err != nil {
+			log.Errorf("dump signObj failed %v", err)
+		}
+
+		err = w.recorder.Record(&storage.SignRecord{
+			ID:     uuid.New().String(),
+			Type:   meta.Type,
+			Signer: signer,
+			RawMsg: msg,
+			Err:    signErr,
+		})
+		if err != nil {
+			log.Errorf("record sign failed: %v", err)
+		}
+	}()
+
+	return signature, signErr
 }
 
 func (w *wallet) WalletExport(ctx context.Context, addr address.Address) (*types.KeyInfo, error) {

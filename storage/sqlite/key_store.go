@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var ksLog = logging.Logger("main")
+var ksLog = logging.Logger("key_store")
 
 // keystore sqlite implementation
 type sqliteStorage struct {
@@ -19,8 +19,8 @@ type sqliteStorage struct {
 	walletTB string
 }
 
-func NewKeyStore(conn *Conn) storage.KeyStore {
-	store := &sqliteStorage{db: conn.DB, walletTB: TBWallet}
+func NewKeyStore(db *gorm.DB) storage.KeyStore {
+	store := &sqliteStorage{db: db, walletTB: TBWallet}
 	_ = store.migrateCompatibleAddress()
 	return store
 }
