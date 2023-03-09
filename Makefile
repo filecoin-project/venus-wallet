@@ -41,6 +41,9 @@ show-env:
 lint:
 	golangci-lint run
 
+test:
+	go test -race ./...
+
 clean:
 	rm -rf $(CLEAN) $(BINS)
 .PHONY: clean
@@ -48,12 +51,9 @@ clean:
 print-%:
 	@echo $*=$($*)
 
-
-
-.PHONY: docker
-
 TAG:=test
 docker:
 	curl -O https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/docker/dockerfile
 	docker build --build-arg https_proxy=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=venus-wallet -t venus-wallet .
 	docker tag venus-wallet filvenus/venus-wallet:$(TAG)
+.PHONY: docker

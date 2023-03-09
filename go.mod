@@ -11,14 +11,14 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1
 	github.com/filecoin-project/go-fil-markets v1.25.2
 	github.com/filecoin-project/go-jsonrpc v0.1.5
-	github.com/filecoin-project/go-state-types v0.10.0-rc3
+	github.com/filecoin-project/go-state-types v0.10.0
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/venus v1.10.0-rc2.0.20230224083402-a219433346fd
+	github.com/filecoin-project/venus v1.10.2-0.20230309014040-73746cec80e4
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
-	github.com/ipfs-force-community/venus-gateway v1.10.0-rc2
+	github.com/ipfs-force-community/venus-gateway v1.10.2-0.20230309021833-84fdba83f37d
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/mitchellh/go-homedir v1.1.0
@@ -30,7 +30,7 @@ require (
 	github.com/urfave/cli/v2 v2.24.0
 	go.opencensus.io v0.23.0
 	go.uber.org/fx v1.15.0
-	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
+	golang.org/x/crypto v0.5.0
 	golang.org/x/exp v0.0.0-20220916125017-b168a2c6b86b
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.12
@@ -50,8 +50,10 @@ require (
 	github.com/ahmetb/go-linq/v3 v3.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833 // indirect
+	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
@@ -61,6 +63,7 @@ require (
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
 	github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/etherlabsio/healthcheck/v2 v2.0.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v2 v2.1.1-0.20201006184820-924ee87a1349 // indirect
 	github.com/filecoin-project/go-amt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v4 v4.0.0 // indirect
@@ -78,22 +81,22 @@ require (
 	github.com/filecoin-project/specs-actors/v6 v6.0.2 // indirect
 	github.com/filecoin-project/specs-actors/v7 v7.0.1 // indirect
 	github.com/filecoin-project/specs-storage v0.4.1 // indirect
-	github.com/filecoin-project/venus-auth v1.10.0-rc2 // indirect
+	github.com/filecoin-project/venus-auth v1.10.2-0.20230308100319-913815325d5e // indirect
 	github.com/fxamacker/cbor/v2 v2.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
+	github.com/gin-gonic/gin v1.9.0 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-playground/locales v0.14.0 // indirect
-	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/go-redis/redis/v7 v7.0.0-beta // indirect
 	github.com/go-redis/redis_rate/v7 v7.0.1 // indirect
 	github.com/go-resty/resty/v2 v2.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -109,7 +112,7 @@ require (
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/ipfs-force-community/metrics v1.0.1-0.20220719063006-2c54bb379466 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
-	github.com/ipfs/go-block-format v0.0.3 // indirect
+	github.com/ipfs/go-block-format v0.1.1 // indirect
 	github.com/ipfs/go-blockservice v0.4.0 // indirect
 	github.com/ipfs/go-cid v0.3.2 // indirect
 	github.com/ipfs/go-datastore v0.6.0 // indirect
@@ -120,13 +123,14 @@ require (
 	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
 	github.com/ipfs/go-ipld-format v0.4.0 // indirect
 	github.com/ipfs/go-ipld-legacy v0.1.1 // indirect
+	github.com/ipfs/go-libipfs v0.4.1 // indirect
 	github.com/ipfs/go-log v1.0.5 // indirect
 	github.com/ipfs/go-merkledag v0.8.1 // indirect
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/ipfs/go-verifcid v0.0.2 // indirect
 	github.com/ipld/go-car v0.4.0 // indirect
 	github.com/ipld/go-codec-dagpb v1.5.0 // indirect
-	github.com/ipld/go-ipld-prime v0.19.0 // indirect
+	github.com/ipld/go-ipld-prime v0.20.0 // indirect
 	github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52 // indirect
 	github.com/jbenet/goprocess v0.1.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -143,7 +147,7 @@ require (
 	github.com/libp2p/go-openssl v0.1.0 // indirect
 	github.com/magefile/mage v1.11.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
-	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
@@ -155,13 +159,13 @@ require (
 	github.com/multiformats/go-base32 v0.1.0 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
 	github.com/multiformats/go-multibase v0.1.1 // indirect
-	github.com/multiformats/go-multicodec v0.6.0 // indirect
+	github.com/multiformats/go-multicodec v0.8.0 // indirect
 	github.com/multiformats/go-multihash v0.2.1 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.0.0-20201211092308-30ac6d18308e // indirect
@@ -179,8 +183,9 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
+	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/uber/jaeger-client-go v2.25.0+incompatible // indirect
-	github.com/ugorji/go/codec v1.2.7 // indirect
+	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/whyrusleeping/cbor-gen v0.0.0-20221021053955-c138aae13722 // indirect
 	github.com/whyrusleeping/go-logging v0.0.1 // indirect
 	github.com/whyrusleeping/timecache v0.0.0-20160911033111-cfcb2f1abfee // indirect
@@ -192,6 +197,7 @@ require (
 	go.uber.org/dig v1.13.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
+	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804 // indirect
@@ -210,4 +216,4 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 )
 
-replace github.com/filecoin-project/go-jsonrpc => github.com/ipfs-force-community/go-jsonrpc v0.1.7-0.20230214070559-dbe74781184a
+replace github.com/filecoin-project/go-jsonrpc => github.com/ipfs-force-community/go-jsonrpc v0.1.7

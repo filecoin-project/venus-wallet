@@ -156,6 +156,10 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, data []
 		if signer != signObj.(*types.Message).From {
 			return nil, fmt.Errorf("signer(%s) is not msg sender(%s)", signer, signObj.(*types.Message).From)
 		}
+
+		// Use the data passed directly, because the message of f4 address is not signed for cid.
+		// https://github.com/filecoin-project/venus/blob/master/venus-shared/actors/types/message.go#L228
+		toSign = data
 	}
 
 	// check filter

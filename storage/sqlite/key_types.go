@@ -31,7 +31,8 @@ type SqlKeyInfo types.KeyInfo
 func (mki *SqlKeyInfo) IsValid() bool {
 	return mki != nil &&
 		(mki.Type == types.KTBLS ||
-			mki.Type == types.KTSecp256k1) &&
+			mki.Type == types.KTSecp256k1 ||
+			mki.Type == types.KTDelegated) &&
 		len(mki.PrivateKey) != 0
 }
 
