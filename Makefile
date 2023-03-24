@@ -57,3 +57,8 @@ docker:
 	docker build --build-arg https_proxy=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=venus-wallet -t venus-wallet .
 	docker tag venus-wallet filvenus/venus-wallet:$(TAG)
 .PHONY: docker
+
+
+docker-push: docker
+	docker push filvenus/venus-wallet:$(TAG)
+
