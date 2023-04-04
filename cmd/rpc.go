@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/etherlabsio/healthcheck/v2"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/venus-wallet/api"
@@ -48,6 +49,7 @@ func ServeRPC(a api.IFullAPI, stop build.StopFunc, addr string, sigChan chan os.
 		Next:   rpcServer.ServeHTTP,
 	}
 	http.Handle("/rpc/v0", CorsMiddleWare(ah))
+	http.Handle("/healthcheck", healthcheck.Handler())
 	ma, err := multiaddr.NewMultiaddr(addr)
 	if err != nil {
 		return nil
