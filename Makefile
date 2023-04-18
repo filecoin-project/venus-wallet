@@ -53,11 +53,18 @@ print-%:
 
 TAG:=test
 docker:
+ifdef DOCKERFILE
+	cp $(DOCKERFILE) ./dockerfile
+else
 	curl -O https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/docker/dockerfile
+endif
 	docker build --build-arg https_proxy=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=venus-wallet -t venus-wallet .
+	docker tag venus-wallet filvenus/venus-wallet:$(TAG)
+
+ifdef PRIVATE_REGISTRY
 	docker tag venus-wallet $(PRIVATE_REGISTRY)/filvenus/venus-wallet:$(TAG)
+endif
 .PHONY: docker
 
 docker-push: docker
 	docker push $(PRIVATE_REGISTRY)/filvenus/venus-wallet:$(TAG)
-
