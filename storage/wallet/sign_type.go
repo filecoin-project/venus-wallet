@@ -185,9 +185,19 @@ func GetSignBytesAndObj(toSign []byte, meta types.MsgMeta) (interface{}, []byte,
 	if t == nil {
 		return nil, nil, fmt.Errorf("unsupported msgtype:%s", meta.Type)
 	}
-	var in interface{}
-	var err error
-	if in, err = t.ParseObj(toSign, meta); err != nil {
+
+	// ParseObj may be nil registered through RegisterSupportedMsgTypes func.
+	var (
+		in  interface{}
+		err error
+	)
+	if t.ParseObj == nil { // treat as cbor unmarshal-able object by default
+		in = reflect.New(t.Type).Interface()
+		err = CborDecodeInto(toSign, in)
+	} else {
+		in, err = t.ParseObj(toSign, meta)
+	}
+	if err != nil {
 		return nil, nil, fmt.Errorf("parseObj failed:%w", err)
 	}
 
