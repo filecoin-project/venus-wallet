@@ -1,5 +1,9 @@
 # venus-wallet changelog
 
+## v1.11.0
+
+* bump up version to v1.11.0
+
 ## v1.11.0-rc1
 
 * feat: add sign recorder by @LinZexiao /保存签名记录 [[#123](https://github.com/filecoin-project/venus-wallet/pull/123)]
