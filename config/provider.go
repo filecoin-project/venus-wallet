@@ -13,12 +13,12 @@ import (
 
 // DecodeConfig
 func DecodeConfig(path string) (c *Config, err error) {
-	provider, err := FromConfigString(path, "toml")
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	c = new(Config)
-	err = provider.Unmarshal(c)
+	_, err = toml.NewDecoder(f).Decode(c)
 	if err != nil {
 		return nil, err
 	}
