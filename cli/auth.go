@@ -8,7 +8,7 @@ import (
 
 	"github.com/filecoin-project/venus-wallet/cli/helper"
 
-	"github.com/filecoin-project/venus/venus-shared/api/permission"
+	"github.com/filecoin-project/venus-auth/core"
 )
 
 var authCmd = &cli.Command{
@@ -42,20 +42,21 @@ var authApiInfoToken = &cli.Command{
 			return errors.New("--perm flag not set")
 		}
 
+		allPermissions := core.AdaptOldStrategy(core.PermAdmin)
 		perm := cctx.String("perm")
 		idx := 0
-		for i, p := range permission.AllPermissions {
+		for i, p := range allPermissions {
 			if perm == p {
 				idx = i + 1
 			}
 		}
 
 		if idx == 0 {
-			return fmt.Errorf("--perm flag has to be one of: %s", permission.AllPermissions)
+			return fmt.Errorf("--perm flag has to be one of: %s", allPermissions)
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
-		token, err := api.AuthNew(ctx, permission.AllPermissions[:idx])
+		token, err := api.AuthNew(ctx, allPermissions[:idx])
 		if err != nil {
 			return err
 		}

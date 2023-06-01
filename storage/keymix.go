@@ -11,9 +11,11 @@ import (
 	"github.com/filecoin-project/venus-wallet/crypto"
 	"github.com/filecoin-project/venus-wallet/crypto/aes"
 	"github.com/filecoin-project/venus-wallet/errcode"
-	"github.com/filecoin-project/venus/venus-shared/api/permission"
-	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
+
+	walletAPI "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
+
+	"github.com/filecoin-project/venus-auth/core"
 )
 
 var (
@@ -33,13 +35,13 @@ type DecryptFunc func(keyJson []byte, keyType types.KeyType) (crypto.PrivateKey,
 type KeyMiddleware interface {
 	// Encrypt aes encrypt key
 	Encrypt(password []byte, key crypto.PrivateKey) (*aes.EncryptedKey, error)
-	// Decrypt decrypt aes key
+	// Decrypt aes decrypt key
 	Decrypt(password []byte, key *aes.EncryptedKey) (crypto.PrivateKey, error)
 	// Next Check the password has been set and the wallet is locked
 	Next() error
 	// CheckToken check if the `strategy` token has all permissions
 	CheckToken(ctx context.Context) error
-	wallet_api.IWalletLock
+	walletAPI.IWalletLock
 }
 
 type KeyMixLayer struct {
@@ -116,7 +118,8 @@ func (o *KeyMixLayer) CheckToken(ctx context.Context) error {
 		return ErrPasswordEmpty
 	}
 
-	if auth.HasPerm(ctx, permission.AllPermissions, permission.PermAdmin) {
+	allPermissions := core.AdaptOldStrategy(core.PermAdmin)
+	if auth.HasPerm(ctx, allPermissions, core.PermAdmin) {
 		return nil
 	}
 

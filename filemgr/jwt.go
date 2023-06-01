@@ -5,9 +5,11 @@ import (
 	"encoding/hex"
 	"io"
 
-	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/filecoin-project/venus/venus-shared/api/permission"
 	jwt "github.com/gbrlsnchs/jwt/v3"
+
+	"github.com/filecoin-project/venus-auth/core"
+
+	"github.com/filecoin-project/venus-wallet/config"
 )
 
 type jwtPayload struct {
@@ -21,17 +23,21 @@ type jwtSecret struct {
 
 // Random generation of secret keys
 func randSecret() (*jwtSecret, error) {
+	allPermissions := core.AdaptOldStrategy(core.PermAdmin)
+	p := jwtPayload{
+		Allow: allPermissions,
+	}
+
 	sk, err := io.ReadAll(io.LimitReader(rand.Reader, 32))
 	if err != nil {
 		return nil, err
 	}
-	p := jwtPayload{
-		Allow: permission.AllPermissions,
-	}
+
 	cliToken, err := jwt.Sign(&p, jwt.NewHS256(sk))
 	if err != nil {
 		return nil, err
 	}
+
 	return &jwtSecret{
 		key:   sk,
 		token: cliToken,
