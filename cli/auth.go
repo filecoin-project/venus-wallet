@@ -6,9 +6,9 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/filecoin-project/venus-wallet/cli/helper"
-
 	"github.com/filecoin-project/venus-auth/core"
+
+	"github.com/filecoin-project/venus-wallet/cli/helper"
 )
 
 var authCmd = &cli.Command{
@@ -42,7 +42,8 @@ var authApiInfoToken = &cli.Command{
 			return errors.New("--perm flag not set")
 		}
 
-		allPermissions := core.AdaptOldStrategy(core.PermAdmin)
+		// todo core.AdaptOldStrategy 获取的顺序是 []Permission{PermAdmin, PermSign, PermWrite, PermRead}, 在 venus-auth 中修改?
+		allPermissions := []core.Permission{core.PermRead, core.PermWrite, core.PermSign, core.PermAdmin}
 		perm := cctx.String("perm")
 		idx := 0
 		for i, p := range allPermissions {
