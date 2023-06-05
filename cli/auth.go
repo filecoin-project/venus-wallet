@@ -42,8 +42,7 @@ var authApiInfoToken = &cli.Command{
 			return errors.New("--perm flag not set")
 		}
 
-		// todo core.AdaptOldStrategy 获取的顺序是 []Permission{PermAdmin, PermSign, PermWrite, PermRead}, 在 venus-auth 中修改?
-		allPermissions := []core.Permission{core.PermRead, core.PermWrite, core.PermSign, core.PermAdmin}
+		allPermissions := core.AdaptOldStrategy(core.PermAdmin)
 		perm := cctx.String("perm")
 		idx := 0
 		for i, p := range allPermissions {

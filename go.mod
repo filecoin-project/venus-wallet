@@ -15,7 +15,7 @@ require (
 	github.com/filecoin-project/go-state-types v0.11.1
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
 	github.com/filecoin-project/venus v1.11.2-0.20230531024835-12121f11dab7
-	github.com/filecoin-project/venus-auth v1.11.1-0.20230511013901-7829b3effbcd
+	github.com/filecoin-project/venus-auth v1.11.1-0.20230605053244-c7cb861d94cd
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
