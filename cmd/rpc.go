@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/filecoin-project/venus-auth/core"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/filecoin-project/venus-auth/core"
 
 	"github.com/etherlabsio/healthcheck/v2"
 	"github.com/filecoin-project/go-jsonrpc"
@@ -121,7 +122,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// todo venus-auth 中定义的 permKey(=2) 和 go-jsonrpc 库中 permCtxKey(0) 不一致, 且 CtxWithPerm 函数参数和 Verify 的返回值不一致, 应考虑一致性, 还有如果把 permCtxKey 等统一用 venus-auth中的话, 是不是 go-jsonrpc 可以用 filecoin 官方的,而不再自己维护?
-		ctx = core.CtxWithPerm(ctx, allow[0])
+		ctx = core.CtxWithPerms(ctx, allow)
 		//ctx = auth.WithPerm(ctx, allow)
 	}
 
