@@ -9,8 +9,8 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/venus-wallet/cli/helper"
-	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
+	wallet_types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	"github.com/urfave/cli/v2"
 )
 
@@ -93,11 +93,11 @@ var recordList = &cli.Command{
 
 		if cctx.IsSet("type") {
 			t := types.MsgType(cctx.String("type"))
-			_, ok := wallet.SupportedMsgTypes[t]
+			_, ok := wallet_types.SupportedMsgTypes[t]
 			if !ok {
 
 				fmt.Println("supported types:")
-				for k := range wallet.SupportedMsgTypes {
+				for k := range wallet_types.SupportedMsgTypes {
 					fmt.Println(k)
 				}
 				return fmt.Errorf("unsupported type %s", t)
@@ -170,7 +170,7 @@ var recordList = &cli.Command{
 }
 
 func GetDetailInJsonRawMessage(r *types.SignRecord) (json.RawMessage, error) {
-	t, ok := wallet.SupportedMsgTypes[r.Type]
+	t, ok := wallet_types.SupportedMsgTypes[r.Type]
 	if !ok {
 		return nil, fmt.Errorf("unsupported type %s", r.Type)
 	}
@@ -195,7 +195,7 @@ func GetDetailInJsonRawMessage(r *types.SignRecord) (json.RawMessage, error) {
 	}
 
 	signObj := reflect.New(t.Type).Interface()
-	if err := wallet.CborDecodeInto(r.RawMsg, signObj); err != nil {
+	if err := wallet_types.CborDecodeInto(r.RawMsg, signObj); err != nil {
 		return nil, fmt.Errorf("decode msg:%w", err)
 	}
 	return json.Marshal(signObj)

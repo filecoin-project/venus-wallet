@@ -10,11 +10,9 @@ require (
 	github.com/filecoin-project/go-address v1.1.0
 	github.com/filecoin-project/go-cbor-util v0.0.1
 	github.com/filecoin-project/go-crypto v0.0.1
-	github.com/filecoin-project/go-fil-markets v1.25.2
 	github.com/filecoin-project/go-jsonrpc v0.1.5
 	github.com/filecoin-project/go-state-types v0.11.1
-	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/venus v1.11.2-0.20230531024835-12121f11dab7
+	github.com/filecoin-project/venus v1.12.0-rc1.0.20230625013247-4fdc4d5be466
 	github.com/filecoin-project/venus-auth v1.11.1-0.20230605053244-c7cb861d94cd
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
@@ -71,11 +69,13 @@ require (
 	github.com/filecoin-project/go-bitfield v0.2.4 // indirect
 	github.com/filecoin-project/go-data-transfer v1.15.2 // indirect
 	github.com/filecoin-project/go-ds-versioning v0.1.2 // indirect
+	github.com/filecoin-project/go-fil-markets v1.25.2 // indirect
 	github.com/filecoin-project/go-hamt-ipld v0.1.5 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v2 v2.0.0 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-padreader v0.0.1 // indirect
 	github.com/filecoin-project/specs-actors v0.9.15 // indirect
+	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
 	github.com/filecoin-project/specs-actors/v3 v3.1.2 // indirect
 	github.com/filecoin-project/specs-actors/v4 v4.0.2 // indirect
 	github.com/filecoin-project/specs-actors/v5 v5.0.6 // indirect
@@ -112,6 +112,7 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.2.2 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/ipfs-force-community/metrics v1.0.1-0.20220719063006-2c54bb379466 // indirect
+	github.com/ipfs-force-community/sophon-auth v1.12.0-rc1 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/go-block-format v0.1.1 // indirect
 	github.com/ipfs/go-blockservice v0.4.0 // indirect

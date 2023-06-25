@@ -440,8 +440,8 @@ github.com/filecoin-project/storetheindex v0.3.5/go.mod h1:0r3d0kSpK63O6AvLr1CjA
 github.com/filecoin-project/storetheindex v0.4.30-0.20221114113647-683091f8e893 h1:6GCuzxLVHBzlz7y+FkbHh6n0UyoEGWqDwJKQPJoz7bE=
 github.com/filecoin-project/test-vectors/schema v0.0.5/go.mod h1:iQ9QXLpYWL3m7warwvK1JC/pTri8mnfEmKygNDqqY6E=
 github.com/filecoin-project/venus v1.2.4/go.mod h1:hJULXHGAnWuq5S5KRtPkwbT8DqgM9II7NwyNU7t59D0=
-github.com/filecoin-project/venus v1.11.2-0.20230531024835-12121f11dab7 h1:Oo5tVsHt8L0iLKHCfoaAPZVAVKIhjnAMWfgpVfexzEk=
-github.com/filecoin-project/venus v1.11.2-0.20230531024835-12121f11dab7/go.mod h1:9QctTOegFH+hZ5icsuR2BRRnZMhyLDQa5uJAbOog76M=
+github.com/filecoin-project/venus v1.12.0-rc1.0.20230625013247-4fdc4d5be466 h1:aXi5q/5oEILmsO8b9j1eed5oB7Mga13HDeA+DxVBFOI=
+github.com/filecoin-project/venus v1.12.0-rc1.0.20230625013247-4fdc4d5be466/go.mod h1:t5AL4ksL7QHaeKZ6sl6u6kW3jBvHK+m1xV0AdtGfjPE=
 github.com/filecoin-project/venus-auth v1.3.2/go.mod h1:m5Jog2GYxztwP7w3m/iJdv/V1/bTcAVU9rm/CbhxRQU=
 github.com/filecoin-project/venus-auth v1.11.1-0.20230605053244-c7cb861d94cd h1:CrQ804I3PH3lRihJS1a8wyLTII+jhRMMuJX3oJ1ltbI=
 github.com/filecoin-project/venus-auth v1.11.1-0.20230605053244-c7cb861d94cd/go.mod h1:PoTmfEn5lljjAQThBzX0+friJYGgi7Z3VLLujkOkCT4=
@@ -773,6 +773,8 @@ github.com/ipfs-force-community/metrics v1.0.0/go.mod h1:mn40SioMuKtjmRumHFy/fJ2
 github.com/ipfs-force-community/metrics v1.0.1-0.20211022060227-11142a08b729/go.mod h1:mn40SioMuKtjmRumHFy/fJ26Pn028XuDjUJE9dorjyw=
 github.com/ipfs-force-community/metrics v1.0.1-0.20220719063006-2c54bb379466 h1:oPQtpBVmYot48fGuUwqVuzD1ilMnHUXkkGSWy5VzUL8=
 github.com/ipfs-force-community/metrics v1.0.1-0.20220719063006-2c54bb379466/go.mod h1:MOGtsAHKkSXi/ce9Ggci7nXq5jShePzwPDvdBSGDETk=
+github.com/ipfs-force-community/sophon-auth v1.12.0-rc1 h1:Rm91rxnwbx6ejEIPh7Bmf/+cWaNezhSj/zwmIkG9MG4=
+github.com/ipfs-force-community/sophon-auth v1.12.0-rc1/go.mod h1:cGYCfjA/BDB/Km9P7Za6t1hmwpFlPKf8ho/CHmLG81Y=
 github.com/ipfs-force-community/venus-common-utils v0.0.0-20210924063144-1d3a5b30de87/go.mod h1:RTVEOzM+hkpqmcEWpyLDkx1oGO5r9ZWCgYxG/CsXzJQ=
 github.com/ipfs-force-community/venus-gateway v1.11.2-0.20230526091733-452ecda21333 h1:mnqvXRJqKVsCrs6NF8xZFZD01TmI/MInvGzODAYeT50=
 github.com/ipfs-force-community/venus-gateway v1.11.2-0.20230526091733-452ecda21333/go.mod h1:fJzlqs3UfzmPXyuIfFc0tuUWJ7L+7hmcBxFl6jsRUWE=
