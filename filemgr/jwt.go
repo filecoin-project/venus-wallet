@@ -7,7 +7,7 @@ import (
 
 	jwt "github.com/gbrlsnchs/jwt/v3"
 
-	"github.com/filecoin-project/venus-auth/core"
+	"github.com/ipfs-force-community/sophon-auth/core"
 
 	"github.com/filecoin-project/venus-wallet/config"
 )
