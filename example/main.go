@@ -17,7 +17,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/crypto"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"github.com/ipfs-force-community/venus-gateway/walletevent"
+	"github.com/ipfs-force-community/sophon-gateway/walletevent"
 )
 
 type RemoteWallet struct {
