@@ -14,7 +14,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/storage/wallet"
 	"github.com/filecoin-project/venus-wallet/wallet_event"
 	"github.com/gbrlsnchs/jwt/v3"
-	"github.com/ipfs-force-community/venus-gateway/types"
+	"github.com/ipfs-force-community/sophon-gateway/types"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 

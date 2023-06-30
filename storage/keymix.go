@@ -15,7 +15,7 @@ import (
 	walletAPI "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
 
-	"github.com/filecoin-project/venus-auth/core"
+	"github.com/ipfs-force-community/sophon-auth/core"
 )
 
 var (

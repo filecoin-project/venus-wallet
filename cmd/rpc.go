@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/filecoin-project/venus-auth/core"
+	"github.com/ipfs-force-community/sophon-auth/core"
 
 	"github.com/etherlabsio/healthcheck/v2"
 	"github.com/filecoin-project/go-jsonrpc"
