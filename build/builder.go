@@ -95,7 +95,7 @@ func CommonOpt(alg *jwt.HMACSHA) Option {
 func FullAPIOpt(out *api.IFullAPI) Option {
 	return func(s *Settings) error {
 		resAPI := &api.FullAPI{}
-		s.invokes[ExtractApiKey] = fx.Extract(resAPI)
+		s.invokes[ExtractApiKey] = fx.Populate(resAPI)
 		*out = resAPI
 		return nil
 	}

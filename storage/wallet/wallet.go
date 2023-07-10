@@ -12,6 +12,7 @@ import (
 	"github.com/asaskevich/EventBus"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
+	w_types "github.com/filecoin-project/venus/venus-shared/types/wallet"
 	logging "github.com/ipfs/go-log/v2"
 
 	c "github.com/filecoin-project/go-state-types/crypto"
@@ -146,7 +147,7 @@ func (w *wallet) WalletSign(ctx context.Context, signer address.Address, data []
 	}
 
 	// parse msg
-	signObj, toSign, err := GetSignBytesAndObj(data, meta)
+	signObj, toSign, err := w_types.GetSignBytesAndObj(data, meta)
 	if err != nil {
 		return nil, fmt.Errorf("get sign bytes: %w", err)
 	}
