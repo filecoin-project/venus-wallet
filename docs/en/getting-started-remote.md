@@ -59,10 +59,8 @@ $ ./venus-wallet run  --network=test
   ScryptN = 262144
   ScryptP = 1
 
-[Strategy]
-  # Strategy level，0：Don't turn on strategy 1：Verify only the data type to be signed 2：Verify the data type to be signed, and verify the message type with the method policy configured
-  Level = 2
-  NodeURL = "/ip4/127.0.0.1/tcp/2345/http"
+[SignFilter]
+  Expr = "" 
 
 [APIRegisterHub]
   # The URL of the gateway. If not configured, the gateway will not be connected
