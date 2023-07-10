@@ -17,7 +17,7 @@ import (
 	"github.com/filecoin-project/venus-wallet/crypto"
 	wallet_api "github.com/filecoin-project/venus/venus-shared/api/wallet"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"github.com/ipfs-force-community/venus-gateway/walletevent"
+	"github.com/filecoin-project/venus/venus-shared/types/gateway"
 )
 
 type RemoteWallet struct {
@@ -116,7 +116,7 @@ func main() {
 	}
 	log.Printf("addr:%s exist:%v", addr.String(), exist)
 	sh := sha256.New()
-	signData := sh.Sum(walletevent.RandomBytes)
+	signData := sh.Sum(gateway.RandomBytes)
 	sig, err := remoteWallet.WalletSign(context.Background(), addr, signData, types.MsgMeta{Type: types.MTVerifyAddress})
 	if err != nil {
 		log.Fatalf("wallet sign: %v", err)
