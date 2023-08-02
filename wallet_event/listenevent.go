@@ -12,8 +12,8 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/filecoin-project/venus-wallet/config"
-	"github.com/ipfs-force-community/venus-gateway/types"
-	"github.com/ipfs-force-community/venus-gateway/walletevent"
+	"github.com/ipfs-force-community/sophon-gateway/types"
+	"github.com/ipfs-force-community/sophon-gateway/walletevent"
 )
 
 var log = logging.Logger("wallet_event")
