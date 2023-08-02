@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+    paths-ignore: ["*.md", "docs/**"]
   pull_request:
     branches:
       - '**'
+    paths-ignore: ["*.md", "docs/**"]
 env:
   CGO_CFLAGS: -D__BLST_PORTABLE__
   CGO_CFLAGS_ALLOW: -D__BLST_PORTABLE__
