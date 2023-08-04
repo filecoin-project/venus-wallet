@@ -9,6 +9,7 @@ type Config struct {
 	Factor         *CryptoFactor         `json:"FACTOR"`
 	SignFilter     *SignFilter           `json:"SignFilter"`
 	APIRegisterHub *APIRegisterHubConfig `json:"WalletEvent"`
+	SignRecorder   *SignRecorderConfig   `json:"SignRecorder"`
 }
 
 type APIRegisterHubConfig struct {
@@ -53,4 +54,9 @@ type CryptoFactor struct {
 
 type SignFilter struct {
 	Expr string `json:"expr"`
+}
+
+type SignRecorderConfig struct {
+	Enable       bool   `json:"enable"`
+	KeepDuration string `json:"holdTime"`
 }

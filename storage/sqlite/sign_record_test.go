@@ -16,7 +16,7 @@ func TestSingRecord(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Migrate the schema
-	s, err := NewSqliteRecorder(db)
+	s, err := NewSqliteRecorder(db, nil)
 	assert.NoError(t, err)
 
 	err = s.Record(&types.SignRecord{
