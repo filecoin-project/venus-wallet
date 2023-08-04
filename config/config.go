@@ -58,5 +58,5 @@ type SignFilter struct {
 
 type SignRecorderConfig struct {
 	Enable       bool   `json:"enable"`
-	KeepDuration string `json:"holdTime"`
+	KeepDuration string `json:"keepDuration"`
 }
