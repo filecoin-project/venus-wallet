@@ -6,6 +6,7 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/crypto"
+	"github.com/filecoin-project/venus-wallet/config"
 	"github.com/filecoin-project/venus-wallet/storage"
 	"github.com/filecoin-project/venus/venus-shared/types"
 	logging "github.com/ipfs/go-log/v2"
@@ -17,9 +18,9 @@ const MTUndefined types.MsgType = ""
 var log = logging.Logger("recorder")
 
 type sqliteSignRecord struct {
-	ID        string            `gorm:"primaryKey;type:varchar(256);index;not null"`
-	CreatedAt time.Time         `gorm:"index"`
-	Type      types.MsgType     `gorm:"index"`
+	ID        string    `gorm:"primaryKey;type:varchar(256);not null"`
+	CreatedAt time.Time `gorm:"index"`
+	Type      types.MsgType
 	Signer    string            `gorm:"type:varchar(256);index;not null"`
 	Err       string            `gorm:"type:varchar(256);default:null"`
 	RawMsg    []byte            `gorm:"type:blob;default:null"`
@@ -65,7 +66,23 @@ type SqliteRecorder struct {
 	db *gorm.DB
 }
 
-func NewSqliteRecorder(db *gorm.DB) (storage.IRecorder, error) {
+func NewSqliteRecorder(db *gorm.DB, cfg *config.SignRecorderConfig) (storage.IRecorder, error) {
+	enable, keepDuration := true, time.Hour*7*24
+	if cfg != nil {
+		enable = cfg.Enable
+		if cfg.KeepDuration != "" {
+			d, err := time.ParseDuration(cfg.KeepDuration)
+			if err != nil {
+				return nil, fmt.Errorf("init sqlite_recorder: %w", err)
+			}
+			keepDuration = d
+		}
+	}
+
+	if !enable {
+		return &RecorderStub{}, nil
+	}
+
 	err := db.AutoMigrate(&sqliteSignRecord{})
 	if err != nil {
 		return nil, fmt.Errorf("init sqlite_recorder: %w", err)
@@ -75,7 +92,7 @@ func NewSqliteRecorder(db *gorm.DB) (storage.IRecorder, error) {
 		ticker := time.NewTicker(time.Hour)
 		for {
 			<-ticker.C
-			err := db.Where("created_at < ?", time.Now().Add(-time.Hour*24*7)).Delete(&sqliteSignRecord{}).Error
+			err := db.Where("created_at < ?", time.Now().Add(-keepDuration)).Delete(&sqliteSignRecord{}).Error
 			if err != nil {
 				log.Errorf("clean sqlite recorder: %s", err)
 			}
@@ -137,4 +154,15 @@ func MustParseAddress(addr string) address.Address {
 		panic(err)
 	}
 	return a
+}
+
+type RecorderStub struct {
+}
+
+func (r *RecorderStub) Record(record *storage.SignRecord) error {
+	return nil
+}
+
+func (r *RecorderStub) QueryRecord(params *storage.QueryParams) ([]storage.SignRecord, error) {
+	return nil, nil
 }
