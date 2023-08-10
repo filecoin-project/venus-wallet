@@ -67,6 +67,7 @@ func WalletOpt(repo filemgr.Repo, walletPwd string) Option {
 		Override(new(*config.CryptoFactor), c.Factor),
 		Override(new(storage.KeyMiddleware), storage.NewKeyMiddleware),
 		Override(new(storage.KeyStore), sqlite.NewKeyStore),
+		Override(new(*config.SignRecorderConfig), c.SignRecorder),
 		Override(new(storage.IRecorder), sqlite.NewSqliteRecorder),
 		Override(new(wallet.GetPwdFunc), func() wallet.GetPwdFunc {
 			return func() string {

@@ -26,7 +26,7 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.3
-	github.com/supranational/blst v0.3.4
+	github.com/supranational/blst v0.3.11
 	github.com/urfave/cli/v2 v2.24.0
 	go.opencensus.io v0.24.0
 	go.uber.org/fx v1.19.2
@@ -140,7 +140,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
-	github.com/libp2p/go-libp2p v0.27.5 // indirect
+	github.com/libp2p/go-libp2p v0.27.8 // indirect
 	github.com/libp2p/go-libp2p-pubsub v0.9.3 // indirect
 	github.com/libp2p/go-msgio v0.3.0 // indirect
 	github.com/magefile/mage v1.11.0 // indirect
@@ -160,6 +160,7 @@ require (
 	github.com/multiformats/go-multihash v0.2.3 // indirect
 	github.com/multiformats/go-multistream v0.4.1 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
+	github.com/onsi/gomega v1.27.4 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
