@@ -26,7 +26,7 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.3
-	github.com/supranational/blst v0.3.4
+	github.com/supranational/blst v0.3.11
 	github.com/urfave/cli/v2 v2.24.0
 	go.opencensus.io v0.24.0
 	go.uber.org/fx v1.19.2
