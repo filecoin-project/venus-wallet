@@ -12,13 +12,13 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1
 	github.com/filecoin-project/go-jsonrpc v0.1.8
 	github.com/filecoin-project/go-state-types v0.11.1
-	github.com/filecoin-project/venus v1.13.0-rc1
+	github.com/filecoin-project/venus v1.13.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
-	github.com/ipfs-force-community/sophon-auth v1.13.0-rc1
-	github.com/ipfs-force-community/sophon-gateway v1.13.0-rc1
+	github.com/ipfs-force-community/sophon-auth v1.13.0
+	github.com/ipfs-force-community/sophon-gateway v1.13.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/mitchellh/go-homedir v1.1.0
@@ -32,8 +32,8 @@ require (
 	go.uber.org/fx v1.19.2
 	golang.org/x/crypto v0.10.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
-	gorm.io/driver/sqlite v1.1.4
-	gorm.io/gorm v1.23.8
+	gorm.io/driver/sqlite v1.5.1
+	gorm.io/gorm v1.25.0
 	gotest.tools v2.2.0+incompatible
 )
 
@@ -63,9 +63,9 @@ require (
 	github.com/filecoin-project/go-amt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v4 v4.0.0 // indirect
 	github.com/filecoin-project/go-bitfield v0.2.4 // indirect
-	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc4 // indirect
+	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc6 // indirect
 	github.com/filecoin-project/go-ds-versioning v0.1.2 // indirect
-	github.com/filecoin-project/go-fil-markets v1.27.0-rc1 // indirect
+	github.com/filecoin-project/go-fil-markets v1.28.2 // indirect
 	github.com/filecoin-project/go-hamt-ipld v0.1.5 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v2 v2.0.0 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.1.0 // indirect
@@ -146,7 +146,7 @@ require (
 	github.com/magefile/mage v1.11.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/mattn/go-sqlite3 v1.14.16 // indirect
+	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

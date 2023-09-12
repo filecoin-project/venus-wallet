@@ -1,5 +1,10 @@
 # venus-wallet changelog
 
+
+## v1.13.0
+
+* Fix/sqlite migrator in [[#155](https://github.com/filecoin-project/venus-wallet/pull/155)]
+
 ## v1.13.0-rc1
 
 ### New Feature
