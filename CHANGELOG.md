@@ -1,5 +1,8 @@
 # venus-wallet changelog
 
+## v1.14.0-rc1
+
+* chore: update deps
 
 ## v1.13.0
 
