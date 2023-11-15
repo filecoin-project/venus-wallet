@@ -25,16 +25,18 @@ type IAPIRegisterHub interface {
 }
 
 type APIRegisterHub struct {
-	weClient map[string]*walletevent.WalletEventClient
-	bus      EventBus.Bus
-	lk       sync.Mutex
+	weClient        map[string]*walletevent.WalletEventClient
+	bus             EventBus.Bus
+	lk              sync.Mutex
+	supportAccounts []string
 }
 
 func NewAPIRegisterHub(lc fx.Lifecycle, signer types.IWalletHandler, bus EventBus.Bus, cfg *config.APIRegisterHubConfig) (*APIRegisterHub, error) {
 	apiRegister := &APIRegisterHub{
-		weClient: make(map[string]*walletevent.WalletEventClient),
-		bus:      bus,
-		lk:       sync.Mutex{},
+		weClient:        make(map[string]*walletevent.WalletEventClient),
+		bus:             bus,
+		lk:              sync.Mutex{},
+		supportAccounts: cfg.SupportAccounts,
 	}
 
 	if len(cfg.RegisterAPI) == 0 {
@@ -53,7 +55,9 @@ func NewAPIRegisterHub(lc fx.Lifecycle, signer types.IWalletHandler, bus EventBu
 			return nil, err
 		}
 		mLog := log.With("api hub", apiHub)
-		walletEvent := walletevent.NewWalletEventClient(ctx, signer, walletEventClient, mLog, cfg.SupportAccounts)
+		walletEvent := walletevent.NewWalletEventClient(ctx, signer, walletEventClient, mLog, func() []string {
+			return apiRegister.supportAccounts
+		})
 		go walletEvent.ListenWalletRequest(ctx)
 		apiRegister.lk.Lock()
 		apiRegister.weClient[apiHub] = walletEvent
@@ -94,6 +98,18 @@ func (h *APIRegisterHub) SupportNewAccount(ctx context.Context, supportAccount s
 			return err
 		}
 	}
+
+	for i, account := range h.supportAccounts {
+		if account == supportAccount {
+			break
+		}
+
+		// not found in supportAccounts
+		if i == len(h.supportAccounts)-1 {
+			h.supportAccounts = append(h.supportAccounts, supportAccount)
+		}
+	}
+
 	return nil
 }
 
