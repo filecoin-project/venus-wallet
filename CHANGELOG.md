@@ -1,5 +1,7 @@
 # venus-wallet changelog
 
+## v1.14.0
+
 ## v1.14.0-rc2
 
 * chore: update docs [[#161](https://github.com/filecoin-project/venus-wallet/pull/161)]
