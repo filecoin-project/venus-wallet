@@ -27,7 +27,7 @@ wallet: show-env
 	./venus-wallet --version
 
 
-linux: 	show-env
+linux: show-env
 	rm -f venus-wallet
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static" go build $(GOFLAGS) -o venus-wallet ./cmd/wallet/main.go
 

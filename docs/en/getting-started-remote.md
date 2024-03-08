@@ -1,15 +1,20 @@
 # Venus wallet
+
 1. venus-wallet is a remote wallet that provides policy for Filecoin and supports JsonRPC2.0 call. It can dynamically configure whether various data types to be signed are signed or not.
 2. The project is decoupled from Lotus and Venus independently, and can be called by different implementations of Filecoin.
-   
+
 ## quickstart
+
 ### 1-Downloadcode
+
 ```
 git clone https://github.com/filecoin-project/venus-wallet.git
 ```
 
 ### 2-Compile
+
 - go version ^1.15
+
 ```shell script
 # Setting BLS compilation environment variables
 export CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
@@ -25,18 +30,21 @@ make linux
 ```
 
 ### 3-Startserviceprocess
+
 ```shell script
 # It starts on the Mainnetwork by default(--network=main)
 # The address begins with f
-$ ./venus-wallet run 
+$ ./venus-wallet run
 
 # Start in test network
 # The address begins with t
-$ ./venus-wallet run  --network=test      
+$ ./venus-wallet run  --network=test
 ```
 
 ### 4-Configurationintroduction
-- Default file location “~/.venus_wallet/config.toml”
+
+- Default file location `~/.venus_wallet/config.toml`
+
 ```toml
 [API]
   # The HTTP listening address of the local process
@@ -73,6 +81,7 @@ $ ./venus-wallet run  --network=test
 ```
 
 # CLIoperationguide
+
 ## ViewHelp
 
 ```shell script
@@ -109,13 +118,16 @@ GLOBAL OPTIONS:
    --help, -h     show help (default: false)
    --version, -v  print the version (default: false)
 ```
+
 - The operation here is flat and single-layer. Different from the `./venus wallet list` operation of Venus or Lotus, only `./venus-wallet list` is needed in venus-wallet.
 - Some commands are XX processed, such as `strategy`, which can be directly replaced by `st`.
 
-
 ## BasicoperationofVenusWallet
+
 ### Thestateofthewallet
+
 1. Set the key of private key symmetric encryption
+
 ```shell script
 # ./venus-wallet setpwd (aliase)
 $ ./venus-wallet set-password
@@ -125,11 +137,14 @@ Enter Password again:******
 # res
 Password set successfully
 ```
+
 > Note: this password is only stored in memory for symmetric encryption of the private key. Once the service process exits in any form, it cannot be restored. Therefore, the private key managed by this program needs to be backed up by itself or directly.
 
 - After setting the password, the default state of the wallet is unlock
+
 2. Lock Wallet
-> After the wallet is locked, the functions of signing, generating new address, importing and exporting private key will be disabled, which will affect the remote call chain, so please use it with caution.
+   > After the wallet is locked, the functions of signing, generating new address, importing and exporting private key will be disabled, which will affect the remote call chain, so please use it with caution.
+
 ```shell script
 $ ./venus-wallet lock
 Password:******
@@ -137,8 +152,10 @@ Password:******
 # res
 wallet lock successfully
 ```
+
 3. unlock wallet
-> After unlocking, all functions of the wallet will be released.
+   > After unlocking, all functions of the wallet will be released.
+
 ```shell script
 $ ./venus-wallet unlock
 Password:******
@@ -146,35 +163,44 @@ Password:******
 # res
 wallet unlock successfully
 ```
+
 4. View the wallet status
+
 ```shell script
 $ ./venus-wallet lockstate
 
-#res 
+#res
 wallet state: unlocked
 ```
+
 ### Privatekeymanagement
+
 1. Generate new random private key
-> venus-wallet new [command options] [bls|secp256k1 (default secp256k1)]
+   > venus-wallet new [command options] [bls|secp256k1 (default secp256k1)]
+
 ```shell script
-$ ./venus-wallet new 
+$ ./venus-wallet new
 
 #res
 t12mchblwgi243re5i2pg2harmnqvm6q3rwb2cnpy
 ```
+
 - The default type is secp256k1. You can also use `./venus-wallet new bls` to generate BLS private key
 
 2. Import the private key
-> venus-wallet import [command options] [\<path\> (optional, will read from stdin if omitted)]
+   > venus-wallet import [command options] [\<path\> (optional, will read from stdin if omitted)]
+
 ```shell script
 $ ./venus-wallet import
 Enter private key:7b2254797065223a22736563703235366b31222c22507269766174654b6579223a22626e765665386d53587171346173384633654c647a7438794a6d68764e434c377132795a6c6657784341303d227d
 
-#res 
+#res
 imported key t12mchblwgi243re5i2pg2harmnqvm6q3rwb2cnpy successfully!
 ```
+
 3. Export the private key
-> venus-wallet export [command options] [address]
+   > venus-wallet export [command options] [address]
+
 ```shell script
 $ ./venus-wallet export t12mchblwgi243re5i2pg2harmnqvm6q3rwb2cnpy
 
@@ -183,6 +209,7 @@ $ ./venus-wallet export t12mchblwgi243re5i2pg2harmnqvm6q3rwb2cnpy
 ```
 
 4. View address list
+
 ```shell script
 $ ./venus-wallet list
 
@@ -190,32 +217,36 @@ t3uktqgxtagiyk5cxrjn5h4wq4v247saxtfukfi6zsvt4sek2q2ufkg27biasg7247zhdpm2kpotukws
 t3rcgmzisnusxvwrwvi7l5hcuissvmluvkrzfuehjdfawba75qlv3mxl6rtnxitt33z5fuwds76rbcyafhxrua
 t12mchblwgi243re5i2pg2harmnqvm6q3rwb2cnpy
 ```
-> Show all private key corresponding address, there are spec and bls two kinds of address
-5. Delete the specified private key
+
+> Show all private key corresponding address, there are spec and bls two kinds of address 5. Delete the specified private key
 > venus-wallet del [command options] \<address\>
+
 ```shell script
 $ ./venus-wallet del t12mchblwgi243re5i2pg2harmnqvm6q3rwb2cnpy
 
-#res 
+#res
 success
 ```
 
 ### JWTauthoritymanagement
+
 For remote access interface authorization
 
 1. Gets the remote connection string
-> venus-wallet auth api-info [command options] [arguments...]
+   > venus-wallet auth api-info [command options] [arguments...]
+
 ```shell script
 $ ./venus-wallet auth api-info --perm admin
 
 #res
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.q3xz5oucOoT3xwMTct8pWMBrvhi_gizOz6QBgK-nOwc:/ip4/0.0.0.0/tcp/5678/http
 ```
+
 - perm has four kinds of permissions: read, write, sign and Admin. They are generated by the corresponding `JWT` configuration in the configuration file and will not change dynamically.
 
 ### Config in venus
 
-format: `token:muitiaddr`. 
+format: `token:muitiaddr`.
 
 ```json
 {

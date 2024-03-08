@@ -3,7 +3,9 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"os"
 
+	"github.com/howeyc/gopass"
 	"github.com/urfave/cli/v2"
 
 	"github.com/ipfs-force-community/sophon-auth/core"
@@ -53,6 +55,24 @@ var authApiInfoToken = &cli.Command{
 
 		if idx == 0 {
 			return fmt.Errorf("--perm flag has to be one of: %s", allPermissions)
+		}
+
+		if perm == core.PermAdmin || perm == core.PermSign {
+			api, closer, err := helper.GetFullAPI(cctx)
+			if err != nil {
+				return err
+			}
+			defer closer()
+
+			pw, err := gopass.GetPasswdPrompt("Password:", true, os.Stdin, os.Stdout)
+			if err != nil {
+				return err
+			}
+
+			ctx := helper.ReqContext(cctx)
+			if err := api.VerifyPassword(ctx, string(pw)); err != nil {
+				return err
+			}
 		}
 
 		// slice on [:idx] so for example: 'sign' gives you [read, write, sign]
