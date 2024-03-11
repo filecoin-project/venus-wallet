@@ -19,7 +19,7 @@ func TestSignFilter_CheckSignMsg(t *testing.T) {
 	assert.NoError(t, err)
 
 	header := &types.Message{}
-	testutil.Provide(nil, &header)
+	testutil.Provide(t, header)
 	toAddr, err := address.NewIDAddress(1001)
 	assert.NoError(t, err)
 	header.From = addr
