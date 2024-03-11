@@ -1,5 +1,9 @@
 # venus-wallet changelog
 
+## v1.15.0-rc1
+
+* build(deps): bump golang.org/x/crypto from 0.14.0 to 0.17.0 [[#165](https://github.com/filecoin-project/venus-wallet/pull/165)]
+
 ## v1.14.0
 
 ## v1.14.0-rc2
@@ -31,11 +35,11 @@
 
 ## v1.12.0
 
-* fix: panic when ParseObj is nil by @diwufeiwen in https://github.com/filecoin-project/venus-wallet/pull/134
-* opt: use toml lib to decode config by @simlecode in https://github.com/filecoin-project/venus-wallet/pull/138
-* feat: upgrade the way of generating all permissions by @diwufeiwen in https://github.com/filecoin-project/venus-wallet/pull/139
-* fix: correctly generate token of api by @diwufeiwen in https://github.com/filecoin-project/venus-wallet/pull/140
-* fix: permission not found by @simlecode in https://github.com/filecoin-project/venus-wallet/pull/142
+* fix: panic when ParseObj is nil [[#134](https://github.com/filecoin-project/venus-wallet/pull/134)]
+* opt: use toml lib to decode config [[#138](https://github.com/filecoin-project/venus-wallet/pull/138)]
+* feat: upgrade the way of generating all permissions [[#139](https://github.com/filecoin-project/venus-wallet/pull/139)]
+* fix: correctly generate token of api [[#140](https://github.com/filecoin-project/venus-wallet/pull/140)]
+* fix: permission not found [[#142](https://github.com/filecoin-project/venus-wallet/pull/142)]
 
 ## v1.11.0
 
