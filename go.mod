@@ -11,14 +11,14 @@ require (
 	github.com/filecoin-project/go-cbor-util v0.0.1
 	github.com/filecoin-project/go-crypto v0.0.1
 	github.com/filecoin-project/go-jsonrpc v0.1.8
-	github.com/filecoin-project/go-state-types v0.13.0-rc.2
-	github.com/filecoin-project/venus v1.15.0-rc1
+	github.com/filecoin-project/go-state-types v0.13.1
+	github.com/filecoin-project/venus v1.15.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.3.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
-	github.com/ipfs-force-community/sophon-auth v1.15.0-rc1
-	github.com/ipfs-force-community/sophon-gateway v1.15.0-rc1
+	github.com/ipfs-force-community/sophon-auth v1.15.0
+	github.com/ipfs-force-community/sophon-gateway v1.15.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/mitchellh/go-homedir v1.1.0

@@ -1,6 +1,6 @@
 # venus-wallet changelog
 
-## v1.15.0-rc1
+## v1.15.0
 
 * build(deps): bump golang.org/x/crypto from 0.14.0 to 0.17.0 [[#165](https://github.com/filecoin-project/venus-wallet/pull/165)]
 
