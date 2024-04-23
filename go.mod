@@ -1,6 +1,6 @@
 module github.com/filecoin-project/venus-wallet
 
-go 1.19
+go 1.21
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
@@ -22,7 +22,7 @@ require (
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/multiformats/go-multiaddr v0.12.2
+	github.com/multiformats/go-multiaddr v0.12.3
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.4
