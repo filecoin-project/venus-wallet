@@ -7,7 +7,7 @@ jobs:
   test_all:
     executor:
       name: go/default
-      tag: "cimg/go:1.21.7"
+      tag: "cimg/go:1.22.8"
     steps:
       - go/setup_env:
           install_ffi: true

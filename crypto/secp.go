@@ -6,9 +6,9 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/venus/venus-shared/types"
-	"github.com/minio/blake2b-simd"
+	"golang.org/x/crypto/blake2b"
 
-	c1 "github.com/filecoin-project/go-state-types/crypto"
+	c2 "github.com/filecoin-project/go-state-types/crypto"
 )
 
 type secpPrivateKey struct {
@@ -36,13 +36,13 @@ func (p *secpPrivateKey) Public() []byte {
 	return crypto.PublicKey(p.key)
 }
 
-func (p *secpPrivateKey) Sign(msg []byte) (*c1.Signature, error) {
+func (p *secpPrivateKey) Sign(msg []byte) (*c2.Signature, error) {
 	b2sum := blake2b.Sum256(msg)
 	sig, err := crypto.Sign(p.key, b2sum[:])
 	if err != nil {
 		return nil, err
 	}
-	return &c1.Signature{
+	return &c2.Signature{
 		Data: sig,
 		Type: p.Type(),
 	}, nil
