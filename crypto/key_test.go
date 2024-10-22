@@ -33,7 +33,7 @@ func TestSecpPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key sign data err:%s", err)
 	}
-	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "4c49bacbd5a1e9734595d77a7ae8909ae35859e182344c0f1c081d8fdc6749302d50ae81d0d80c9c4be9cf3071bf7b0c465a19aea1023b21239b8bbdffd0ca8d01")
+	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "34a3d789cee65244de625a147d90af6c57cc1875fae8077689c5364298208e931b38122203a47e89990ab79a059759783bf57b224f27b63d632c5c7fea2da04c00")
 }
 
 func TestBls2KGen(t *testing.T) {
@@ -60,7 +60,7 @@ func TestBLSPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key parse address error:%s", err)
 	}
-	assert.Equal(t, addr.String(), "t3tho7tbdrw3xuy6ybz6p5tfc7nsqqa2ozhsrnmhwynrb3keeaeywe3felidbpgvy2wcxktmxcezlpz7pbu5pq")
+	assert.Equal(t, addr.String(), "f3tho7tbdrw3xuy6ybz6p5tfc7nsqqa2ozhsrnmhwynrb3keeaeywe3felidbpgvy2wcxktmxcezlpz7pbu5pq")
 
 	signData := []byte("hello filecoin")
 	signature, err := prv.Sign(signData)
@@ -95,7 +95,7 @@ func TestDelegatedPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key sign data err:%s", err)
 	}
-	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "e8f6ad5958dde03013e45fc77f71238cd0013af0d05ec5569007f70ffa7d2453007e7a581dcdf6d9f8e89846de210b74b188d8e1d2629f2d351e9e92f08be29600")
+	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "48afd9f624ea4159c86e4c04fa517ec8e6e1e403a6fafda38df9499c54b505aa77504b3100d07e894490e039d39141d887f27b843ca43bf893ceb0c78f0034e700")
 
 	assert.NilError(t, delegatedVerify(signature.Data, addr, signData))
 }
