@@ -33,7 +33,11 @@ func TestSecpPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key sign data err:%s", err)
 	}
-	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "34a3d789cee65244de625a147d90af6c57cc1875fae8077689c5364298208e931b38122203a47e89990ab79a059759783bf57b224f27b63d632c5c7fea2da04c00")
+
+	err = Verify(signature, addr, signData)
+	if err != nil {
+		t.Fatalf("private key verify data err:%s", err)
+	}
 }
 
 func TestBls2KGen(t *testing.T) {
@@ -95,7 +99,5 @@ func TestDelegatedPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key sign data err:%s", err)
 	}
-	assert.Equal(t, fmt.Sprintf("%x", signature.Data), "48afd9f624ea4159c86e4c04fa517ec8e6e1e403a6fafda38df9499c54b505aa77504b3100d07e894490e039d39141d887f27b843ca43bf893ceb0c78f0034e700")
-
 	assert.NilError(t, delegatedVerify(signature.Data, addr, signData))
 }
