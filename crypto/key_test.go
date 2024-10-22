@@ -26,7 +26,7 @@ func TestSecpPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key parse address error:%s", err)
 	}
-	assert.Equal(t, addr.String(), "t17rmoshisxovfjkrox2gpryaupmsalzy2tlaluiq")
+	assert.Equal(t, addr.String(), "f17rmoshisxovfjkrox2gpryaupmsalzy2tlaluiq")
 
 	signData := []byte("hello filecoin")
 	signature, err := prv.Sign(signData)
@@ -88,7 +88,7 @@ func TestDelegatedPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("private key parse address error:%s", err)
 	}
-	assert.Equal(t, addr.String(), "t410fnz6o7a4owcgw33z2zvsxtuf64aoxlmcn4dh5hzy")
+	assert.Equal(t, addr.String(), "f410fnz6o7a4owcgw33z2zvsxtuf64aoxlmcn4dh5hzy")
 
 	signData := []byte("hello filecoin")
 	signature, err := prv.Sign(signData)
