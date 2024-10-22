@@ -20,7 +20,6 @@ require (
 	github.com/ipfs-force-community/sophon-auth v1.16.0
 	github.com/ipfs-force-community/sophon-gateway v1.17.0-rc1
 	github.com/ipfs/go-log/v2 v2.5.1
-	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/multiformats/go-multiaddr v0.13.0
 	github.com/spf13/cast v1.5.0
