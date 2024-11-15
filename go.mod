@@ -11,14 +11,14 @@ require (
 	github.com/filecoin-project/go-cbor-util v0.0.1
 	github.com/filecoin-project/go-crypto v0.1.0
 	github.com/filecoin-project/go-jsonrpc v0.6.0
-	github.com/filecoin-project/go-state-types v0.15.0-rc1
-	github.com/filecoin-project/venus v1.17.0-rc2
+	github.com/filecoin-project/go-state-types v0.15.0
+	github.com/filecoin-project/venus v1.17.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/google/uuid v1.6.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/ipfs-force-community/sophon-auth v1.16.0
-	github.com/ipfs-force-community/sophon-gateway v1.17.0-rc1
+	github.com/ipfs-force-community/sophon-gateway v1.17.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/multiformats/go-multiaddr v0.13.0
@@ -29,7 +29,7 @@ require (
 	github.com/urfave/cli/v2 v2.25.5
 	go.opencensus.io v0.24.0
 	go.uber.org/fx v1.22.1
-	golang.org/x/crypto v0.27.0
+	golang.org/x/crypto v0.28.0
 	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e
 	gorm.io/driver/sqlite v1.5.1
 	gorm.io/gorm v1.25.0
@@ -63,7 +63,7 @@ require (
 	github.com/filecoin-project/go-bitfield v0.2.4 // indirect
 	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc7 // indirect
 	github.com/filecoin-project/go-ds-versioning v0.1.2 // indirect
-	github.com/filecoin-project/go-f3 v0.7.0 // indirect
+	github.com/filecoin-project/go-f3 v0.7.2 // indirect
 	github.com/filecoin-project/go-fil-markets v1.28.2 // indirect
 	github.com/filecoin-project/go-hamt-ipld v0.1.5 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v2 v2.0.0 // indirect
@@ -120,7 +120,7 @@ require (
 	github.com/ipfs/go-ipfs-ds-help v1.1.1 // indirect
 	github.com/ipfs/go-ipfs-exchange-interface v0.2.1 // indirect
 	github.com/ipfs/go-ipfs-util v0.0.3 // indirect
-	github.com/ipfs/go-ipld-cbor v0.1.0 // indirect
+	github.com/ipfs/go-ipld-cbor v0.2.0 // indirect
 	github.com/ipfs/go-ipld-format v0.6.0 // indirect
 	github.com/ipfs/go-ipld-legacy v0.2.1 // indirect
 	github.com/ipfs/go-log v1.0.5 // indirect
@@ -183,7 +183,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/uber/jaeger-client-go v2.25.0+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	github.com/whyrusleeping/cbor-gen v0.1.2 // indirect
+	github.com/whyrusleeping/cbor-gen v0.2.0 // indirect
 	github.com/whyrusleeping/go-logging v0.0.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
@@ -204,9 +204,9 @@ require (
 	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/term v0.24.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/term v0.25.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
