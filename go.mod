@@ -36,7 +36,7 @@ require (
 	gotest.tools v2.2.0+incompatible
 )
 
-require github.com/golang/glog v1.2.0 // indirect
+require github.com/golang/glog v1.2.4 // indirect
 
 require (
 	contrib.go.opencensus.io/exporter/graphite v0.0.0-20200424223504-26b90655e0ce // indirect
