@@ -2,11 +2,10 @@ package sqlite
 
 import (
 	"testing"
-	"time"
 
 	assert2 "gotest.tools/assert"
 
-	"golang.org/x/exp/rand"
+	"math/rand/v2"
 
 	"github.com/filecoin-project/venus/venus-shared/types"
 
@@ -29,8 +28,11 @@ func setup(t *testing.T) storage.KeyStore {
 
 func randBytes(t *testing.T, length int) []byte {
 	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	assert.NoError(t, err)
+	r := rand.New(rand.NewPCG(1, 3))
+	for i := 0; i < int(length); i++ {
+		bytes[i] = byte(r.Uint())
+	}
+
 	return bytes
 }
 
@@ -51,7 +53,6 @@ func mockData(t *testing.T, keyStore storage.KeyStore, addr string) ([]byte, []b
 
 func Test_sqliteStorage_PutAndList(t *testing.T) {
 	keyStore := setup(t)
-	rand.Seed(uint64(time.Now().Unix()))
 
 	addr := "f3uyk4vweulsdbeqfnx7g4swk2zaa4p5xnmcuqvecyuwoggvlfagruxippti2v7sc2lzyop72pyrkr2ks2xc7q"
 	mockData(t, keyStore, addr)
@@ -66,7 +67,6 @@ func Test_sqliteStorage_PutAndList(t *testing.T) {
 
 func Test_sqliteStorage_HasGet(t *testing.T) {
 	keyStore := setup(t)
-	rand.Seed(uint64(time.Now().Unix()))
 
 	addr, _ := address.NewFromString("f3uyk4vweulsdbeqfnx7g4swk2zaa4p5xnmcuqvecyuwoggvlfagruxippti2v7sc2lzyop72pyrkr2ks2xc7q")
 	k1pass, k1data := mockData(t, keyStore, addr.String())
@@ -105,7 +105,6 @@ func Test_sqliteStorage_HasGet(t *testing.T) {
 
 func Test_sqliteStorage_Delete(t *testing.T) {
 	keyStore := setup(t)
-	rand.Seed(uint64(time.Now().Unix()))
 
 	addr, _ := address.NewFromString("f3uyk4vweulsdbeqfnx7g4swk2zaa4p5xnmcuqvecyuwoggvlfagruxippti2v7sc2lzyop72pyrkr2ks2xc7q")
 	mockData(t, keyStore, addr.String())
