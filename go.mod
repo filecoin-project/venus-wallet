@@ -30,7 +30,6 @@ require (
 	go.opencensus.io v0.24.0
 	go.uber.org/fx v1.23.0
 	golang.org/x/crypto v0.36.0
-	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
 	gorm.io/driver/sqlite v1.5.1
 	gorm.io/gorm v1.25.0
 	gotest.tools v2.2.0+incompatible
@@ -203,6 +202,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
+	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
 	golang.org/x/mod v0.23.0 // indirect
 	golang.org/x/net v0.36.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
