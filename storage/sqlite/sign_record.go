@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -52,7 +53,7 @@ func (s *sqliteSignRecord) toSignRecord() *storage.SignRecord {
 		CreateAt:  s.CreatedAt,
 		Type:      s.Type,
 		Signer:    MustParseAddress(s.Signer),
-		Err:       fmt.Errorf(s.Err),
+		Err:       errors.New(s.Err),
 		RawMsg:    s.RawMsg,
 		Signature: s.Signature,
 	}
