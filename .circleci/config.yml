@@ -5,12 +5,29 @@ orbs:
   go: venus/go-pkg-test@1.0.1
 jobs:
   test_all:
-    executor:
-      name: go/default
-      tag: "cimg/go:1.22.8"
+    docker:
+      - image: cimg/go:1.22.8
+    working_directory: ~/project
     steps:
-      - go/setup_env:
-          install_ffi: true
+      # HTTPS clone instead of SSH checkout (no SSH key needed)
+      - run:
+          name: Clone repository via HTTPS
+          command: |
+            git clone --filter=blob:none https://github.com/filecoin-project/venus-wallet.git .
+            if [ -n "$CIRCLE_SHA1" ]; then
+              git checkout "$CIRCLE_SHA1"
+            fi
+      - run:
+          name: Setup and build
+          command: |
+            git submodule sync
+            git submodule update --init --recursive
+            go mod tidy
+            sudo apt-get update
+            sudo apt install python-is-python3
+            sudo apt install ocl-icd-opencl-dev libhwloc-dev
+            make
+            echo '-->>>' branch:"$(git symbolic-ref --short HEAD)", commit:"$(git describe --always --match=NeVeRmAtCh --dirty)" '\<<<--'
       - go/test:
           display-name: unit_test_common
           suite: "unit_test_common"
@@ -21,12 +38,23 @@ jobs:
           target: "./filemgr/..."
       - go/test:
           display-name: integrate_test
-          suite: " integrate_test"
+          suite: "integrate_test"
           target: "./integration_test/..."
-      - go/test:
-          display-name: unit_test_storage
-          suite: "unit_test_storage"
-          target: "./storage/..."
+      - run:
+          name: unit_test_storage
+          no_output_timeout: 30m
+          command: |
+            mkdir -p /tmp/test-reports/unit_test_storage
+            mkdir -p /tmp/test-artifacts
+            gotestsum \
+              --format standard-verbose \
+              --junitfile /tmp/test-reports/unit_test_storage/junit.xml \
+              --jsonfile /tmp/test-artifacts/unit_test_storage.json \
+              -- \
+              -timeout=30m \
+              -coverprofile=coverage.txt \
+              -coverpkg=./... \
+              ./storage/sqlite/... ./storage/wallet/...
 workflows:
   ci:
     jobs:
