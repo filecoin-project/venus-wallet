@@ -269,8 +269,8 @@ github.com/filecoin-project/specs-actors/v7 v7.0.1 h1:w72xCxijK7xs1qzmJiw+WYJaVt
 github.com/filecoin-project/specs-actors/v7 v7.0.1/go.mod h1:tPLEYXoXhcpyLh69Ccq91SOuLXsPWjHiY27CzawjUEk=
 github.com/filecoin-project/specs-storage v0.4.1 h1:yvLEaLZj8f+uByhNC4mFOtCUyL2wQku+NGBp6hjTe9M=
 github.com/filecoin-project/specs-storage v0.4.1/go.mod h1:Z2eK6uMwAOSLjek6+sy0jNV2DSsMEENziMUz0GHRFBw=
-github.com/filecoin-project/venus v1.20.0-rc1 h1:7QZ5UExwimyUEhAvKxDzaHXbUqdseHeghJwzfpriwcU=
-github.com/filecoin-project/venus v1.20.0-rc1/go.mod h1:1Jhpz5PAmQl3t4jkDtxHemvgpn92M6m+YE9omlySkzs=
+github.com/filecoin-project/venus v1.20.0 h1:ZpdVCeN9MsbtXhVscWtIks3zAH75IAJkips7iMM9HBo=
+github.com/filecoin-project/venus v1.20.0/go.mod h1:1Jhpz5PAmQl3t4jkDtxHemvgpn92M6m+YE9omlySkzs=
 github.com/flynn/noise v1.1.0 h1:KjPQoQCEFdZDiP03phOvGi11+SVVhBG2wOWAorLsstg=
 github.com/flynn/noise v1.1.0/go.mod h1:xbMo+0i6+IGbYdJhF31t2eR1BIU0CYc12+BNAKwUTag=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
@@ -491,8 +491,8 @@ github.com/ipfs-force-community/metrics v1.0.1-0.20240725062356-39b286636574 h1:
 github.com/ipfs-force-community/metrics v1.0.1-0.20240725062356-39b286636574/go.mod h1:VJhKwTZEUTTgJI/uPmfJrslV4xdANy/FjkWLLx89J8k=
 github.com/ipfs-force-community/sophon-auth v1.16.0 h1:H0k77sXoUIQz/HvE7go7JYY516leUK5Mj8oU1CBRM1s=
 github.com/ipfs-force-community/sophon-auth v1.16.0/go.mod h1:EULqhA9AwHU7QP20AmjfGEergph2J6NuBivVnphb7/4=
-github.com/ipfs-force-community/sophon-gateway v1.20.0-rc1 h1:ovlOggFvxS4Qq8RQnpUYrrFfHZHulvAOkB8z6F2zGlI=
-github.com/ipfs-force-community/sophon-gateway v1.20.0-rc1/go.mod h1:uO7oTuwkzJJgLXVSPUPNIeT20ltmQNy53rKza9AF2OU=
+github.com/ipfs-force-community/sophon-gateway v1.20.0 h1:uuTIq+x+H3VTGrF2hsfINz8/YaEmGsiyUoSaXTfXfLo=
+github.com/ipfs-force-community/sophon-gateway v1.20.0/go.mod h1:gFWNqCHbKlVUSiUUE9cUboyhZH0PGrR+EjI/EIIT2MA=
 github.com/ipfs/bbloom v0.0.1/go.mod h1:oqo8CVWsJFMOZqTglBG4wydCE4IQA/G2/SEofB0rjUI=
 github.com/ipfs/bbloom v0.0.4 h1:Gi+8EGJ2y5qiD5FbsbpX/TMNcJw8gSqr7eyjHa4Fhvs=
 github.com/ipfs/bbloom v0.0.4/go.mod h1:cS9YprKXpoZ9lT0n/Mw/a6/aFV6DTjTLYHeA+gyqMG0=
