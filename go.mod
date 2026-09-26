@@ -18,7 +18,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/ipfs-force-community/sophon-auth v1.16.0
-	github.com/ipfs-force-community/sophon-gateway v1.20.0
+	github.com/ipfs-force-community/sophon-gateway v1.21.0-rc1
 	github.com/ipfs/go-log/v2 v2.9.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/multiformats/go-multiaddr v0.16.1
